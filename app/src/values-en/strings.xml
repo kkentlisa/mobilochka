@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TSU Campus</string>
+
+    <string name="header_title">Campus services</string>
+    <string name="language_button">Русская версия</string>
+
+    <string name="algo_astar">Navigation (A*)</string>
+    <string name="algo_clustering">Food Zones (Clustering)</string>
+    <string name="algo_genetic">Route (Genetic)</string>
+    <string name="algo_ants">Coworking  (Ants)</string>
+    <string name="algo_tree">Lunch Choice (Tree)</string>
+    <string name="algo_neural">Rating (Neural)</string>
+
+    <string name="tsu_logo">TSU logo</string>
+
+    <string name="menu_open">Open menu</string>
+    <string name="menu_close">Close menu</string>
+</resources>

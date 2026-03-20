@@ -1,3 +1,18 @@
 <resources>
-    <string name="app_name">mobilo4ka</string>
+    <string name="app_name">Кампус ТГУ</string>
+
+    <string name="header_title">Сервисы кампуса</string>
+    <string name="language_button">English version</string>
+
+    <string name="algo_astar">Навигация (А*)</string>
+    <string name="algo_clustering">Зоны еды (Clustering)</string>
+    <string name="algo_genetic">Маршрут (Genetic)</string>
+    <string name="algo_ants">Коворкинг (Ants)</string>
+    <string name="algo_tree">Выбор обеда (Tree)</string>
+    <string name="algo_neural">Оценка (Neural)</string>
+
+    <string name="tsu_logo">Логотип ТГУ</string>
+
+    <string name="menu_open">Открыть меню</string>
+    <string name="menu_close">Закрыть меню</string>
 </resources>
