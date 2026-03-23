@@ -4,7 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -12,12 +13,31 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.mobilo4ka.R
+import com.example.mobilo4ka.ui.theme.ButtonLarge
 import com.example.mobilo4ka.ui.theme.Dimens
+
+
+data class ButtonData(
+    val titleRes: Int,
+    val iconRes: Int
+)
+
+val buttons = listOf(
+    ButtonData(R.string.algo_astar, R.drawable.ic_astar),
+    ButtonData(R.string.algo_clustering, R.drawable.ic_clustering),
+    ButtonData(R.string.algo_genetic, R.drawable.ic_genetic),
+    ButtonData(R.string.algo_ants, R.drawable.ic_ants),
+    ButtonData(R.string.algo_tree, R.drawable.ic_tree),
+    ButtonData(R.string.algo_neural, R.drawable.ic_neural)
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,11 +95,7 @@ fun MainScreen(){
                 ),
                 userScrollEnabled = !isMenuExpanded
             ) {
-                val buttons = listOf(
-                    R.string.algo_astar, R.string.algo_clustering, R.string.algo_genetic,
-                    R.string.algo_ants, R.string.algo_tree, R.string.algo_neural
-                )
-                items(buttons) { buttonTitle ->
+                items(buttons) { button ->
                     Button(
                         onClick = {},
                         modifier = Modifier
@@ -91,12 +107,27 @@ fun MainScreen(){
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = Dimens.shadowHeight)
 
                     ) {
-                        Text(
-                            text = stringResource(buttonTitle),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = button.iconRes),
+                                contentDescription = null,
+                                modifier = Modifier.size(Dimens.iconSize),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+
+                            Spacer(modifier = Modifier.width(Dimens.paddingMedium))
+
+                            Text(
+                                text = stringResource(button.titleRes),
+                                style = ButtonLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.Left
+                            )
+                        }
                     }
                 }
             }
