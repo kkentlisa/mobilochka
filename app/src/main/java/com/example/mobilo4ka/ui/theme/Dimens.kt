@@ -8,5 +8,13 @@ object Dimens{
     val paddingLarge = 16.dp
 
     val logoSize = 40.dp
-    val iconSize = 24.dp
+
+    val buttonHeight = 120.dp
+    val spacingLarge = 16.dp
+
+    val shadowHeight = 2.dp
+
+    val buttonCornerRadius = 8.dp
+
+    val topBarHeight = 90.dp
 }
