@@ -1,8 +1,9 @@
-package com.example.mobilo4ka.ui
+package com.example.mobilo4ka.ui.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,29 +20,33 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.mobilo4ka.R
+import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.ButtonLarge
 import com.example.mobilo4ka.ui.theme.Dimens
 
 
 data class ButtonData(
     val titleRes: Int,
-    val iconRes: Int
+    val iconRes: Int,
+    val route: String
 )
 
-val buttons = listOf(
-    ButtonData(R.string.algo_astar, R.drawable.ic_astar),
-    ButtonData(R.string.algo_clustering, R.drawable.ic_clustering),
-    ButtonData(R.string.algo_genetic, R.drawable.ic_genetic),
-    ButtonData(R.string.algo_ants, R.drawable.ic_ants),
-    ButtonData(R.string.algo_tree, R.drawable.ic_tree),
-    ButtonData(R.string.algo_neural, R.drawable.ic_neural)
+private val buttons = listOf(
+    ButtonData(R.string.algo_astar, R.drawable.ic_astar, "astar"),
+    ButtonData(R.string.algo_clustering, R.drawable.ic_clustering, "clustering"),
+    ButtonData(R.string.algo_genetic, R.drawable.ic_genetic, "genetic"),
+    ButtonData(R.string.algo_ants, R.drawable.ic_ants, "ants"),
+    ButtonData(R.string.algo_tree, R.drawable.ic_tree, "tree"),
+    ButtonData(R.string.algo_neural, R.drawable.ic_neural, "neural")
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(){
-    var isMenuExpanded by remember { mutableStateOf(false) }
-    var currentLanguage by remember { mutableStateOf("ru") }
+fun MainScreen(
+    state: MainUiState,
+    onToggleMenu: () -> Unit,
+    onNavigate: (String) -> Unit
+){
+    SetStatusBarColor(isLight = false)
 
     Scaffold(
         topBar = {
@@ -68,11 +73,11 @@ fun MainScreen(){
                 Spacer(modifier = Modifier.weight(1f))
 
                 IconButton(
-                    onClick = { isMenuExpanded = !isMenuExpanded }
+                    onClick = onToggleMenu
                 ) {
                     Icon(
-                        imageVector = if (isMenuExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (isMenuExpanded) stringResource(R.string.menu_close)
+                        imageVector = if (state.isMenuExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        contentDescription = if (state.isMenuExpanded) stringResource(R.string.menu_close)
                         else stringResource(R.string.menu_open),
                         tint = MaterialTheme.colorScheme.onPrimary,
                     )
@@ -91,52 +96,26 @@ fun MainScreen(){
                     top = Dimens.paddingLarge,
                     bottom = Dimens.paddingLarge
                 ),
-                userScrollEnabled = !isMenuExpanded
+                userScrollEnabled = !state.isMenuExpanded
             ) {
                 items(buttons) { button ->
-                    Button(
-                        onClick = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = Dimens.paddingLarge)
-                            .height(Dimens.buttonHeight),
-                        shape = RoundedCornerShape(Dimens.buttonCornerRadius),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = Dimens.shadowHeight)
-
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = button.iconRes),
-                                contentDescription = null,
-                                modifier = Modifier.size(Dimens.iconSize),
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                            )
-
-                            Spacer(modifier = Modifier.width(Dimens.paddingMedium))
-
-                            Text(
-                                text = stringResource(button.titleRes),
-                                style = ButtonLarge,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Left
-                            )
-                        }
-                    }
+                    AlgorithmButton(
+                        titleRes = button.titleRes,
+                        iconRes = button.iconRes,
+                        onClick = { onNavigate(button.route) }
+                    )
                 }
             }
 
-            if (isMenuExpanded){
-
+            if (state.isMenuExpanded){
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
-                        .clickable { isMenuExpanded = false }
+                        .clickable (
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { onToggleMenu() }
                 )
 
                 Column(
@@ -150,9 +129,7 @@ fun MainScreen(){
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                currentLanguage = if (currentLanguage == "ru") "en" else "ru"
-                            }
+                            .clickable {}
                             .padding(Dimens.paddingMedium),
                         verticalAlignment = Alignment.CenterVertically
                     ){
@@ -165,6 +142,47 @@ fun MainScreen(){
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun AlgorithmButton(
+    titleRes: Int,
+    iconRes: Int,
+    onClick : () -> Unit
+){
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Dimens.paddingLarge)
+            .height(Dimens.buttonHeight),
+        shape = RoundedCornerShape(Dimens.buttonCornerRadius),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = Dimens.shadowHeight)
+
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(Dimens.iconSize),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+            )
+
+            Spacer(modifier = Modifier.width(Dimens.paddingMedium))
+
+            Text(
+                text = stringResource(titleRes),
+                style = ButtonLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Left
+            )
         }
     }
 }

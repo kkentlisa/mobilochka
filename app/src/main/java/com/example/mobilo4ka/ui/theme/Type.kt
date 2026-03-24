@@ -40,5 +40,5 @@ val Typography = Typography(
 val ButtonLarge = TextStyle(
     fontFamily = FontFamily.SansSerif,
     fontWeight = FontWeight.Medium,
-    fontSize = 20.sp,
+    fontSize = 19.sp,
 )
