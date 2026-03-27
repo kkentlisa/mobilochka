@@ -4,11 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,9 +20,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
-import com.example.mobilo4ka.ui.theme.ButtonLarge
 import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
+import com.example.mobilo4ka.ui.theme.Typography
 
 data class ChatMessage(
     val text: String?,
@@ -42,6 +43,7 @@ fun TreeScreen() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TreeScreenContent() {
     SetStatusBarColor(false)
@@ -151,22 +153,19 @@ fun TreeScreenContent() {
                             containerColor = MaterialTheme.colorScheme.surface
                         )
                     ) {
-                        LazyColumn(
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(
-                                start = 16.dp,
-                                end = 16.dp,
-                                top = 16.dp,
-                                bottom = 16.dp
-                            )
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(questions[currentQuestionIndex].options) { option ->
                                 AnswerButton(
                                     text = option,
-                                    onClick = { handleAnswer(option) }
+                                    onClick = { handleAnswer(option) },
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
                         }
@@ -215,7 +214,8 @@ fun MessageBubble(message: ChatMessage) {
 @Composable
 fun AnswerButton(
     text: String?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier
 ) {
     Button(
         onClick = onClick,
@@ -230,7 +230,7 @@ fun AnswerButton(
             Text(
                 text = text,
                 modifier = Modifier.padding(vertical = 8.dp),
-                style = ButtonLarge
+                style = Typography.bodyMedium
             )
         }
     }
