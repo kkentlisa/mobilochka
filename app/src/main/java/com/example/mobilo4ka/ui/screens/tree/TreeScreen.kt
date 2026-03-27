@@ -7,10 +7,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -21,14 +24,14 @@ import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 
 data class ChatMessage(
-    val text: String,
+    val text: String?,
     val isUser: Boolean,
     val timestamp: Long = System.currentTimeMillis()
 )
 
 data class Question(
     val text: String,
-    val options: List<String>
+    val options: List<String?>
 )
 
 
@@ -41,27 +44,23 @@ fun TreeScreen() {
 
 @Composable
 fun TreeScreenContent() {
-    SetStatusBarColor(true)
+    SetStatusBarColor(false)
+
+
+    val context = LocalContext.current
 
     var messages by remember { mutableStateOf(listOf<ChatMessage>()) }
-    var currentQuestionIndex by remember { mutableStateOf(0) }
+    var currentQuestionIndex by remember { mutableIntStateOf(0) }
     var showOptions by remember { mutableStateOf(true) }
 
     val questions = listOf(
-        Question("Где вы находитесь?",
-            listOf("Главный корпус", "Кампусная территория ",
-                "Московский тракт", "Автобусная остановка ТГУ", "Общежитие 5, 6", "Горсад")),
-        Question("Какой у вас бюджет?",
-            listOf("Маленький", "Средний", "Большой")),
-        Question("Сколько времени есть?",
-            listOf("Меньше 5 мин", "5-15 мин", "Более 15 мин")),
-        Question("Что вам нужно?",
-            listOf("Полноценный прием пищи", "Продукты", "Блины", "Выпечка",
-                "Кофе", "Напитки", "Перекус", "Мороженное")),
-        Question("Готовы ждать очередь?",
-            listOf("Да", "Нет")),
-        Question("Какая погода?",
-            listOf("Хорошая", "Плохая"))
+        Question(context.getString(R.string.question_location), context.resources.getStringArray(R.array.options_location).toList()),
+        Question(context.getString(R.string.question_budget), context.resources.getStringArray(R.array.options_budget).toList()),
+        Question(context.getString(R.string.question_time), context.resources.getStringArray(R.array.options_time).toList()),
+        Question(context.getString(R.string.question_food), context.resources.getStringArray(R.array.options_food).toList()),
+        Question(context.getString(R.string.question_queue), context.resources.getStringArray(R.array.options_queue).toList()),
+        Question(context.getString(R.string.question_weather), context.resources.getStringArray(R.array.options_weather).toList()),
+
     )
 
     val listState = rememberLazyListState()
@@ -74,11 +73,11 @@ fun TreeScreenContent() {
 
     LaunchedEffect(Unit) {
         if (messages.isEmpty()) {
-            messages = messages + ChatMessage(questions[0].text, isUser = false)
+            messages = messages + ChatMessage( questions[0].text, isUser = false)
         }
     }
 
-    fun handleAnswer(answer: String) {
+    fun handleAnswer(answer: String?) {
         messages = messages + ChatMessage(answer, isUser = true)
 
         if (currentQuestionIndex + 1 < questions.size) {
@@ -86,7 +85,7 @@ fun TreeScreenContent() {
             messages = messages + ChatMessage(questions[currentQuestionIndex].text, isUser = false)
         } else {
             showOptions = false
-            messages = messages + ChatMessage("Спасибо за ответы! Ищу подходящее место...", isUser = false)
+            messages = messages + ChatMessage(context.getString(R.string.answer_find), isUser = false)
         }
     }
 
@@ -95,85 +94,81 @@ fun TreeScreenContent() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-        ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
+        Scaffold(
+            topBar = {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .background(MaterialTheme.colorScheme.primary)
+                        .statusBarsPadding()
+                        .padding(Dimens.paddingLarge),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
                 ) {
                     Image(
-                        painter = painterResource(id = com.example.mobilo4ka.R.drawable.ic_tree),
+                        painter = painterResource(id = R.drawable.ic_tree),
                         contentDescription = stringResource(R.string.algo_tree),
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(Dimens.logoSize)
                     )
-
-                    Spacer(modifier = Modifier.width(12.dp))
 
                     Text(
-                        text = "Помощник выбора места",
+                        text = context.getString(R.string.algo_tree),
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(start = Dimens.paddingSmall)
                     )
                 }
             }
-
-            LazyColumn(
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = Dimens.paddingLarge),
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
-                items(messages) { message ->
-                    MessageBubble(message = message)
-                }
-            }
-
-            if (showOptions && currentQuestionIndex < questions.size) {
-                Card(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(Dimens.paddingLarge)
-                        .heightIn(max = 300.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
+                        .weight(1f)
+                        .padding(horizontal = Dimens.paddingLarge),
+                    state = listState,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
-                    androidx.compose.foundation.lazy.LazyColumn(
+                    items(messages) { message ->
+                        MessageBubble(message = message)
+                    }
+                }
+
+                if (showOptions && currentQuestionIndex < questions.size) {
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 16.dp,
-                            bottom = 16.dp
+                            .padding(Dimens.paddingLarge)
+                            .heightIn(max = 300.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
                         )
                     ) {
-                        items(questions[currentQuestionIndex].options) { option ->
-                            AnswerButton(
-                                text = option,
-                                onClick = { handleAnswer(option) }
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                top = 16.dp,
+                                bottom = 16.dp
                             )
+                        ) {
+                            items(questions[currentQuestionIndex].options) { option ->
+                                AnswerButton(
+                                    text = option,
+                                    onClick = { handleAnswer(option) }
+                                )
+                            }
                         }
                     }
                 }
@@ -205,19 +200,21 @@ fun MessageBubble(message: ChatMessage) {
                 bottomEnd = if (message.isUser) 4.dp else 16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-            Text(
-                text = message.text,
-                modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            message.text?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(12.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
 
 @Composable
 fun AnswerButton(
-    text: String,
+    text: String?,
     onClick: () -> Unit
 ) {
     Button(
@@ -229,10 +226,12 @@ fun AnswerButton(
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(vertical = 8.dp),
-            style = ButtonLarge
-        )
+        if (text != null) {
+            Text(
+                text = text,
+                modifier = Modifier.padding(vertical = 8.dp),
+                style = ButtonLarge
+            )
+        }
     }
 }
