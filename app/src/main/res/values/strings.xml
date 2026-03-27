@@ -42,7 +42,7 @@
 
     <string name="question_food">Что вам нужно?</string>
     <string-array name="options_food">
-        <item>Полноценный прием пищи</item>
+        <item>Прием пищи</item>
         <item>Продукты</item>
         <item>Блины</item>
         <item>Выпечка</item>

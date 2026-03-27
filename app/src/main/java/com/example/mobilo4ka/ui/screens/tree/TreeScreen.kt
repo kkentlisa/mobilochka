@@ -63,7 +63,7 @@ fun TreeScreenContent() {
         Question(context.getString(R.string.question_queue), context.resources.getStringArray(R.array.options_queue).toList()),
         Question(context.getString(R.string.question_weather), context.resources.getStringArray(R.array.options_weather).toList()),
 
-    )
+        )
 
     val listState = rememberLazyListState()
 
@@ -198,7 +198,7 @@ fun MessageBubble(message: ChatMessage) {
                 bottomStart = if (message.isUser) 16.dp else 4.dp,
                 bottomEnd = if (message.isUser) 4.dp else 16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-            ) {
+        ) {
             message.text?.let {
                 Text(
                     text = it,
@@ -215,7 +215,7 @@ fun MessageBubble(message: ChatMessage) {
 fun AnswerButton(
     text: String?,
     onClick: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
