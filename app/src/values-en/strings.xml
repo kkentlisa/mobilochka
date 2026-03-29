@@ -20,8 +20,8 @@
     <string name="question_location">Где вы находитесь?</string>
     <string-array name="options_location">
         <item>Главный корпус</item>
-        <item>Кампусная территория</item>
         <item>Московский тракт</item>
+        <item>Кампусная территория</item>
         <item>Автобусная остановка ТГУ</item>
         <item>Общежитие 5, 6</item>
         <item>Горсад</item>

@@ -19,22 +19,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.mobilo4ka.R
+import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
+import com.example.mobilo4ka.algorithms.tree.Question
+import com.example.mobilo4ka.algorithms.tree.Place
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 import com.example.mobilo4ka.ui.theme.Typography
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 data class ChatMessage(
     val text: String?,
     val isUser: Boolean,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val id: Long = System.currentTimeMillis()
 )
-
-data class Question(
-    val text: String,
-    val options: List<String?>
-)
-
 
 @Composable
 fun TreeScreen() {
@@ -48,46 +48,79 @@ fun TreeScreen() {
 fun TreeScreenContent() {
     SetStatusBarColor(false)
 
-
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-    var messages by remember { mutableStateOf(listOf<ChatMessage>()) }
+    val messages = remember { mutableStateListOf<ChatMessage>() }
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
     var showOptions by remember { mutableStateOf(true) }
-
-    val questions = listOf(
-        Question(context.getString(R.string.question_location), context.resources.getStringArray(R.array.options_location).toList()),
-        Question(context.getString(R.string.question_budget), context.resources.getStringArray(R.array.options_budget).toList()),
-        Question(context.getString(R.string.question_time), context.resources.getStringArray(R.array.options_time).toList()),
-        Question(context.getString(R.string.question_food), context.resources.getStringArray(R.array.options_food).toList()),
-        Question(context.getString(R.string.question_queue), context.resources.getStringArray(R.array.options_queue).toList()),
-        Question(context.getString(R.string.question_weather), context.resources.getStringArray(R.array.options_weather).toList()),
-
-        )
+    var currentQuestions by remember { mutableStateOf<List<Question>>(emptyList()) }
+    var isSearching by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()
 
+    LaunchedEffect(Unit) {
+        TreeAlgorithm.loadPlaces(context)
+        currentQuestions = TreeAlgorithm.getQuestions(context)
+        if (currentQuestions.isNotEmpty()) {
+            messages.add(ChatMessage(currentQuestions[0].text, isUser = false))
+        }
+    }
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
         }
     }
 
-    LaunchedEffect(Unit) {
-        if (messages.isEmpty()) {
-            messages = messages + ChatMessage( questions[0].text, isUser = false)
+    fun showSearchingMessage() {
+        val searchingMessage = ChatMessage(context.getString(R.string.answer_find), isUser = false)
+        messages.add(searchingMessage)
+
+        scope.launch {
+            delay(1000)
+            messages.remove(searchingMessage)
         }
     }
 
     fun handleAnswer(answer: String?) {
-        messages = messages + ChatMessage(answer, isUser = true)
+        if (answer == null || currentQuestions.isEmpty() || isSearching) return
 
-        if (currentQuestionIndex + 1 < questions.size) {
+        val currentQuestion = currentQuestions[currentQuestionIndex]
+
+        messages.add(ChatMessage(answer, isUser = true))
+
+        TreeAlgorithm.filterByAnswer(currentQuestion.typeAnswer, answer)
+
+        val updatedQuestions = TreeAlgorithm.getQuestions(context)
+
+        if (currentQuestionIndex + 1 < updatedQuestions.size) {
+            currentQuestions = updatedQuestions
             currentQuestionIndex++
-            messages = messages + ChatMessage(questions[currentQuestionIndex].text, isUser = false)
+            messages.add(ChatMessage(currentQuestions[currentQuestionIndex].text, isUser = false))
         } else {
-            showOptions = false
-            messages = messages + ChatMessage(context.getString(R.string.answer_find), isUser = false)
+            showSearchingMessage()
+            isSearching = true
+
+            scope.launch {
+                delay(1000)
+
+                val finalPlaces = TreeAlgorithm.getFinalPlaces()
+                showOptions = false
+                isSearching = false
+
+                val resultMessage = buildString {
+                    if (finalPlaces.isNotEmpty()) {
+                        appendLine("${context.getString(R.string.count_answer)}${finalPlaces.size}")
+                        appendLine()
+                        finalPlaces.forEach { place ->
+                            appendLine("   ${place.recommendedPlace}")
+                            appendLine("   ${place.address}")
+                            appendLine()
+                        }
+                    }
+                }
+                messages.add(ChatMessage(resultMessage, isUser = false))
+            }
         }
     }
 
@@ -111,7 +144,6 @@ fun TreeScreenContent() {
                         contentDescription = stringResource(R.string.algo_tree),
                         modifier = Modifier.size(Dimens.logoSize)
                     )
-
                     Text(
                         text = context.getString(R.string.algo_tree),
                         style = MaterialTheme.typography.titleLarge,
@@ -141,12 +173,12 @@ fun TreeScreenContent() {
                     }
                 }
 
-                if (showOptions && currentQuestionIndex < questions.size) {
+                if (showOptions && currentQuestions.isNotEmpty() && currentQuestionIndex < currentQuestions.size && !isSearching) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(Dimens.paddingLarge)
-                            .heightIn(max = 300.dp),
+                            .heightIn(max = 400.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
@@ -161,7 +193,7 @@ fun TreeScreenContent() {
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            items(questions[currentQuestionIndex].options) { option ->
+                            items(currentQuestions[currentQuestionIndex].options) { option ->
                                 AnswerButton(
                                     text = option,
                                     onClick = { handleAnswer(option) },
@@ -169,6 +201,30 @@ fun TreeScreenContent() {
                                 )
                             }
                         }
+                    }
+                }
+
+                if (!showOptions && !isSearching) {
+                    Button(
+                        onClick = {
+                            messages.clear()
+                            currentQuestionIndex = 0
+                            showOptions = true
+                            currentQuestions = TreeAlgorithm.getQuestions(context)
+                            TreeAlgorithm.reset()
+                            currentQuestions = TreeAlgorithm.getQuestions(context)
+                            if (currentQuestions.isNotEmpty()) {
+                                messages.add(ChatMessage(currentQuestions[0].text, isUser = false))
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dimens.paddingLarge, vertical = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(context.getString(R.string.again_button))
                     }
                 }
             }
@@ -196,7 +252,8 @@ fun MessageBubble(message: ChatMessage) {
                 topStart = 16.dp,
                 topEnd = 16.dp,
                 bottomStart = if (message.isUser) 16.dp else 4.dp,
-                bottomEnd = if (message.isUser) 4.dp else 16.dp),
+                bottomEnd = if (message.isUser) 4.dp else 16.dp
+            ),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             message.text?.let {
@@ -219,7 +276,7 @@ fun AnswerButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground
