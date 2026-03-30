@@ -18,52 +18,10 @@
     <string name="menu_close">Close menu</string>
 
     <string name="question_location">Где вы находитесь?</string>
-    <string-array name="options_location">
-        <item>Главный корпус</item>
-        <item>Московский тракт</item>
-        <item>Кампусная территория</item>
-        <item>Автобусная остановка ТГУ</item>
-        <item>Общежитие 5, 6</item>
-        <item>Горсад</item>
-    </string-array>
-
     <string name="question_budget">Какой у вас бюджет?</string>
-    <string-array name="options_budget">
-        <item>Маленький</item>
-        <item>Средний</item>
-        <item>Большой</item>
-    </string-array>
-
     <string name="question_time">Сколько времени есть?</string>
-    <string-array name="options_time">
-        <item>Меньше 5 мин</item>
-        <item>5–15 мин</item>
-        <item>Более 15 мин</item>
-    </string-array>
-
     <string name="question_food">Что вам нужно?</string>
-    <string-array name="options_food">
-        <item>Прием пищи</item>
-        <item>Продукты</item>
-        <item>Блины</item>
-        <item>Выпечка</item>
-        <item>Кофе</item>
-        <item>Напитки</item>
-        <item>Перекус</item>
-        <item>Мороженное</item>
-    </string-array>
-
     <string name="question_queue">Готовы ждать очередь?</string>
-    <string-array name="options_queue">
-        <item>Да</item>
-        <item>Нет</item>
-    </string-array>
-
-    <string name="question_weather">Какая погода?</string>
-    <string-array name="options_weather">
-        <item>Хорошая</item>
-        <item>Плохая</item>
-    </string-array>
-
+     <string name="question_weather">Какая погода?</string>
     <string name="answer_find">"Спасибо за ответы! Ищу подходящее место..."</string>
 </resources>

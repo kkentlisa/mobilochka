@@ -7,9 +7,9 @@ import java.io.InputStreamReader
 
 data class Place(
     val location: String,
-    val budget: List<String>,
-    val timeAvailable: List<String>,
     val foodType: List<String>,
+    val timeAvailable: List<String>,
+    val budget: List<String>,
     val queueTolerance: List<String>,
     val weather: List<String>,
     val recommendedPlace: String,
@@ -46,9 +46,9 @@ object TreeAlgorithm {
                 typeAnswer = "location"
             ),
             Question(
-                text = context.getString(R.string.question_budget),
-                options = places.flatMap { it.budget }.distinct(),
-                typeAnswer = "budget"
+                text = context.getString(R.string.question_food),
+                options = places.flatMap { it.foodType }.distinct(),
+                typeAnswer = "foodType"
             ),
             Question(
                 text = context.getString(R.string.question_time),
@@ -56,9 +56,9 @@ object TreeAlgorithm {
                 typeAnswer = "timeAvailable"
             ),
             Question(
-                text = context.getString(R.string.question_food),
-                options = places.flatMap { it.foodType }.distinct(),
-                typeAnswer = "foodType"
+                text = context.getString(R.string.question_budget),
+                options = places.flatMap { it.budget }.distinct(),
+                typeAnswer = "budget"
             ),
             Question(
                 text = context.getString(R.string.question_queue),
@@ -72,22 +72,21 @@ object TreeAlgorithm {
             )
         )
 
-        return allQuestions.filter { it.options.size > 1 }
+        return allQuestions
     }
 
     fun filterByAnswer(typeAnswer: String, answer: String) {
         currentPlaces = when (typeAnswer) {
             "location" -> currentPlaces.filter { it.location.contains(answer) }
-            "budget" -> currentPlaces.filter { it.budget.contains(answer) }
-            "timeAvailable" -> currentPlaces.filter { it.timeAvailable.contains(answer) }
             "foodType" -> currentPlaces.filter { it.foodType.contains(answer) }
+            "timeAvailable" -> currentPlaces.filter { it.timeAvailable.contains(answer) }
+            "budget" -> currentPlaces.filter { it.budget.contains(answer) }
             "queueTolerance" -> currentPlaces.filter { it.queueTolerance.contains(answer) }
             "weather" -> currentPlaces.filter { it.weather.contains(answer) }
             else -> currentPlaces
         }.distinctBy { it.recommendedPlace }
     }
 
-    fun getCurrentPlaces(): List<Place> = currentPlaces
 
     fun getFinalPlaces(): List<Place> = currentPlaces
 
@@ -111,9 +110,9 @@ object TreeAlgorithm {
                     if (columns.size >= 8) {
                         val place = Place(
                             location = columns[0].trim(),
-                            budget = parseList(columns[1]),
+                            foodType = parseList(columns[1]),
                             timeAvailable = parseList(columns[2]),
-                            foodType = parseList(columns[3]),
+                            budget = parseList(columns[3]),
                             queueTolerance = parseList(columns[4]),
                             weather = parseList(columns[5]),
                             recommendedPlace = columns[6].trim(),

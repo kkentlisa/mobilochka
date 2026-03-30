@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
 import com.example.mobilo4ka.algorithms.tree.Question
-import com.example.mobilo4ka.algorithms.tree.Place
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
+import com.example.mobilo4ka.ui.theme.AppAlpha
 import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 import com.example.mobilo4ka.ui.theme.Typography
@@ -93,9 +93,16 @@ fun TreeScreenContent() {
 
         val updatedQuestions = TreeAlgorithm.getQuestions(context)
 
-        if (currentQuestionIndex + 1 < updatedQuestions.size) {
+        var nextIndex = currentQuestionIndex + 1
+        while (nextIndex < updatedQuestions.size && updatedQuestions[nextIndex].options.size <= 1) {
+            val autoQuestion = updatedQuestions[nextIndex]
+            TreeAlgorithm.filterByAnswer(autoQuestion.typeAnswer, autoQuestion.options.first())
+            nextIndex++
+        }
+
+        if (nextIndex < updatedQuestions.size) {
             currentQuestions = updatedQuestions
-            currentQuestionIndex++
+            currentQuestionIndex = nextIndex
             messages.add(ChatMessage(currentQuestions[currentQuestionIndex].text, isUser = false))
         } else {
             showSearchingMessage()
@@ -165,8 +172,8 @@ fun TreeScreenContent() {
                         .weight(1f)
                         .padding(horizontal = Dimens.paddingLarge),
                     state = listState,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp)
+                    verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
+                    contentPadding = PaddingValues(vertical = Dimens.paddingLarge)
                 ) {
                     items(messages) { message ->
                         MessageBubble(message = message)
@@ -179,8 +186,8 @@ fun TreeScreenContent() {
                             .fillMaxWidth()
                             .padding(Dimens.paddingLarge)
                             .heightIn(max = 400.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingSmall),
+                        shape = RoundedCornerShape(Dimens.paddingLarge),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surface
                         )
@@ -189,9 +196,9 @@ fun TreeScreenContent() {
                             columns = GridCells.Fixed(2),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                .padding(Dimens.paddingLarge),
+                            horizontalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
+                            verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
                         ) {
                             items(currentQuestions[currentQuestionIndex].options) { option ->
                                 AnswerButton(
@@ -219,7 +226,10 @@ fun TreeScreenContent() {
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = Dimens.paddingLarge, vertical = 8.dp),
+                            .padding(
+                                horizontal = Dimens.paddingLarge,
+                                vertical = Dimens.paddingSmall
+                            ),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
@@ -240,26 +250,26 @@ fun MessageBubble(message: ChatMessage) {
     ) {
         Card(
             modifier = Modifier
-                .widthIn(max = 280.dp)
-                .padding(horizontal = 8.dp),
+                .widthIn(max = Dimens.cardWeight)
+                .padding(horizontal = Dimens.paddingSmall),
             colors = CardDefaults.cardColors(
                 containerColor = if (message.isUser)
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    MaterialTheme.colorScheme.primary.copy(alpha = AppAlpha.USER_MESSAGE)
                 else
                     MaterialTheme.colorScheme.surface
             ),
             shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (message.isUser) 16.dp else 4.dp,
-                bottomEnd = if (message.isUser) 4.dp else 16.dp
+                topStart = Dimens.paddingLarge,
+                topEnd = Dimens.paddingLarge,
+                bottomStart = if (message.isUser) Dimens.paddingLarge else Dimens.buttonSmall,
+                bottomEnd = if (message.isUser) Dimens.buttonSmall else Dimens.paddingLarge
             ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingDefault)
         ) {
             message.text?.let {
                 Text(
                     text = it,
-                    modifier = Modifier.padding(12.dp),
+                    modifier = Modifier.padding(Dimens.paddingMedium),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -281,12 +291,12 @@ fun AnswerButton(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(Dimens.paddingMedium)
     ) {
         if (text != null) {
             Text(
                 text = text,
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = Modifier.padding(vertical = Dimens.paddingMedium),
                 style = Typography.bodyMedium
             )
         }
