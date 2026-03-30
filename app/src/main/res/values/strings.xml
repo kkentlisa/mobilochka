@@ -9,10 +9,24 @@
     <string name="algo_genetic">Маршрут по заведениям (Genetic)</string>
     <string name="algo_ants">Коворкинги (Ants)</string>
     <string name="algo_tree">Где поесть (Tree)</string>
-    <string name="algo_neural">Оценить заведение (Neural)</string>
+    <string name="algo_neural">Оценить заведение</string>
 
     <string name="tsu_logo">Логотип ТГУ</string>
 
     <string name="menu_open">Открыть меню</string>
     <string name="menu_close">Закрыть меню</string>
+
+    <string name="question_location">Где вы находитесь?</string>
+    <string name="question_budget">Какой у вас бюджет?</string>
+    <string name="question_time">Сколько времени есть?</string>
+    <string name="question_food">Что вам нужно?</string>
+    <string name="question_queue">Готовы ждать очередь?</string>
+    <string name="question_weather">Какая погода?</string>
+
+    <string name="answer_find">Спасибо за ответы! Ищу подходящее место…</string>
+    <string name="count_answer">Найдено мест: </string>
+    <string name="again_button">Пройти опрос заново</string>
+    
+    <string name="neural_button_recognize">Распознать</string>
+    <string name="neural_button_clear">Стереть</string>
 </resources>
