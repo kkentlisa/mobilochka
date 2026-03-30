@@ -17,11 +17,15 @@
     <string name="menu_open">Open menu</string>
     <string name="menu_close">Close menu</string>
 
-    <string name="question_location">Где вы находитесь?</string>
-    <string name="question_budget">Какой у вас бюджет?</string>
-    <string name="question_time">Сколько времени есть?</string>
-    <string name="question_food">Что вам нужно?</string>
-    <string name="question_queue">Готовы ждать очередь?</string>
-     <string name="question_weather">Какая погода?</string>
-    <string name="answer_find">"Спасибо за ответы! Ищу подходящее место..."</string>
+    <string name="question_location">Where are you?</string>
+    <string name="question_budget">Where are you?</string>
+    <string name="question_time">How much time do you have?</string>
+    <string name="question_food">What do you need?</string>
+    <string name="question_queue">Are you willing to wait in a queue?</string>
+    <string name="question_weather">What’s the weather like?</string>
+
+
+    <string name="answer_find">Thanks for your answers! I’m looking for a suitable place...</string>
+    <string name="count_answer">Places found: </string>
+    <string name="again_button">Take the survey again</string>
 </resources>
