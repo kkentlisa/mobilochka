@@ -10,7 +10,7 @@
     <string name="algo_genetic">Route through establishments (Genetic)</string>
     <string name="algo_ants">Coworking spaces (Ants)</string>
     <string name="algo_tree">Where to eat (Tree)</string>
-    <string name="algo_neural">Rate establishment (Neural)</string>
+    <string name="algo_neural">Rate establishment</string>
 
     <string name="tsu_logo">TSU logo</string>
 
@@ -66,4 +66,7 @@
     </string-array>
 
     <string name="answer_find">"Спасибо за ответы! Ищу подходящее место..."</string>
+
+    <string name="neural_button_recognize">Recognize</string>
+    <string name="neural_button_clear">Clear</string>
 </resources>

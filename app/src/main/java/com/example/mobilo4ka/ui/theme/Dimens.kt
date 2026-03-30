@@ -12,10 +12,12 @@ object Dimens{
     val buttonHeight = 120.dp
     val spacingLarge = 16.dp
 
-    val shadowHeight = 2.dp
+    val shadowHeight = 3.dp
 
     val buttonCornerRadius = 8.dp
+    val buttonRadius = 12.dp
 
+    val cardCornerRadius = 16.dp
     val topBarHeight = 100.dp
 
     val iconSize = 40.dp
