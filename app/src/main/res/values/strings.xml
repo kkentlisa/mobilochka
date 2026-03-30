@@ -4,12 +4,12 @@
     <string name="header_title">Сервисы кампуса</string>
     <string name="language_button">English version</string>
 
-    <string name="algo_astar">Навигация (А*)</string>
-    <string name="algo_clustering">Зоны еды (Clustering)</string>
-    <string name="algo_genetic">Маршрут (Genetic)</string>
-    <string name="algo_ants">Коворкинг (Ants)</string>
-    <string name="algo_tree">Выбор обеда (Tree)</string>
-    <string name="algo_neural">Оценка (Neural)</string>
+    <string name="algo_astar">Построить маршрут (А*)</string>
+    <string name="algo_clustering">Кафе, столовые и магазины (Clustering)</string>
+    <string name="algo_genetic">Маршрут по заведениям (Genetic)</string>
+    <string name="algo_ants">Коворкинги (Ants)</string>
+    <string name="algo_tree">Где поесть (Tree)</string>
+    <string name="algo_neural">Оценить заведение (Neural)</string>
 
     <string name="tsu_logo">Логотип ТГУ</string>
 

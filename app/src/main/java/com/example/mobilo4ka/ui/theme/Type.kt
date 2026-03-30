@@ -36,3 +36,9 @@ val Typography = Typography(
         letterSpacing = 0.1.sp
     )
 )
+
+val ButtonLarge = TextStyle(
+    fontFamily = FontFamily.SansSerif,
+    fontWeight = FontWeight.Medium,
+    fontSize = 19.sp,
+)
