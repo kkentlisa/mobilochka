@@ -14,6 +14,10 @@ private val ColorScheme = lightColorScheme(
     outline = TsuBlue
 )
 
+object AppAlpha {
+    const val USER_MESSAGE = 0.2f
+}
+
 @Composable
 fun Mobilo4kaTheme(
     content: @Composable () -> Unit
