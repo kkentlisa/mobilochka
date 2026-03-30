@@ -158,8 +158,7 @@ fun TreeScreenContent() {
                         modifier = Modifier.padding(start = Dimens.paddingSmall)
                     )
                 }
-            }
-        ) { paddingValues ->
+            }) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -223,14 +222,11 @@ fun TreeScreenContent() {
                             if (currentQuestions.isNotEmpty()) {
                                 messages.add(ChatMessage(currentQuestions[0].text, isUser = false))
                             }
-                        },
-                        modifier = Modifier
+                        }, modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                horizontal = Dimens.paddingLarge,
-                                vertical = Dimens.paddingSmall
-                            ),
-                        colors = ButtonDefaults.buttonColors(
+                                horizontal = Dimens.paddingLarge, vertical = Dimens.paddingSmall
+                            ), colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
@@ -251,20 +247,15 @@ fun MessageBubble(message: ChatMessage) {
         Card(
             modifier = Modifier
                 .widthIn(max = Dimens.cardWeight)
-                .padding(horizontal = Dimens.paddingSmall),
-            colors = CardDefaults.cardColors(
-                containerColor = if (message.isUser)
-                    MaterialTheme.colorScheme.primary.copy(alpha = AppAlpha.USER_MESSAGE)
-                else
-                    MaterialTheme.colorScheme.surface
-            ),
-            shape = RoundedCornerShape(
+                .padding(horizontal = Dimens.paddingSmall), colors = CardDefaults.cardColors(
+                containerColor = if (message.isUser) MaterialTheme.colorScheme.primary.copy(alpha = AppAlpha.USER_MESSAGE)
+                else MaterialTheme.colorScheme.surface
+            ), shape = RoundedCornerShape(
                 topStart = Dimens.paddingLarge,
                 topEnd = Dimens.paddingLarge,
                 bottomStart = if (message.isUser) Dimens.paddingLarge else Dimens.buttonSmall,
                 bottomEnd = if (message.isUser) Dimens.buttonSmall else Dimens.paddingLarge
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingDefault)
+            ), elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingDefault)
         ) {
             message.text?.let {
                 Text(
@@ -280,18 +271,13 @@ fun MessageBubble(message: ChatMessage) {
 
 @Composable
 fun AnswerButton(
-    text: String?,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    text: String?, onClick: () -> Unit, modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(
+        onClick = onClick, modifier = modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground
-        ),
-        shape = RoundedCornerShape(Dimens.paddingMedium)
+        ), shape = RoundedCornerShape(Dimens.paddingMedium)
     ) {
         if (text != null) {
             Text(
