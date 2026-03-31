@@ -98,7 +98,7 @@ object TreeAlgorithm {
         val places = mutableListOf<Place>()
 
         try {
-            val inputStream = context.assets.open("table/places.csv")
+            val inputStream = context.assets.open("table/version-ru/places.csv")
             val reader = BufferedReader(InputStreamReader(inputStream, "UTF-8"))
 
             reader.readLine()
