@@ -30,7 +30,7 @@ sealed class TreeNode {
     ) : TreeNode()
 
     data class Leaf(
-        val results: List<Pair<String, String>>  // Список пар (название места, адрес)
+        val results: List<Pair<String, String>>
     ) : TreeNode()
 }
 
@@ -56,41 +56,17 @@ object TreeAlgorithm {
             return
         }
 
-        val expandedData = allPlaces.flatMap { place ->
-            val attributeValues = questionsList.map { question ->
-                place.attributes[question.columnName]?.split(",")?.map { it.trim() } ?: emptyList()
-            }
-
-            val combinations = cartesianProduct(attributeValues)
-
-            if (combinations.isEmpty()) {
-                listOf(DataRow(place.attributes, place.result, place.address))
-            } else {
-                combinations.map { combination ->
-                    val values = mutableMapOf<String, String>()
-                    questionsList.forEachIndexed { index, question ->
-                        values[question.columnName] = combination.getOrNull(index) ?: ""
-                    }
-                    DataRow(values, place.result, place.address)
-                }
-            }
+        // Берем данные как есть, без декартова произведения
+        val data = allPlaces.map { place ->
+            DataRow(
+                values = place.attributes,
+                result = place.result,
+                address = place.address
+            )
         }
 
         val attributes = questionsList.map { it.columnName }
-        rootNode = buildTree(expandedData, attributes)
-    }
-
-    private fun cartesianProduct(lists: List<List<String>>): List<List<String>> {
-        if (lists.isEmpty()) return emptyList()
-        if (lists.any { it.isEmpty() }) return emptyList()
-
-        var result = lists.first().map { listOf(it) }
-        for (i in 1 until lists.size) {
-            result = result.flatMap { existing ->
-                lists[i].map { existing + it }
-            }
-        }
-        return result
+        rootNode = buildTree(data, attributes)
     }
 
     private fun buildTree(
@@ -106,7 +82,7 @@ object TreeAlgorithm {
             return TreeNode.Leaf(listOf(first.result to first.address))
         }
 
-        // Если нет атрибутов - лист со ВСЕМИ уникальными местами
+        // Если нет атрибутов - лист со всеми уникальными местами
         if (attributes.isEmpty()) {
             val places = data.map { it.result to it.address }.distinctBy { it.first }
             return TreeNode.Leaf(places)
@@ -116,11 +92,19 @@ object TreeAlgorithm {
         val question = questionsList.first { it.columnName == bestAttr }
         val remainingAttrs = attributes.filter { it != bestAttr }
 
-        val grouped = data.groupBy { it.values[bestAttr] }
+        // Получаем все возможные значения атрибута (с учетом мультизначений)
+        val allValues = data.flatMap { row ->
+            row.values[bestAttr]?.split(",")?.map { it.trim() } ?: emptyList()
+        }.distinct()
 
         val children = mutableMapOf<String, TreeNode>()
-        for ((value, subset) in grouped) {
-            if (value != null && subset.isNotEmpty()) {
+
+        for (value in allValues) {
+            val subset = data.filter { row ->
+                val values = row.values[bestAttr]?.split(",")?.map { it.trim() } ?: emptyList()
+                values.contains(value)
+            }
+            if (subset.isNotEmpty()) {
                 children[value] = buildTree(subset, remainingAttrs)
             }
         }
@@ -163,13 +147,24 @@ object TreeAlgorithm {
         attribute: String,
         totalEntropy: Double
     ): Double {
-        val grouped = data.groupBy { it.values[attribute] }
+        // Получаем все уникальные значения атрибута (с учетом мультизначений)
+        val allValues = data.flatMap { row ->
+            row.values[attribute]?.split(",")?.map { it.trim() } ?: emptyList()
+        }.distinct()
+
         var weightedEntropy = 0.0
 
-        for ((_, subset) in grouped) {
-            val weight = subset.size.toDouble() / data.size
-            val subsetEntropy = calculateEntropy(subset.map { it.result })
-            weightedEntropy += weight * subsetEntropy
+        for (value in allValues) {
+            val subset = data.filter { row ->
+                val values = row.values[attribute]?.split(",")?.map { it.trim() } ?: emptyList()
+                values.contains(value)
+            }
+
+            if (subset.isNotEmpty()) {
+                val weight = subset.size.toDouble() / data.size
+                val subsetEntropy = calculateEntropy(subset.map { it.result })
+                weightedEntropy += weight * subsetEntropy
+            }
         }
 
         return totalEntropy - weightedEntropy
@@ -181,7 +176,9 @@ object TreeAlgorithm {
         val node = currentNode as? TreeNode.Decision ?: return null
         val currentData = getCurrentData()
         val availableOptions = currentData
-            .mapNotNull { it.values[node.question.columnName] }
+            .flatMap { row ->
+                row.values[node.question.columnName]?.split(",")?.map { it.trim() } ?: emptyList()
+            }
             .distinct()
             .sorted()
 
@@ -189,23 +186,13 @@ object TreeAlgorithm {
     }
 
     private fun getCurrentData(): List<DataRow> {
-        var currentData = allPlaces.flatMap { place ->
-            val attributeValues = questionsList.map { question ->
-                place.attributes[question.columnName]?.split(",")?.map { it.trim() } ?: emptyList()
-            }
-
-            val combinations = cartesianProduct(attributeValues)
-            if (combinations.isEmpty()) {
-                listOf(DataRow(place.attributes, place.result, place.address))
-            } else {
-                combinations.map { combination ->
-                    val values = mutableMapOf<String, String>()
-                    questionsList.forEachIndexed { index, question ->
-                        values[question.columnName] = combination.getOrNull(index) ?: ""
-                    }
-                    DataRow(values, place.result, place.address)
-                }
-            }
+        // Берем данные как есть, без декартова произведения
+        var currentData = allPlaces.map { place ->
+            DataRow(
+                values = place.attributes,
+                result = place.result,
+                address = place.address
+            )
         }
 
         for (step in path) {
@@ -259,7 +246,7 @@ object TreeAlgorithm {
 
     fun getPath(): List<String> = path.map { "${it.first} → ${it.second}" }
 
-    fun isFinished(): Boolean = currentNode is TreeNode.Leaf || getResults().size <= 2
+    fun isFinished(): Boolean = currentNode is TreeNode.Leaf
 
     fun reset() {
         currentNode = rootNode
