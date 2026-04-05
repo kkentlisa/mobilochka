@@ -25,14 +25,6 @@
     <string name="base_table">Built-in CSV</string>
     <string name="again_button">Retake the survey</string>
 
-    <string name="question_location">Где вы находитесь?</string>
-    <string name="question_budget">Какой у вас бюджет?</string>
-    <string name="question_time">Сколько времени есть?</string>
-    <string name="question_food">Что вам нужно?</string>
-    <string name="question_queue">Готовы ждать очередь?</string>
-     <string name="question_weather">Какая погода?</string>
-    <string name="answer_find">"Спасибо за ответы! Ищу подходящее место..."</string>
-
     <string name="neural_button_recognize">Recognize</string>
     <string name="neural_button_clear">Clear</string>
 </resources>
