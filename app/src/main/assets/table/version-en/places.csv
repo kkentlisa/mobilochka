@@ -1,14 +1,14 @@
-﻿location;food_type;time_available;budget;queue_tolerance;weather;recommended_place;adress
+﻿Where are you?;What do you need?;How much time do you have?;What is your budget?;Are you prepared to wait in a queue?;What’s the weather like where you are?;Recommended place:;Address
 Moscow Road;Food, Coffee, Snacks, Ice cream, Drinks, Baked goods, Pastries;less than 5 mins, 5–15 mins, from 15 mins;Small, Medium, Large;No, Yes;Good;Abricos;17 Moscow Road
 Trolleybus stop;Food, Coffee, Snacks, Ice cream, Drinks, Baked goods, Pastries;less than 5 mins, 5–15 mins, from 15 mins;Small, Medium, Large;No, Yes;Good;Yarche;46 Soviet Street
 Moscow Road;Mealtime;from 15 mins;Medium, Large;Yes;Good;Bezymno;17 Moscow Road
-Halls of Residence 5 and 6;Mealtime;from 15 mins;Medium, Large;Yes;Good;Rostick's;51a Lenin Avenue
+Halls of Residence 5 or 6;Mealtime;from 15 mins;Medium, Large;Yes;Good;Rostick's;51a Lenin Avenue
 Main building;Pancakes;from 15 mins;Medium, Large;Yes;Good, Bad;Siberian pancakes;36 Lenin Avenue
 Main building;Meals, Coffee, Pastries;5–15 mins, from 15 mins;Medium, Large;No, Yes;Good, Bad;Starbooks;36 Lenin Avenue, Block 9
 Campus grounds;Meals, Coffee, Pastries;5–15 mins, from 15 mins;Medium, Large;No, Yes;Good;Starbooks;Moscow Road, 2g
 Moscow Road;Coffee;less than 5 mins, 5–15 mins, from 15 mins;Small, Medium, Large;No, Yes;Good, Bad;Coffee machine;Moscow Road, Building 2, Flat 7
 Main building;Mealtime;from 15 mins;Medium, Large;Yes;Good, Bad;Canteen No. 1;36 Lenin Avenue
-Halls of Residence 5 and 6;Food, Snacks, Ice cream, Drinks;5–15 mins, from 15 mins;Small, Medium, Large;No, Yes;Good;Bristol;63 Soviet Street
-Halls of Residence 5 and 6;Coffee;5–15 mins, from 15 mins;Large;No, Yes;Good;Point;47a Lenin Avenue
+Halls of Residence 5 or 6;Food, Snacks, Ice cream, Drinks;5–15 mins, from 15 mins;Small, Medium, Large;No, Yes;Good;Bristol;63 Soviet Street
+Halls of Residence 5 or 6;Coffee;5–15 mins, from 15 mins;Large;No, Yes;Good;Point;47a Lenin Avenue
 Bus stop;Ice cream;5–15 mins, from 15 mins;Large;No, Yes;Good;33 Penguins;63/1 Lenin Avenue, kiosk
 Bus stop;Coffee, Pastries;from 15 mins;Large;No, Yes;Good;Baba Roma;63 Lenin Avenue

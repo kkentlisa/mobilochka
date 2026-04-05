@@ -1,6 +1,8 @@
 package com.example.mobilo4ka.ui.screens.tree
 
-import androidx.compose.foundation.Image
+import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,26 +17,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
-import com.example.mobilo4ka.algorithms.tree.Question
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.AppAlpha
-import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 import com.example.mobilo4ka.ui.theme.Typography
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.example.mobilo4ka.R
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import android.net.Uri
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import com.example.mobilo4ka.ui.theme.Dimens
+import com.example.mobilo4ka.ui.theme.Dimens.cardWeight
 
-data class ChatMessage(
-    val text: String?,
-    val isUser: Boolean,
-    val timestamp: Long = System.currentTimeMillis(),
-    val id: Long = System.currentTimeMillis()
-)
+data class ChatMessage(val text: String, val isUser: Boolean)
 
 @Composable
 fun TreeScreen() {
@@ -47,95 +48,105 @@ fun TreeScreen() {
 @Composable
 fun TreeScreenContent() {
     SetStatusBarColor(false)
-
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    val messages = remember { mutableStateListOf<ChatMessage>() }
-    var currentQuestionIndex by remember { mutableIntStateOf(0) }
-    var showOptions by remember { mutableStateOf(true) }
-    var currentQuestions by remember { mutableStateOf<List<Question>>(emptyList()) }
-    var isSearching by remember { mutableStateOf(false) }
-
     val listState = rememberLazyListState()
 
-    LaunchedEffect(Unit) {
-        TreeAlgorithm.loadPlaces(context)
-        currentQuestions = TreeAlgorithm.getQuestions(context)
-        if (currentQuestions.isNotEmpty()) {
-            messages.add(ChatMessage(currentQuestions[0].text, isUser = false))
+    val messages = remember { mutableStateListOf<ChatMessage>() }
+    var showOptions by remember { mutableStateOf(false) }
+    var isSearching by remember { mutableStateOf(false) }
+    var firstStepCompleted by remember { mutableStateOf(false) }
+    var userCsvUploaded by remember { mutableStateOf(false) }
+    var showCsvBlock by remember { mutableStateOf(false) }
+
+    val csvLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                try {
+                    context.contentResolver.openInputStream(it)?.bufferedReader()?.use { reader ->
+                        val csvContent = reader.readText()
+                        TreeAlgorithm.saveUserCsv(context, csvContent)
+                        TreeAlgorithm.loadPlaces(context, "user_places.csv")
+                        TreeAlgorithm.reset()
+                        TreeAlgorithm.getCurrentQuestion()?.let { first ->
+                            messages.add(ChatMessage(first.text, isUser = false))
+                            showOptions = true
+                        }
+                        userCsvUploaded = true
+                        showCsvBlock = false
+                        firstStepCompleted = true
+                    }
+                } catch (e: Exception) {
+                    messages.add(ChatMessage(context.getString(R.string.error_file) + "${e.message}", isUser = false))
+                }
+            }
         }
-    }
+    )
+
     LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
-            listState.animateScrollToItem(messages.size - 1)
-        }
+        if (messages.isNotEmpty()) listState.animateScrollToItem(messages.size - 1)
     }
 
-    fun showSearchingMessage() {
-        val searchingMessage = ChatMessage(context.getString(R.string.answer_find), isUser = false)
-        messages.add(searchingMessage)
-
-        scope.launch {
-            delay(1000)
-            messages.remove(searchingMessage)
-        }
+    LaunchedEffect(Unit) {
+        messages.add(ChatMessage(context.getString(R.string.type_table), isUser = false))
+        showOptions = true
     }
 
-    fun handleAnswer(answer: String?) {
-        if (answer == null || currentQuestions.isEmpty() || isSearching) return
-
-        val currentQuestion = currentQuestions[currentQuestionIndex]
-
+    fun handleAnswer(answer: String) {
+        if (isSearching) return
         messages.add(ChatMessage(answer, isUser = true))
 
-        TreeAlgorithm.filterByAnswer(currentQuestion.typeAnswer, answer)
+        if (!firstStepCompleted) {
+            when (answer) {
+                context.getString(R.string.base_table) -> {
+                    TreeAlgorithm.loadPlaces(context)
+                    TreeAlgorithm.reset()
+                    firstStepCompleted = true
+                }
+                context.getString(R.string.input_table) -> {
+                    showCsvBlock = true
+                    messages.add(ChatMessage(context.getString(R.string.download_file), isUser = false))
+                    return
+                }
+            }
 
-        val updatedQuestions = TreeAlgorithm.getQuestions(context)
-
-        var nextIndex = currentQuestionIndex + 1
-        while (nextIndex < updatedQuestions.size && updatedQuestions[nextIndex].options.size <= 1) {
-            val autoQuestion = updatedQuestions[nextIndex]
-            TreeAlgorithm.filterByAnswer(autoQuestion.typeAnswer, autoQuestion.options.first())
-            nextIndex++
+            TreeAlgorithm.getCurrentQuestion()?.let { first ->
+                messages.add(ChatMessage(first.text, isUser = false))
+                showOptions = true
+            }
+            return
         }
 
-        if (nextIndex < updatedQuestions.size) {
-            currentQuestions = updatedQuestions
-            currentQuestionIndex = nextIndex
-            messages.add(ChatMessage(currentQuestions[currentQuestionIndex].text, isUser = false))
+        TreeAlgorithm.answerSelected(answer)
+
+        if (!TreeAlgorithm.isFinished()) {
+            TreeAlgorithm.getCurrentQuestion()?.let { next ->
+                messages.add(ChatMessage(next.text, isUser = false))
+                showOptions = true
+            }
         } else {
-            showSearchingMessage()
+            showOptions = false
             isSearching = true
-
             scope.launch {
-                delay(1000)
-
-                val finalPlaces = TreeAlgorithm.getFinalPlaces()
-                showOptions = false
-                isSearching = false
+                delay(500)
+                val result = TreeAlgorithm.getResult()
+                val address = TreeAlgorithm.getAddress()
+                val path = TreeAlgorithm.getPath()
 
                 val resultMessage = buildString {
-                    if (finalPlaces.isNotEmpty()) {
-                        appendLine("${context.getString(R.string.count_answer)}${finalPlaces.size}")
-                        appendLine()
-                        finalPlaces.forEach { place ->
-                            appendLine("   ${place.recommendedPlace}")
-                            appendLine("   ${place.address}")
-                            appendLine()
-                        }
-                    }
+                    appendLine("$result \n$address")
+                    appendLine()
+                    appendLine(context.getString(R.string.output_tree))
+                    path.forEach { appendLine("→ $it") }
                 }
                 messages.add(ChatMessage(resultMessage, isUser = false))
+                isSearching = false
             }
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         Scaffold(
             topBar = {
                 Row(
@@ -145,20 +156,36 @@ fun TreeScreenContent() {
                         .statusBarsPadding()
                         .padding(Dimens.paddingLarge),
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_tree),
-                        contentDescription = stringResource(R.string.algo_tree),
-                        modifier = Modifier.size(Dimens.logoSize)
-                    )
-                    Text(
-                        text = context.getString(R.string.algo_tree),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(start = Dimens.paddingSmall)
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_tree),
+                            contentDescription = stringResource(R.string.algo_tree),
+                            modifier = Modifier.size(Dimens.logoSize)
+                        )
+                        Text(
+                            text = stringResource(R.string.algo_tree),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(start = Dimens.paddingSmall)
+                        )
+                    }
+
+                    if (showCsvBlock && !userCsvUploaded) {
+                        IconButton(
+                            onClick = { csvLauncher.launch("text/csv") }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = context.getString(R.string.input_table),
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
                 }
-            }) { paddingValues ->
+            }
+        ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -174,63 +201,94 @@ fun TreeScreenContent() {
                     verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
                     contentPadding = PaddingValues(vertical = Dimens.paddingLarge)
                 ) {
-                    items(messages) { message ->
-                        MessageBubble(message = message)
+                    items(messages) { msg ->
+                        MessageBubble(msg)
                     }
                 }
 
-                if (showOptions && currentQuestions.isNotEmpty() && currentQuestionIndex < currentQuestions.size && !isSearching) {
-                    Card(
+                if (!firstStepCompleted && !showCsvBlock) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(Dimens.paddingLarge)
-                            .heightIn(max = 400.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingSmall),
-                        shape = RoundedCornerShape(Dimens.paddingLarge),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
+                            .padding(Dimens.paddingLarge),
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
                     ) {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(Dimens.paddingLarge),
-                            horizontalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
-                            verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
-                        ) {
-                            items(currentQuestions[currentQuestionIndex].options) { option ->
-                                AnswerButton(
-                                    text = option,
-                                    onClick = { handleAnswer(option) },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                        item {
+                            AnswerButton(context.getString(R.string.base_table))
+                            { handleAnswer(context.getString(R.string.base_table)) }
+                        }
+                        item {
+                            AnswerButton(context.getString(R.string.input_table))
+                            { handleAnswer(context.getString(R.string.input_table)) }
+                        }
+                    }
+                }
+
+                if (showCsvBlock && !userCsvUploaded) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Dimens.paddingLarge),
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
+                    ) {
+                        item {
+                            AnswerButton(context.getString(R.string.base_table)) {
+                                handleAnswer(context.getString(R.string.base_table))
+                                showCsvBlock = false
                             }
                         }
                     }
                 }
 
-                if (!showOptions && !isSearching) {
+                if (showOptions && firstStepCompleted && !isSearching) {
+                    TreeAlgorithm.getCurrentQuestion()?.let { question ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(Dimens.paddingLarge)
+                                .heightIn(max = Dimens.cardWeight),
+                            elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingSmall),
+                            shape = RoundedCornerShape(Dimens.paddingLarge),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(Dimens.paddingLarge)
+                                    .heightIn(max = Dimens.cardWeight),
+                                horizontalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
+                                verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
+                            ) {
+                                items(question.options) { option ->
+                                    AnswerButton(option) { handleAnswer(option) }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!showOptions && !isSearching && firstStepCompleted) {
                     Button(
                         onClick = {
                             messages.clear()
-                            currentQuestionIndex = 0
-                            showOptions = true
-                            currentQuestions = TreeAlgorithm.getQuestions(context)
+                            firstStepCompleted = false
+                            userCsvUploaded = false
+                            showCsvBlock = false
                             TreeAlgorithm.reset()
-                            currentQuestions = TreeAlgorithm.getQuestions(context)
-                            if (currentQuestions.isNotEmpty()) {
-                                messages.add(ChatMessage(currentQuestions[0].text, isUser = false))
-                            }
-                        }, modifier = Modifier
+                            messages.add(ChatMessage(context.getString(R.string.type_table), isUser = false))
+                        },
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                horizontal = Dimens.paddingLarge, vertical = Dimens.paddingSmall
-                            ), colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
+                            .padding(horizontal = Dimens.paddingLarge, vertical = Dimens.paddingSmall)
                     ) {
-                        Text(context.getString(R.string.again_button))
+                        Text(stringResource(R.string.again_button))
                     }
                 }
             }
@@ -249,7 +307,8 @@ fun MessageBubble(message: ChatMessage) {
                 .widthIn(max = Dimens.cardWeight)
                 .padding(horizontal = Dimens.paddingSmall), colors = CardDefaults.cardColors(
                 containerColor = if (message.isUser) MaterialTheme.colorScheme.primary.copy(alpha = AppAlpha.USER_MESSAGE)
-                else MaterialTheme.colorScheme.surface
+                else
+                    MaterialTheme.colorScheme.surface
             ), shape = RoundedCornerShape(
                 topStart = Dimens.paddingLarge,
                 topEnd = Dimens.paddingLarge,
@@ -257,34 +316,31 @@ fun MessageBubble(message: ChatMessage) {
                 bottomEnd = if (message.isUser) Dimens.buttonSmall else Dimens.paddingLarge
             ), elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingDefault)
         ) {
-            message.text?.let {
-                Text(
-                    text = it,
-                    modifier = Modifier.padding(Dimens.paddingMedium),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            Text(
+                text = message.text,
+                modifier = Modifier.padding(Dimens.paddingMedium),
+                style = Typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
 
 @Composable
-fun AnswerButton(
-    text: String?, onClick: () -> Unit, modifier: Modifier = Modifier
-) {
+fun AnswerButton(text: String, onClick: () -> Unit) {
     Button(
-        onClick = onClick, modifier = modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(Dimens.paddingMedium),
+        colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground
-        ), shape = RoundedCornerShape(Dimens.paddingMedium)
+        )
     ) {
-        if (text != null) {
-            Text(
-                text = text,
-                modifier = Modifier.padding(vertical = Dimens.paddingMedium),
-                style = Typography.bodyMedium
-            )
-        }
+        Text(
+            text = text,
+            modifier = Modifier.padding(vertical = Dimens.paddingMedium),
+            style = Typography.bodyMedium
+        )
     }
 }
