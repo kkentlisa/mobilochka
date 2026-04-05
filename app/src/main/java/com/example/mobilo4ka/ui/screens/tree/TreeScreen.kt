@@ -126,22 +126,34 @@ fun TreeScreenContent() {
                 showOptions = true
             }
         } else {
-            showOptions = false
-            isSearching = true
-            scope.launch {
-                delay(500)
-                val result = TreeAlgorithm.getResult()
-                val address = TreeAlgorithm.getAddress()
-                val path = TreeAlgorithm.getPath()
+        showOptions = false
+        isSearching = true
+        scope.launch {
+            delay(500)
+            val path = TreeAlgorithm.getPath()
 
-                val resultMessage = buildString {
-                    appendLine("$result \n$address")
+            val resultMessage = buildString {
+                if (TreeAlgorithm.hasMultipleResults()) {
+                    appendLine(context.getString(R.string.recommended_places))
                     appendLine()
-                    appendLine(context.getString(R.string.output_tree))
-                    path.forEach { appendLine("→ $it") }
+                    val results = TreeAlgorithm.getResults()
+                    results.forEach { (name, address) ->
+                        appendLine("$name")
+                        appendLine(address)
+                        appendLine()
+                    }
+                } else {
+                    val result = TreeAlgorithm.getResult()
+                    val address = TreeAlgorithm.getAddress()
+                    appendLine(result)
+                    appendLine(address)
+                    appendLine()
                 }
-                messages.add(ChatMessage(resultMessage, isUser = false))
-                isSearching = false
+                appendLine(context.getString(R.string.output_tree))
+                path.forEach { appendLine("→ $it") }
+            }
+            messages.add(ChatMessage(resultMessage, isUser = false))
+            isSearching = false
             }
         }
     }

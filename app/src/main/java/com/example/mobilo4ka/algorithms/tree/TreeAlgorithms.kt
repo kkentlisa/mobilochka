@@ -30,8 +30,7 @@ sealed class TreeNode {
     ) : TreeNode()
 
     data class Leaf(
-        val result: String,
-        val address: String
+        val results: List<Pair<String, String>>  // Список пар (название места, адрес)
     ) : TreeNode()
 }
 
@@ -46,49 +45,45 @@ object TreeAlgorithm {
     fun loadPlaces(context: Context, userCsvPath: String? = null) {
         val (places, questions) = parsePlacesWithQuestions(context, userCsvPath)
         allPlaces = places
-        questionsList = questions
+        questionsList = questions.filter { it.options.size > 1 }
         buildDecisionTree()
+        reset()
     }
 
     private fun buildDecisionTree() {
-        if (allPlaces.isEmpty() || questionsList.isEmpty()) return
+        if (allPlaces.isEmpty() || questionsList.isEmpty()) {
+            rootNode = null
+            return
+        }
 
-        val data = allPlaces.flatMap { place ->
-            val attributeColumns = questionsList.map { it.columnName }
-            val valueCombinations = attributeColumns.map { column ->
-                place.attributes[column]
-                    ?.split(",")
-                    ?.map { it.trim() }
-                    ?.filter { it.isNotBlank() }
-                    ?: emptyList()
+        val expandedData = allPlaces.flatMap { place ->
+            val attributeValues = questionsList.map { question ->
+                place.attributes[question.columnName]?.split(",")?.map { it.trim() } ?: emptyList()
             }
 
-            if (valueCombinations.all { it.isNotEmpty() }) {
-                cartesianProduct(valueCombinations).map { combination ->
+            val combinations = cartesianProduct(attributeValues)
+
+            if (combinations.isEmpty()) {
+                listOf(DataRow(place.attributes, place.result, place.address))
+            } else {
+                combinations.map { combination ->
                     val values = mutableMapOf<String, String>()
-                    attributeColumns.forEachIndexed { index, column ->
-                        values[column] = combination.getOrNull(index) ?: ""
+                    questionsList.forEachIndexed { index, question ->
+                        values[question.columnName] = combination.getOrNull(index) ?: ""
                     }
                     DataRow(values, place.result, place.address)
                 }
-            } else {
-                listOf(
-                    DataRow(
-                        attributeColumns.associateWith { place.attributes[it] ?: "" },
-                        place.result,
-                        place.address
-                    )
-                )
             }
         }
 
         val attributes = questionsList.map { it.columnName }
-        rootNode = buildTree(data, attributes)
-        currentNode = rootNode
+        rootNode = buildTree(expandedData, attributes)
     }
 
     private fun cartesianProduct(lists: List<List<String>>): List<List<String>> {
         if (lists.isEmpty()) return emptyList()
+        if (lists.any { it.isEmpty() }) return emptyList()
+
         var result = lists.first().map { listOf(it) }
         for (i in 1 until lists.size) {
             result = result.flatMap { existing ->
@@ -103,31 +98,32 @@ object TreeAlgorithm {
         attributes: List<String>
     ): TreeNode {
         val results = data.map { it.result }
+        val uniqueResults = results.distinct()
 
-        if (results.distinct().size == 1) {
+        // Если все результаты одинаковые - лист с одним местом
+        if (uniqueResults.size == 1) {
             val first = data.first()
-            return TreeNode.Leaf(first.result, first.address)
+            return TreeNode.Leaf(listOf(first.result to first.address))
         }
 
+        // Если нет атрибутов - лист со ВСЕМИ уникальными местами
         if (attributes.isEmpty()) {
-            val counts = results.groupingBy { it }.eachCount()
-            val mostCommon = counts.maxByOrNull { it.value }?.key ?: ""
-            val row = data.firstOrNull { it.result == mostCommon }
-            return TreeNode.Leaf(mostCommon, row?.address ?: "")
+            val places = data.map { it.result to it.address }.distinctBy { it.first }
+            return TreeNode.Leaf(places)
         }
 
         val bestAttr = selectBestAttribute(data, attributes)
         val question = questionsList.first { it.columnName == bestAttr }
-
-        val grouped = data.groupBy { it.values[bestAttr] }
         val remainingAttrs = attributes.filter { it != bestAttr }
 
-        val children: Map<String, TreeNode> = grouped
-            .filterKeys { it != null }
-            .mapKeys { it.key!! }
-            .mapValues { (_, subset) ->
-                buildTree(subset, remainingAttrs)
+        val grouped = data.groupBy { it.values[bestAttr] }
+
+        val children = mutableMapOf<String, TreeNode>()
+        for ((value, subset) in grouped) {
+            if (value != null && subset.isNotEmpty()) {
+                children[value] = buildTree(subset, remainingAttrs)
             }
+        }
 
         return TreeNode.Decision(question, children)
     }
@@ -136,18 +132,28 @@ object TreeAlgorithm {
         data: List<DataRow>,
         attributes: List<String>
     ): String {
-        val totalEntropy = calculateEntropy(data)
-        return attributes.maxByOrNull {
-            calculateInformationGain(data, it, totalEntropy)
-        } ?: attributes.first()
+        val totalEntropy = calculateEntropy(data.map { it.result })
+        var bestAttr = attributes.first()
+        var bestGain = -1.0
+
+        for (attr in attributes) {
+            val gain = calculateInformationGain(data, attr, totalEntropy)
+            if (gain > bestGain) {
+                bestGain = gain
+                bestAttr = attr
+            }
+        }
+        return bestAttr
     }
 
-    private fun calculateEntropy(data: List<DataRow>): Double {
-        val counts = data.map { it.address }.groupingBy { it }.eachCount()
+    private fun calculateEntropy(results: List<String>): Double {
+        val counts = results.groupingBy { it }.eachCount()
         var entropy = 0.0
+        val total = results.size.toDouble()
+
         for (count in counts.values) {
-            val p = count.toDouble() / data.size
-            if (p > 0) entropy -= p * log2(p)
+            val p = count / total
+            entropy -= p * log2(p)
         }
         return entropy
     }
@@ -159,52 +165,109 @@ object TreeAlgorithm {
     ): Double {
         val grouped = data.groupBy { it.values[attribute] }
         var weightedEntropy = 0.0
+
         for ((_, subset) in grouped) {
             val weight = subset.size.toDouble() / data.size
-            weightedEntropy += weight * calculateEntropy(subset)
+            val subsetEntropy = calculateEntropy(subset.map { it.result })
+            weightedEntropy += weight * subsetEntropy
         }
+
         return totalEntropy - weightedEntropy
     }
 
     private fun log2(x: Double): Double = ln(x) / ln(2.0)
 
-    fun getCurrentQuestion(): Question? =
-        (currentNode as? TreeNode.Decision)?.question
+    fun getCurrentQuestion(): Question? {
+        val node = currentNode as? TreeNode.Decision ?: return null
+        val currentData = getCurrentData()
+        val availableOptions = currentData
+            .mapNotNull { it.values[node.question.columnName] }
+            .distinct()
+            .sorted()
 
-    fun getCurrentOptions(): List<String> =
-        (currentNode as? TreeNode.Decision)?.children?.keys?.toList() ?: emptyList()
+        return node.question.copy(options = availableOptions)
+    }
+
+    private fun getCurrentData(): List<DataRow> {
+        var currentData = allPlaces.flatMap { place ->
+            val attributeValues = questionsList.map { question ->
+                place.attributes[question.columnName]?.split(",")?.map { it.trim() } ?: emptyList()
+            }
+
+            val combinations = cartesianProduct(attributeValues)
+            if (combinations.isEmpty()) {
+                listOf(DataRow(place.attributes, place.result, place.address))
+            } else {
+                combinations.map { combination ->
+                    val values = mutableMapOf<String, String>()
+                    questionsList.forEachIndexed { index, question ->
+                        values[question.columnName] = combination.getOrNull(index) ?: ""
+                    }
+                    DataRow(values, place.result, place.address)
+                }
+            }
+        }
+
+        for (step in path) {
+            val question = questionsList.find { it.text == step.first }
+            if (question != null) {
+                currentData = currentData.filter { row ->
+                    val values = row.values[question.columnName]?.split(",")?.map { it.trim() } ?: emptyList()
+                    values.contains(step.second)
+                }
+            }
+        }
+
+        return currentData
+    }
 
     fun answerSelected(answer: String): Boolean {
         val node = currentNode as? TreeNode.Decision ?: return false
-        val child = node.children[answer]
-            ?: node.children.values.firstOrNull()
-            ?: return false
+        val child = node.children[answer] ?: return false
 
         path.add(node.question.text to answer)
         currentNode = child
         return true
     }
 
-    fun getResult(): String? =
-        (currentNode as? TreeNode.Leaf)?.result
+    fun getResults(): List<Pair<String, String>> {
+        val leaf = currentNode as? TreeNode.Leaf
+        if (leaf != null) {
+            return leaf.results
+        }
 
-    fun getAddress(): String =
-        (currentNode as? TreeNode.Leaf)?.address ?: ""
+        val currentData = getCurrentData()
+        return currentData.map { it.result to it.address }.distinctBy { it.first }
+    }
 
-    fun getPath(): List<String> =
-        path.map { "${it.first} → ${it.second}" }
+    fun hasMultipleResults(): Boolean = getResults().size > 1
 
-    fun isFinished(): Boolean =
-        currentNode is TreeNode.Leaf
+    fun getResult(): String? {
+        val results = getResults()
+        return if (results.size == 1) results.first().first else null
+    }
+
+    fun getAddress(): String {
+        val results = getResults()
+        return if (results.size == 1) results.first().second else ""
+    }
+
+    fun getAllResultsText(): String {
+        val results = getResults()
+        return results.joinToString("\n\n") { "${it.first}\n${it.second}" }
+    }
+
+    fun getPath(): List<String> = path.map { "${it.first} → ${it.second}" }
+
+    fun isFinished(): Boolean = currentNode is TreeNode.Leaf || getResults().size <= 2
 
     fun reset() {
-        currentNode = rootNode ?: return
+        currentNode = rootNode
         path.clear()
     }
 
     private fun parsePlacesWithQuestions(context: Context, userCsvPath: String? = null): Pair<List<Place>, List<Question>> {
         val places = mutableListOf<Place>()
-        val questions = mutableListOf<Question>()
 
         val inputStream = if (userCsvPath != null) {
             context.openFileInput(userCsvPath)
@@ -218,11 +281,6 @@ object TreeAlgorithm {
         val resultColumnIndex = headers.size - 2
         val addressColumnIndex = headers.size - 1
 
-        for (i in 0 until resultColumnIndex) {
-            val columnName = headers[i]
-            questions.add(Question(columnName, emptyList(), columnName))
-        }
-
         reader.forEachLine { line ->
             val columns = line.split(";").map { it.trim() }
             if (columns.size >= headers.size) {
@@ -232,24 +290,29 @@ object TreeAlgorithm {
                 }
                 places.add(
                     Place(
-                        attributes,
-                        columns[resultColumnIndex],
-                        columns[addressColumnIndex]
+                        attributes = attributes,
+                        result = columns[resultColumnIndex],
+                        address = columns[addressColumnIndex]
                     )
                 )
             }
         }
+        reader.close()
 
-        val updatedQuestions = questions.map { q ->
+        val questions = headers.take(resultColumnIndex).map { columnName ->
             val options = places
-                .mapNotNull { it.attributes[q.columnName] }
+                .mapNotNull { it.attributes[columnName] }
                 .flatMap { it.split(",").map { v -> v.trim() } }
                 .filter { it.isNotBlank() }
                 .distinct()
-            q.copy(options = options)
+            Question(
+                text = columnName,
+                options = options,
+                columnName = columnName
+            )
         }
 
-        return Pair(places, updatedQuestions)
+        return Pair(places, questions)
     }
 
     fun saveUserCsv(context: Context, csvContent: String) {
