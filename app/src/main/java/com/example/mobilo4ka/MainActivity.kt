@@ -19,11 +19,15 @@ import com.example.mobilo4ka.ui.screens.genetic.GeneticScreen
 import com.example.mobilo4ka.ui.screens.neural.NeuralScreen
 import com.example.mobilo4ka.ui.screens.tree.TreeScreen
 import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
+import com.example.mobilo4ka.utils.LoadMapData
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val gridData = LoadMapData.loadMapData(this)
+        val buildingsData = LoadMapData.loadBuildings(this)
+        val zonesData = LoadMapData.loadZones(this)
         setContent {
             Mobilo4kaTheme {
                 val navController = rememberNavController()
@@ -39,8 +43,16 @@ class MainActivity : ComponentActivity() {
                             onNavigate = {route -> navController.navigate(route)},
                         )
                     }
-                    composable("ants") { AntsScreen() }
-                    composable("astar") { AStarScreen() }
+                    composable("ants") {AntsScreen()}
+                    composable("astar") {
+                            gridData?.let { data ->
+                                AStarScreen(
+                                    gridData = data,
+                                    buildingsData = buildingsData,
+                                    zonesData = zonesData
+                                )
+                            }
+                    }
                     composable("clustering") { ClusteringScreen() }
                     composable("genetic") { GeneticScreen() }
                     composable("neural") { NeuralScreen() }
