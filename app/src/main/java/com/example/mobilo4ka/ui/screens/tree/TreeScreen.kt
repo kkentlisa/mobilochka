@@ -150,7 +150,10 @@ fun TreeScreenContent() {
                     appendLine()
                 }
                 appendLine(context.getString(R.string.output_tree))
-                path.forEach { appendLine("→ $it") }
+                path.forEachIndexed { index, step ->
+                    val prefix = if (index == path.lastIndex) "└─ " else "├─ "
+                    appendLine("$prefix $step")
+                }
             }
             messages.add(ChatMessage(resultMessage, isUser = false))
             isSearching = false
