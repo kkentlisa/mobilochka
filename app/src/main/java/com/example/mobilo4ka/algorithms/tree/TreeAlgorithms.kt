@@ -56,7 +56,6 @@ object TreeAlgorithm {
             return
         }
 
-        // Берем данные как есть, без декартова произведения
         val data = allPlaces.map { place ->
             DataRow(
                 values = place.attributes,
@@ -76,13 +75,11 @@ object TreeAlgorithm {
         val results = data.map { it.result }
         val uniqueResults = results.distinct()
 
-        // Если все результаты одинаковые - лист с одним местом
         if (uniqueResults.size == 1) {
             val first = data.first()
             return TreeNode.Leaf(listOf(first.result to first.address))
         }
 
-        // Если нет атрибутов - лист со всеми уникальными местами
         if (attributes.isEmpty()) {
             val places = data.map { it.result to it.address }.distinctBy { it.first }
             return TreeNode.Leaf(places)
@@ -92,7 +89,6 @@ object TreeAlgorithm {
         val question = questionsList.first { it.columnName == bestAttr }
         val remainingAttrs = attributes.filter { it != bestAttr }
 
-        // Получаем все возможные значения атрибута (с учетом мультизначений)
         val allValues = data.flatMap { row ->
             row.values[bestAttr]?.split(",")?.map { it.trim() } ?: emptyList()
         }.distinct()
@@ -147,7 +143,6 @@ object TreeAlgorithm {
         attribute: String,
         totalEntropy: Double
     ): Double {
-        // Получаем все уникальные значения атрибута (с учетом мультизначений)
         val allValues = data.flatMap { row ->
             row.values[attribute]?.split(",")?.map { it.trim() } ?: emptyList()
         }.distinct()
@@ -186,7 +181,6 @@ object TreeAlgorithm {
     }
 
     private fun getCurrentData(): List<DataRow> {
-        // Берем данные как есть, без декартова произведения
         var currentData = allPlaces.map { place ->
             DataRow(
                 values = place.attributes,
@@ -237,11 +231,6 @@ object TreeAlgorithm {
     fun getAddress(): String {
         val results = getResults()
         return if (results.size == 1) results.first().second else ""
-    }
-
-    fun getAllResultsText(): String {
-        val results = getResults()
-        return results.joinToString("\n\n") { "${it.first}\n${it.second}" }
     }
 
     fun getPath(): List<String> = path.map { "${it.first} → ${it.second}" }
