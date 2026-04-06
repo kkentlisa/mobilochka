@@ -24,4 +24,6 @@ object Dimens{
     val iconSize = 40.dp
     val buttonSmall = 4.dp
     val cardWeight = 280.dp
+
+    val borderSize = 1.dp
 }
