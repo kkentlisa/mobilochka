@@ -7,6 +7,11 @@ fun relu(input : Float): Float {
     return 0f
 }
 
+fun reluDerivative(input: Float): Float {
+    if (input > 0) return 1f
+    return 0f
+}
+
 fun softmax(input: FloatArray): FloatArray {
     val output = FloatArray(input.size)
     var sum = 0f
