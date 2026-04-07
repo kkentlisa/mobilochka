@@ -46,6 +46,8 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
     private val pathPaint = Paint().apply { color = Color.WHITE }
     private val waterPaint = Paint().apply { color = "#9ad8f7".toColorInt() }
 
+    private var geneticRoute: List<Pair<Int, Int>> = emptyList()
+
     private val pathRoutePaint = Paint().apply {
         color = Color.RED
         style = Paint.Style.STROKE
@@ -188,6 +190,11 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
         }
     }
 
+    fun showGeneticRoute(route: List<Pair<Int, Int>>) {
+        this.geneticRoute = route
+        invalidate()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.withMatrix(mapMatrix) {
@@ -250,9 +257,26 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
             endPoint?.let {
                 drawCircle(it.first + 0.5f, it.second + 0.5f, 0.5f,endPaint)
             }
+
+            if (geneticRoute.isNotEmpty()) {
+                val geneticPaint = Paint().apply {
+                    color = Color.BLUE
+                    style = Paint.Style.STROKE
+                    strokeWidth = 0.4f
+                }
+                val geneticPath = android.graphics.Path()
+
+                geneticRoute.forEachIndexed { index, point ->
+                    if (index == 0) {
+                        geneticPath.moveTo(point.first + 0.5f, point.second + 0.5f)
+                    } else {
+                        geneticPath.lineTo(point.first + 0.5f, point.second + 0.5f)
+                    }
+                }
+                canvas.drawPath(geneticPath, geneticPaint)
+            }
         }
     }
-
     fun setupInitialView() {
         mapMatrix.reset()
         mapMatrix.postScale(5f, 5f)
@@ -260,3 +284,5 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
         invalidate()
     }
 }
+
+

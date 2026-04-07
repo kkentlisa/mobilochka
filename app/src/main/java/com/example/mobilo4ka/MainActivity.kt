@@ -1,9 +1,11 @@
 package com.example.mobilo4ka
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,6 +24,7 @@ import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 import com.example.mobilo4ka.utils.LoadMapData
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -54,7 +57,15 @@ class MainActivity : ComponentActivity() {
                             }
                     }
                     composable("clustering") { ClusteringScreen() }
-                    composable("genetic") { GeneticScreen() }
+                    composable("genetic") {
+                        gridData?.let { data ->
+                            GeneticScreen(
+                                gridData = data,
+                                buildingsData = buildingsData,
+                                zonesData = zonesData
+                            )
+                        }
+                    }
                     composable("neural") { NeuralScreen() }
                     composable("tree") { TreeScreen() }
 
