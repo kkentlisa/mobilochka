@@ -10,21 +10,34 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import com.example.mobilo4ka.R
+import com.example.mobilo4ka.algorithms.neural.ModelLoader
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
 
 @Composable
 fun NeuralScreen(){
     SetStatusBarColor(false)
+
+    val context = LocalContext.current
+    /*
+    val trainingViewModel: TrainingViewModel = viewModel()
+    val networkState = remember { mutableStateOf(NeuralNetwork.createEmpty()) }
+    */
+
+    val networkState = remember { mutableStateOf(ModelLoader.load(context)) }
+    val resultText = remember {mutableStateOf(context.getString(R.string.draw_number))}
 
     val gridSize = 50
     val cellStates = remember { mutableStateListOf<Boolean>().apply {repeat(gridSize * gridSize) { add(false)} } }
@@ -66,6 +79,14 @@ fun NeuralScreen(){
 
             Spacer(modifier = Modifier.weight(1f))
 
+            Text(
+                text = resultText.value,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -78,17 +99,29 @@ fun NeuralScreen(){
                     modifier = Modifier.padding(Dimens.paddingLarge),
                     verticalArrangement = Arrangement.spacedBy(Dimens.spacingLarge)
                 ) {
+                    /*
+                    ActionButton(
+                        titleRes = R.string.neural_button_train,
+                        onClick = {
+                            trainingViewModel.startTraining(context, networkState.value)
+                        }
+                    )
+                     */
                     ActionButton(
                         titleRes = R.string.neural_button_recognize,
                         onClick = {
-                            val inputArray = cellStates.map { if (it) 1 else 0}
+                            val scaleInput = scaleGrid(cellStates, 50, 28)
+                            val result = networkState.value.recognize(scaleInput)
 
+                            val predictDigit = result.indices.maxByOrNull { result[it] } ?: -1
+                            resultText.value = context.getString(R.string.rating, predictDigit)
                         }
                     )
                     ActionButton(
                         titleRes = R.string.neural_button_clear,
                         onClick = {
                             cellStates.replaceAll { false }
+                            resultText.value = context.getString(R.string.draw_number)
                         }
                     )
                 }
@@ -194,4 +227,30 @@ private fun ActionButton(
             style = MaterialTheme.typography.bodyMedium
         )
     }
+}
+
+fun scaleGrid(input: List<Boolean>, oldSize: Int, newSize: Int): FloatArray {
+    val output = FloatArray(newSize * newSize)
+    val step = oldSize.toFloat() / newSize
+
+    for (y in 0 until newSize) {
+        for (x in 0 until newSize) {
+            val startX = (x * step).toInt()
+            val endX = ((x + 1) * step).toInt().coerceAtMost(oldSize)
+            val startY = (y * step).toInt()
+            val endY = ((y + 1) * step).toInt().coerceAtMost(oldSize)
+
+            var filledCount = 0
+            val totalPixels = (endX - startX) * (endY - startY)
+            for (iy in startY until endY) {
+                for (ix in startX until endX) {
+                    if (input[iy * oldSize + ix]) {
+                        filledCount++
+                    }
+                }
+            }
+            output[y * newSize + x] = filledCount.toFloat() / totalPixels
+        }
+    }
+    return output
 }
