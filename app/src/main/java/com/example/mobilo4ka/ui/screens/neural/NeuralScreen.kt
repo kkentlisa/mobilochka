@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -22,25 +20,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.mobilo4ka.R
-import com.example.mobilo4ka.algorithms.neural.ModelLoader
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
+import androidx.compose.runtime.getValue
 
 @Composable
-fun NeuralScreen(){
+fun NeuralScreen(viewModel: NeuralViewModel){
     SetStatusBarColor(false)
 
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     /*
     val trainingViewModel: TrainingViewModel = viewModel()
     val networkState = remember { mutableStateOf(NeuralNetwork.createEmpty()) }
     */
-
-    val networkState = remember { mutableStateOf(ModelLoader.load(context)) }
-    val resultText = remember {mutableStateOf(context.getString(R.string.draw_number))}
-
-    val gridSize = 50
-    val cellStates = remember { mutableStateListOf<Boolean>().apply {repeat(gridSize * gridSize) { add(false)} } }
 
     Scaffold(
         topBar = {
@@ -75,12 +68,16 @@ fun NeuralScreen(){
         ) {
             Spacer(modifier = Modifier.weight(1f))
 
-            DrawingGrid(gridSize, cellStates)
+            DrawingGrid(
+                gridSize = 50,
+                cellStates = state.cellStates,
+                onCellsTouched = { indices -> viewModel.onCellsTouched(indices) }
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = resultText.value,
+                text = state.resultText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth(),
@@ -109,20 +106,11 @@ fun NeuralScreen(){
                      */
                     ActionButton(
                         titleRes = R.string.neural_button_recognize,
-                        onClick = {
-                            val scaleInput = scaleGrid(cellStates, 50, 28)
-                            val result = networkState.value.recognize(scaleInput)
-
-                            val predictDigit = result.indices.maxByOrNull { result[it] } ?: -1
-                            resultText.value = context.getString(R.string.rating, predictDigit)
-                        }
+                        onClick = { viewModel.recognize(context) }
                     )
                     ActionButton(
                         titleRes = R.string.neural_button_clear,
-                        onClick = {
-                            cellStates.replaceAll { false }
-                            resultText.value = context.getString(R.string.draw_number)
-                        }
+                        onClick = { viewModel.clear(context) }
                     )
                 }
             }
@@ -133,9 +121,9 @@ fun NeuralScreen(){
 @Composable
 fun DrawingGrid(
     gridSize: Int,
-    cellStates: MutableList<Boolean>
+    cellStates: List<Boolean>,
+    onCellsTouched: (List<Int>) -> Unit
 ) {
-    val fillColor = MaterialTheme.colorScheme.surface
     val drawColor = MaterialTheme.colorScheme.onSurface
     val gridLineColor = MaterialTheme.colorScheme.outline
 
@@ -156,12 +144,11 @@ fun DrawingGrid(
                 detectDragGestures { change, _ ->
                     val cellWidth = size.width / gridSize
                     val cellHeight = size.height / gridSize
-
                     val steps = 15
+                    val touchedIndices = mutableListOf<Int>()
 
                     for (i in 0..steps) {
                         val t = i / steps.toFloat()
-
                         val interpX = change.previousPosition.x + (change.position.x - change.previousPosition.x) * t
                         val interpY = change.previousPosition.y + (change.position.y - change.previousPosition.y) * t
 
@@ -175,12 +162,12 @@ fun DrawingGrid(
                                 if (dx * dx + dy * dy <= brushSize * brushSize) {
                                     val nx = (x + dx).coerceIn(0, gridSize - 1)
                                     val ny = (y + dy).coerceIn(0, gridSize - 1)
-                                    val index = ny * gridSize + nx
-                                    cellStates[index] = true
+                                    touchedIndices.add(ny * gridSize + nx)
                                 }
                             }
                         }
                     }
+                    onCellsTouched(touchedIndices)
                 }
             }
     ) {
@@ -191,11 +178,13 @@ fun DrawingGrid(
             for (y in 0 until gridSize){
                 for (x in 0 until gridSize){
                     val index = y * gridSize + x
-                    drawRect(
-                        color = if (cellStates[index]) drawColor else fillColor,
-                        topLeft = Offset(x * cellWidth, y * cellHeight),
-                        size = Size(cellWidth, cellHeight)
-                    )
+                    if (cellStates[index]) {
+                        drawRect(
+                            color = drawColor,
+                            topLeft = Offset(x * cellWidth, y * cellHeight),
+                            size = Size(cellWidth, cellHeight)
+                        )
+                    }
                 }
             }
 
@@ -210,7 +199,7 @@ fun DrawingGrid(
 }
 
 @Composable
-private fun ActionButton(
+fun ActionButton(
     titleRes: Int,
     onClick : () -> Unit
 ){
@@ -229,28 +218,45 @@ private fun ActionButton(
     }
 }
 
-fun scaleGrid(input: List<Boolean>, oldSize: Int, newSize: Int): FloatArray {
-    val output = FloatArray(newSize * newSize)
-    val step = oldSize.toFloat() / newSize
+fun centerImage(cellStates: List<Boolean>, gridSize: Int): FloatArray {
+    val input = FloatArray(gridSize * gridSize) { 0f }
 
-    for (y in 0 until newSize) {
-        for (x in 0 until newSize) {
-            val startX = (x * step).toInt()
-            val endX = ((x + 1) * step).toInt().coerceAtMost(oldSize)
-            val startY = (y * step).toInt()
-            val endY = ((y + 1) * step).toInt().coerceAtMost(oldSize)
+    var minX = gridSize
+    var maxX = -1
+    var minY = gridSize
+    var maxY = -1
+    var hasPixels = false
 
-            var filledCount = 0
-            val totalPixels = (endX - startX) * (endY - startY)
-            for (iy in startY until endY) {
-                for (ix in startX until endX) {
-                    if (input[iy * oldSize + ix]) {
-                        filledCount++
-                    }
-                }
+    for (y in 0 until gridSize) {
+        for (x in 0 until gridSize) {
+            if (cellStates[y * gridSize + x]) {
+                if (x < minX) minX = x
+                if (x > maxX) maxX = x
+                if (y < minY) minY = y
+                if (y > maxY) maxY = y
+                hasPixels = true
             }
-            output[y * newSize + x] = filledCount.toFloat() / totalPixels
         }
     }
-    return output
+
+    if (!hasPixels) return input
+
+    val centerX = (minX + maxX) / 2
+    val centerY = (minY + maxY) / 2
+
+    val shiftX = (gridSize / 2) - centerX
+    val shiftY = (gridSize / 2) - centerY
+
+    for (y in minY..maxY) {
+        for (x in minX..maxX) {
+            if (cellStates[y * gridSize + x]) {
+                val newX = x + shiftX
+                val newY = y + shiftY
+
+                if (newX in 0 until gridSize && newY in 0 until gridSize)
+                    input[newY * gridSize + newX] = 1f
+            }
+        }
+    }
+    return input
 }

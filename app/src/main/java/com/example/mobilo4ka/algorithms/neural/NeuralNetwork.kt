@@ -35,15 +35,16 @@ class NeuralNetwork(
     companion object {
         fun createEmpty(): NeuralNetwork {
             fun random2D(rows: Int, cols: Int): Array<FloatArray> {
+                val scale = 1.0f / cols
                 return Array(rows) {
-                    FloatArray(cols) { (Math.random().toFloat() * 2f - 1f) * 0.1f }
+                    FloatArray(cols) { (Math.random().toFloat() * 2f - 1f) * scale }
                 }
             }
 
-            fun zeros1D(size: Int): FloatArray = FloatArray(size) { 0f }
+            fun zeros1D(size: Int): FloatArray = FloatArray(size) {0f}
 
             return NeuralNetwork(
-                w1 = random2D(128, 784),
+                w1 = random2D(128, 2500),
                 b1 = zeros1D(128),
                 w2 = random2D(64, 128),
                 b2 = zeros1D(64),

@@ -7,6 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,6 +20,7 @@ import com.example.mobilo4ka.ui.screens.astar.AStarScreen
 import com.example.mobilo4ka.ui.screens.clustering.ClusteringScreen
 import com.example.mobilo4ka.ui.screens.genetic.GeneticScreen
 import com.example.mobilo4ka.ui.screens.neural.NeuralScreen
+import com.example.mobilo4ka.ui.screens.neural.NeuralViewModel
 import com.example.mobilo4ka.ui.screens.tree.TreeScreen
 import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 import com.example.mobilo4ka.utils.LoadMapData
@@ -33,6 +37,13 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val viewModel: MainViewModel = viewModel()
                 val state by viewModel.state.collectAsState()
+
+                val neuralFactory = viewModelFactory {
+                    initializer {
+                        val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as android.app.Application
+                        NeuralViewModel(app.applicationContext)
+                    }
+                }
 
                 NavHost(navController = navController, startDestination = "main") {
 
@@ -55,7 +66,10 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("clustering") { ClusteringScreen() }
                     composable("genetic") { GeneticScreen() }
-                    composable("neural") { NeuralScreen() }
+                    composable("neural") {
+                        val neuralViewModel: NeuralViewModel = viewModel(factory = neuralFactory)
+                        NeuralScreen(neuralViewModel)
+                    }
                     composable("tree") { TreeScreen() }
 
                 }
