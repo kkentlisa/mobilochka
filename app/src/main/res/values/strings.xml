@@ -16,17 +16,18 @@
     <string name="menu_open">Открыть меню</string>
     <string name="menu_close">Закрыть меню</string>
 
-    <string name="question_location">Где вы находитесь?</string>
-    <string name="question_budget">Какой у вас бюджет?</string>
-    <string name="question_time">Сколько времени есть?</string>
-    <string name="question_food">Что вам нужно?</string>
-    <string name="question_queue">Готовы ждать очередь?</string>
-    <string name="question_weather">Какая погода?</string>
-
-    <string name="answer_find">Спасибо за ответы! Ищу подходящее место…</string>
-    <string name="count_answer">Найдено мест: </string>
+    <string name="error_file">"Ошибка загрузки файла: "</string>
     <string name="again_button">Пройти опрос заново</string>
+    <string name="type_table">Какую таблицу вы хотите использовать?</string>
+    <string name="base_table">Встроенная CSV</string>
+    <string name="input_table">Загрузить CSV</string>
+    <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
+    <string name="recommended_places">"Рекомендованные места: "</string>
+    <string name="output_tree">"Путь прохождения: "</string>
     
     <string name="neural_button_recognize">Распознать</string>
     <string name="neural_button_clear">Стереть</string>
+    <string name="neural_button_train">Обучить</string>
+    <string name="draw_number">Нарисуйте цифру</string>
+    <string name="rating">Оценка: %1$d</string>
 </resources>

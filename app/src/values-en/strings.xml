@@ -17,14 +17,17 @@
     <string name="menu_open">Open menu</string>
     <string name="menu_close">Close menu</string>
 
-    <string name="question_location">Где вы находитесь?</string>
-    <string name="question_budget">Какой у вас бюджет?</string>
-    <string name="question_time">Сколько времени есть?</string>
-    <string name="question_food">Что вам нужно?</string>
-    <string name="question_queue">Готовы ждать очередь?</string>
-     <string name="question_weather">Какая погода?</string>
-    <string name="answer_find">"Спасибо за ответы! Ищу подходящее место..."</string>
+    <string name="error_file">File upload error: </string>
+    <string name="type_table">Which table do you want to use?</string>
+    <string name="download_file">Click the + button in the top right corner to upload your table</string>
+    <string name="output_tree">Path:</string>
+    <string name="input_table">Upload CSV</string>
+    <string name="base_table">Built-in CSV</string>
+    <string name="again_button">Retake the survey</string>
 
     <string name="neural_button_recognize">Recognize</string>
     <string name="neural_button_clear">Clear</string>
+    <string name="neural_button_train">Train</string>
+    <string name="draw_number">Draw number</string>
+    <string name="rating">Rating: %1$d</string>
 </resources>
