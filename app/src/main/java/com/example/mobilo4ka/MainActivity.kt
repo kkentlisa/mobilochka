@@ -1,11 +1,14 @@
 package com.example.mobilo4ka
 
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,6 +31,11 @@ class MainActivity : ComponentActivity() {
         val gridData = LoadMapData.loadMapData(this)
         val buildingsData = LoadMapData.loadBuildings(this)
         val zonesData = LoadMapData.loadZones(this)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
         setContent {
             Mobilo4kaTheme {
                 val navController = rememberNavController()
@@ -43,7 +51,7 @@ class MainActivity : ComponentActivity() {
                             onNavigate = {route -> navController.navigate(route)},
                         )
                     }
-                    composable("ants") {AntsScreen()}
+                    composable("ants") { AntsScreen()}
                     composable("astar") {
                             gridData?.let { data ->
                                 AStarScreen(

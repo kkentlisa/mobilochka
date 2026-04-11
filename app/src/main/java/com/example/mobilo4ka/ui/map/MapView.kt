@@ -57,7 +57,7 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
     private val startPaint = Paint().apply { color = Color.RED }
     private val endPaint = Paint().apply { color = Color.RED }
 
-    private val minScale = 5f
+    private val minScale = 8f
     private val maxScale = 50f
     private val matrixValues = FloatArray(9)
 
@@ -88,6 +88,9 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
             }
 
             if (contentHeight <= height) {
+                val targetY = (height - contentHeight) / 2f
+                val currentTransY = matrixValues[Matrix.MTRANS_Y]
+                mapMatrix.postTranslate(0f, targetY - currentTransY)
                 newDy = 0f
             } else {
                 if (currentTransY + newDy > 0) {
@@ -254,9 +257,19 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
     }
 
     fun setupInitialView() {
-        mapMatrix.reset()
-        mapMatrix.postScale(5f, 5f)
-        mapMatrix.postTranslate(0f, 500f)
-        invalidate()
+        post {
+            if (height == 0) return@post
+
+            val scaleToFitHeight = height.toFloat() / mapHeight
+
+            mapMatrix.reset()
+            mapMatrix.postScale(scaleToFitHeight, scaleToFitHeight)
+
+            val mapWidthInPx = mapWidth * scaleToFitHeight
+            val offsetX = (width - mapWidthInPx) / 2f
+            mapMatrix.postTranslate(offsetX, 0f)
+
+            invalidate()
+        }
     }
 }
