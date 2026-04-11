@@ -1,9 +1,6 @@
 package com.example.mobilo4ka.ui.theme
 
-import android.graphics.Paint
 import androidx.compose.ui.graphics.Color
-import androidx.core.graphics.toColorInt
-import androidx.compose.ui.graphics.toArgb
 
 val TsuBlue = Color(0xFF0072bc)
 val BackgroundLight = Color(0xFFF3F3F3)
