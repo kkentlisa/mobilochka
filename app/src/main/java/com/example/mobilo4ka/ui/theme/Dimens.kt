@@ -24,4 +24,13 @@ object Dimens{
     val iconSize = 40.dp
     val buttonSmall = 4.dp
     val cardWeight = 280.dp
+
+    val borderSize = 1.dp
+
+    val mapRouteWidth = 0.4f
+    val mapPointRadius = 0.5f
+    val mapMaxScale = 50f
+    val mapMinScale = 8f
+    val mapWidhtSize = 202f
+    val mapHeightSize = 161f
 }
