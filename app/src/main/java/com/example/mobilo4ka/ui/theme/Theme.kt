@@ -11,7 +11,7 @@ private val ColorScheme = lightColorScheme(
     onBackground = TextDark,
     surface = SurfaceWhite,
     onSurface = TextDark,
-    outline = TsuBlue
+    outline = Line
 )
 
 object AppAlpha {
