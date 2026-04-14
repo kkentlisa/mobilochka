@@ -13,14 +13,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
+import com.example.mobilo4ka.ui.card.BuildingBottomSheet
+import com.example.mobilo4ka.ui.card.MapViewModel
 import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
@@ -29,8 +36,10 @@ import com.example.mobilo4ka.ui.theme.Dimens
 fun AStarScreen(
     gridData: GridMap,
     buildingsData: List<Building>,
-    zonesData: Map<String, List<List<Int>>>
+    zonesData: Map<String, List<List<Int>>>,
+    mapViewModel: MapViewModel = viewModel()
 ) {
+    var selectedBuilding by remember { mutableStateOf<Building?>(null) }
     val context = LocalContext.current
 
     SetStatusBarColor(true)
@@ -68,12 +77,21 @@ fun AStarScreen(
                         this.gridMap = gridData
                         this.buildings = buildingsData
                         this.zones = zonesData
+                        this.onBuildingClicked = { x, y ->
+                            selectedBuilding = mapViewModel.findBuilding(x, y)
+                        }
 
                         setupInitialView()
                     }
                 },
                 modifier = Modifier.fillMaxSize()
                     .padding(paddingValues)
+            )
+        }
+        if (selectedBuilding != null) {
+            BuildingBottomSheet(
+                building = selectedBuilding!!,
+                onDismiss = { selectedBuilding = null }
             )
         }
     }

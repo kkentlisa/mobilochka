@@ -42,3 +42,5 @@ val ButtonLarge = TextStyle(
     fontWeight = FontWeight.Medium,
     fontSize = 19.sp,
 )
+
+val lineHeight = 32.sp

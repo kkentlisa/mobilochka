@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Matrix
+import android.graphics.Path
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -16,7 +17,8 @@ import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withMatrix
 import com.example.mobilo4ka.algorithms.astar.AStarAlgorithm
 
-class MapView (context: Context, attrs: AttributeSet? = null): View(context, attrs) {
+class MapView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
+
     var gridMap: GridMap? = null
         set(value) {
             field = value
@@ -33,10 +35,24 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
             invalidate()
         }
 
+    var onBuildingClicked: ((Int, Int) -> Unit)? = null
+
     val mapMatrix = Matrix()
+    private val mapWidth = 202f
+    private val mapHeight = 161f
+
+    private var startPoint: Pair<Int, Int>? = null
+    private var endPoint: Pair<Int, Int>? = null
+    private var currentPath: List<Pair<Int, Int>> = emptyList()
+    private var geneticRoute: List<Pair<Int, Int>> = emptyList()
 
     private val buildingPaint = Paint().apply {
         color = "#e6dac8".toColorInt()
+        style = Paint.Style.FILL
+    }
+
+    private val interestingBuildingPaint = Paint().apply {
+        color = "#c4b5a0".toColorInt()
         style = Paint.Style.FILL
     }
 
@@ -46,85 +62,52 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
     private val pathPaint = Paint().apply { color = Color.WHITE }
     private val waterPaint = Paint().apply { color = "#9ad8f7".toColorInt() }
 
-    private var geneticRoute: List<Pair<Int, Int>> = emptyList()
-
     private val pathRoutePaint = Paint().apply {
         color = Color.RED
         style = Paint.Style.STROKE
-        strokeWidth = 0.4f
+        strokeWidth = 0.5f
+        isAntiAlias = true
     }
 
-    private val linePath = android.graphics.Path()
+    private val geneticPathPaint = Paint().apply {
+        color = Color.BLUE
+        style = Paint.Style.STROKE
+        strokeWidth = 0.5f
+        isAntiAlias = true
+    }
 
-    private val startPaint = Paint().apply { color = Color.RED }
-    private val endPaint = Paint().apply { color = Color.RED }
-
-    private val minScale = 5f
-    private val maxScale = 50f
-    private val matrixValues = FloatArray(9)
-
-    private val mapWidth = 202f
-    private val mapHeight = 161f
-
-    private var startPoint: Pair<Int, Int>? = null
-    private var endPoint: Pair<Int, Int>? = null
-    private var currentPath: List<Pair<Int, Int>> = emptyList()
+    private val pointPaint = Paint().apply { color = Color.RED; isAntiAlias = true }
 
     private val moveListener = object : GestureDetector.SimpleOnGestureListener() {
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, dx: Float, dy: Float): Boolean {
-            mapMatrix.getValues(matrixValues)
-            val currentScale = matrixValues[Matrix.MSCALE_X]
-            val currentTransX = matrixValues[Matrix.MTRANS_X]
-            val currentTransY = matrixValues[Matrix.MTRANS_Y]
-
-            val contentWidth = mapWidth * currentScale
-            val contentHeight = mapHeight * currentScale
-
-            var newDx = -dx
-            var newDy = -dy
-
-            if (currentTransX + newDx > 0) {
-                newDx = -currentTransX
-            } else if (currentTransX + newDx < width - contentWidth) {
-                newDx = (width - contentWidth) - currentTransX
-            }
-
-            if (contentHeight <= height) {
-                newDy = 0f
-            } else {
-                if (currentTransY + newDy > 0) {
-                    newDy = -currentTransY
-                } else if (currentTransY + newDy < height - contentHeight) {
-                    newDy = (height - contentHeight) - currentTransY
-                }
-            }
-
-            mapMatrix.postTranslate(newDx, newDy)
+            mapMatrix.postTranslate(-dx, -dy)
             invalidate()
             return true
         }
 
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             val inverse = Matrix()
-            mapMatrix.invert(inverse)
-            val pts = floatArrayOf(e.x, e.y)
-            inverse.mapPoints(pts)
+            if (mapMatrix.invert(inverse)) {
+                val pts = floatArrayOf(e.x, e.y)
+                inverse.mapPoints(pts)
 
-            val gridX = pts[0].toInt()
-            val gridY = pts[1].toInt()
+                val gridX = pts[0].toInt()
+                val gridY = pts[1].toInt()
 
-            if (gridX in 0 until mapWidth.toInt() && gridY in 0 until mapHeight.toInt()) {
-                if (startPoint == null || endPoint != null) {
-                    startPoint = Pair(gridX, gridY)
-                    endPoint = null
-                    currentPath = emptyList()
-                } else {
-                    endPoint = Pair(gridX, gridY)
-                    calculateAStarPath()
+                onBuildingClicked?.invoke(gridX, gridY)
+
+                if (gridX in 0 until mapWidth.toInt() && gridY in 0 until mapHeight.toInt()) {
+                    if (startPoint == null || endPoint != null) {
+                        startPoint = Pair(gridX, gridY)
+                        endPoint = null
+                        currentPath = emptyList()
+                    } else {
+                        endPoint = Pair(gridX, gridY)
+                        calculateAStarPath()
+                    }
+                    invalidate()
                 }
-                invalidate()
             }
-
             performClick()
             return true
         }
@@ -132,25 +115,7 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
 
     private val scaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            var scaleFactor = detector.scaleFactor
-
-            mapMatrix.getValues(matrixValues)
-            val currentScale = matrixValues[Matrix.MSCALE_X]
-
-            val targetScale = currentScale * scaleFactor
-
-            if (targetScale < minScale) {
-                scaleFactor = minScale / currentScale
-            } else if (targetScale > maxScale) {
-                scaleFactor = maxScale / currentScale
-            }
-
-            mapMatrix.postScale(
-                scaleFactor,
-                scaleFactor,
-                detector.focusX,
-                detector.focusY
-            )
+            mapMatrix.postScale(detector.scaleFactor, detector.scaleFactor, detector.focusX, detector.focusY)
             invalidate()
             return true
         }
@@ -165,24 +130,25 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
         return true
     }
 
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
+
     private fun isPointWalkable(x: Int, y: Int): Boolean {
-        val matrix = gridMap?.matrix ?: return false
-        if (y < 0 || y >= matrix.size || x < 0 || x >= matrix[0].size) return false
-        return matrix[y][x] == 0
+        return gridMap?.isWalkable(x, y) ?: false
     }
 
     private fun calculateAStarPath() {
         val start = startPoint ?: return
         val end = endPoint ?: return
-        val aStar = AStarAlgorithm()
 
         kotlin.concurrent.thread {
-            val path = aStar.findPath(
+            val path = AStarAlgorithm().findPath(
                 start.first, start.second,
                 end.first, end.second,
-                isWalkable = ::isPointWalkable
+                ::isPointWalkable
             )
-
             post {
                 currentPath = path
                 invalidate()
@@ -195,94 +161,60 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
         invalidate()
     }
 
+    fun setupInitialView() {
+        mapMatrix.reset()
+        mapMatrix.postScale(5f, 5f)
+        mapMatrix.postTranslate(50f, 50f)
+        invalidate()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        canvas.drawColor("#f0f0f0".toColorInt())
+
         canvas.withMatrix(mapMatrix) {
-            zones["grass"]?.forEach { pixel ->
-                val x = pixel[0]
-                val y = pixel[1]
-                drawRect(x.toFloat(), y.toFloat(), x + 1f, y + 1f, grassPaint)
-            }
-
-            zones["roadCar"]?.forEach { pixel ->
-                val x = pixel[0]
-                val y = pixel[1]
-                drawRect(x.toFloat(), y.toFloat(), x + 1f, y + 1f, roadCarPaint)
-            }
-
-            zones["asphalt"]?.forEach { pixel ->
-                val x = pixel[0]
-                val y = pixel[1]
-                drawRect(x.toFloat(), y.toFloat(), x + 1f, y + 1f, asphaltPaint)
-            }
-
-            zones["path"]?.forEach { pixel ->
-                val x = pixel[0]
-                val y = pixel[1]
-                drawRect(x.toFloat(), y.toFloat(), x + 1f, y + 1f, pathPaint)
-            }
-
-            zones["water"]?.forEach { pixel ->
-                val x = pixel[0]
-                val y = pixel[1]
-                drawRect(x.toFloat(), y.toFloat(), x + 1f, y + 1f, waterPaint)
-            }
+            zones["grass"]?.forEach { drawRect(it[0].toFloat(), it[1].toFloat(), it[0] + 1f, it[1] + 1f, grassPaint) }
+            zones["water"]?.forEach { drawRect(it[0].toFloat(), it[1].toFloat(), it[0] + 1f, it[1] + 1f, waterPaint) }
+            zones["roadCar"]?.forEach { drawRect(it[0].toFloat(), it[1].toFloat(), it[0] + 1f, it[1] + 1f, roadCarPaint) }
+            zones["asphalt"]?.forEach { drawRect(it[0].toFloat(), it[1].toFloat(), it[0] + 1f, it[1] + 1f, asphaltPaint) }
+            zones["path"]?.forEach { drawRect(it[0].toFloat(), it[1].toFloat(), it[0] + 1f, it[1] + 1f, pathPaint) }
 
             buildings.forEach { building ->
+                val currentPaint = if (!building.name.isNullOrBlank()) {
+                    interestingBuildingPaint
+                } else {
+                    buildingPaint
+                }
+
                 building.pixels.forEach { pixel ->
-                    val x = pixel[0]
-                    val y = pixel[1]
-                    drawRect(x.toFloat(), y.toFloat(), x + 1f, y + 1f, buildingPaint)
+                    drawRect(
+                        pixel[0].toFloat(),
+                        pixel[1].toFloat(),
+                        pixel[0].toFloat() + 1f,
+                        pixel[1].toFloat() + 1f,
+                        currentPaint
+                    )
                 }
             }
 
             if (currentPath.isNotEmpty()) {
-                linePath.reset()
-
-                val firstPoint = currentPath[0]
-                linePath.moveTo(firstPoint.first + 0.5f, firstPoint.second + 0.5f)
-
+                val path = Path()
+                path.moveTo(currentPath[0].first + 0.5f, currentPath[0].second + 0.5f)
                 for (i in 1 until currentPath.size) {
-                    val point = currentPath[i]
-                    linePath.lineTo(point.first + 0.5f, point.second + 0.5f)
+                    path.lineTo(currentPath[i].first + 0.5f, currentPath[i].second + 0.5f)
                 }
-
-                drawPath(linePath, pathRoutePaint)
-            }
-
-            startPoint?.let {
-                drawCircle(it.first + 0.5f, it.second + 0.5f, 0.5f,startPaint)
-            }
-
-            endPoint?.let {
-                drawCircle(it.first + 0.5f, it.second + 0.5f, 0.5f,endPaint)
+                drawPath(path, pathRoutePaint)
             }
 
             if (geneticRoute.isNotEmpty()) {
-                val geneticPaint = Paint().apply {
-                    color = Color.BLUE
-                    style = Paint.Style.STROKE
-                    strokeWidth = 0.4f
-                }
-                val geneticPath = android.graphics.Path()
-
-                geneticRoute.forEachIndexed { index, point ->
-                    if (index == 0) {
-                        geneticPath.moveTo(point.first + 0.5f, point.second + 0.5f)
-                    } else {
-                        geneticPath.lineTo(point.first + 0.5f, point.second + 0.5f)
-                    }
-                }
-                canvas.drawPath(geneticPath, geneticPaint)
+                val gPath = Path()
+                gPath.moveTo(geneticRoute[0].first + 0.5f, geneticRoute[0].second + 0.5f)
+                geneticRoute.forEach { gPath.lineTo(it.first + 0.5f, it.second + 0.5f) }
+                drawPath(gPath, geneticPathPaint)
             }
+
+            startPoint?.let { drawCircle(it.first + 0.5f, it.second + 0.5f, 0.6f, pointPaint) }
+            endPoint?.let { drawCircle(it.first + 0.5f, it.second + 0.5f, 0.6f, pointPaint) }
         }
     }
-    fun setupInitialView() {
-        mapMatrix.reset()
-        mapMatrix.postScale(5f, 5f)
-        mapMatrix.postTranslate(0f, 500f)
-        invalidate()
-    }
 }
-
-

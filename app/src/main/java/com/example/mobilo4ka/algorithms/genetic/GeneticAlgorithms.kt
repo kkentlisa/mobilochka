@@ -19,7 +19,6 @@ class GeneticAlgorithm(
     private val speedKmh: Double = 5.0
 ) {
 
-    // ==================== ПЕРЕИСПОЛЬЗОВАНИЕ ИЗ ASTAR ====================
 
     private val aStar = AStarAlgorithm()
 
@@ -37,14 +36,12 @@ class GeneticAlgorithm(
         return findPath(p1, p2).size
     }
 
-    // ==================== МОДЕЛЬ ХРОМОСОМЫ ====================
 
     data class Chromosome(
         val placeIds: List<Int>,
         var fitness: Double = 0.0
     )
 
-    // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
 
     private fun getEntrance(building: Building): Pair<Int, Int> {
         return building.firstEntrance
@@ -56,7 +53,6 @@ class GeneticAlgorithm(
             ?: throw IllegalArgumentException("Здание с id $id не найдено")
     }
 
-    // ==================== РАСЧЁТ РАССТОЯНИЙ ====================
 
     private fun calculateTotalDistance(
         route: List<Int>,
@@ -77,7 +73,6 @@ class GeneticAlgorithm(
         return totalDistance
     }
 
-    // ==================== РАСЧЁТ ВРЕМЕНИ ПРИБЫТИЯ ====================
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun calculateArrivalTimes(
@@ -101,8 +96,6 @@ class GeneticAlgorithm(
 
         return arrivalTimes
     }
-
-    // ==================== FITNESS-ФУНКЦИЯ ====================
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun calculateFitness(
@@ -130,7 +123,6 @@ class GeneticAlgorithm(
             }
         }
 
-        // Чем меньше расстояние и штраф, тем лучше (возвращаем отрицательное значение)
         return -(totalDistance + penalty)
     }
 
@@ -145,7 +137,6 @@ class GeneticAlgorithm(
         }
     }
 
-    // ==================== ГЕНЕТИЧЕСКИЕ ОПЕРАТОРЫ ====================
 
     private fun initializePopulation(requiredPlaceIds: List<Int>): MutableList<Chromosome> {
         val population = mutableListOf<Chromosome>()
@@ -157,7 +148,6 @@ class GeneticAlgorithm(
     }
 
     private fun selection(population: MutableList<Chromosome>): List<Chromosome> {
-        // Турнирная селекция: выбираем лучших
         val tournamentSize = (populationSize * 0.2).toInt().coerceAtLeast(2)
         val sorted = population.sortedByDescending { it.fitness }
         return sorted.take(tournamentSize)
@@ -167,18 +157,15 @@ class GeneticAlgorithm(
         val size = parent1.placeIds.size
         if (size < 2) return parent1
 
-        // Выбираем случайный отрезок
         val start = Random.nextInt(0, size - 1)
         val end = Random.nextInt(start + 1, size)
 
         val childIds = MutableList(size) { -1 }
 
-        // Копируем отрезок от первого родителя
         for (i in start..end) {
             childIds[i] = parent1.placeIds[i]
         }
 
-        // Заполняем остальное от второго родителя
         var parent2Index = 0
         for (i in 0 until size) {
             if (childIds[i] == -1) {
@@ -253,7 +240,6 @@ class GeneticAlgorithm(
         }
     }
 
-    // ==================== ГЛАВНЫЙ МЕТОД ЭВОЛЮЦИИ ====================
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun evolve(
@@ -261,41 +247,31 @@ class GeneticAlgorithm(
         startPosition: Pair<Int, Int>,
         startTime: LocalTime
     ): Chromosome {
-        // 1. Получаем ID обязательных заведений
         val requiredPlaceIds = getRequiredPlaceIds(requiredProducts)
         if (requiredPlaceIds.size <= 1) {
             return Chromosome(requiredPlaceIds)
         }
 
-        // 2. Создаём начальную популяцию
         var population = initializePopulation(requiredPlaceIds)
         evaluatePopulation(population, startPosition, startTime)
 
-        // 3. Основной цикл эволюции
         repeat(generations) {
-            // Селекция
             val parents = selection(population)
 
-            // Кроссинговер
             var offspring = crossoverPopulation(parents)
 
-            // Мутация
             offspring = mutatePopulation(offspring)
 
-            // Оценка нового поколения
             evaluatePopulation(offspring, startPosition, startTime)
 
-            // Элитизм (сохраняем лучших)
             preserveElites(population, offspring, (populationSize * 0.1).toInt().coerceAtLeast(1))
 
             population = offspring
         }
 
-        // 4. Возвращаем лучшую особь
         return population.maxByOrNull { it.fitness } ?: population.first()
     }
 
-    // ==================== ПОСТРОЕНИЕ ПУТИ ДЛЯ ОТРИСОВКИ ====================
 
     fun buildFullPath(
         route: List<Int>,
@@ -317,12 +293,10 @@ class GeneticAlgorithm(
         return fullPath.distinct()
     }
 
-    // ==================== ПРОДУКТЫ → ЗАВЕДЕНИЯ ====================
 
     fun getRequiredPlaceIds(requiredProducts: List<String>): List<Int> {
         val productToPlaces = mutableMapOf<String, MutableList<Building>>()
 
-        // Строим карту: продукт → список заведений
         for (building in buildings) {
             for (product in building.menu!!) {
                 if (!productToPlaces.containsKey(product)) {
@@ -332,12 +306,10 @@ class GeneticAlgorithm(
             }
         }
 
-        // Собираем ID заведений для каждого продукта
         val requiredPlaceIds = mutableSetOf<Int>()
         for (product in requiredProducts) {
             val places = productToPlaces[product]
             if (!places.isNullOrEmpty()) {
-                // Берём первое заведение, где есть продукт
                 requiredPlaceIds.add(places[0].id)
             }
         }

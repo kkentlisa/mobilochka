@@ -13,10 +13,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.genetic.GeneticAlgorithm
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
+import com.example.mobilo4ka.ui.card.BuildingBottomSheet
+import com.example.mobilo4ka.ui.card.MapViewModel
 import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
@@ -27,7 +30,8 @@ import java.time.LocalTime
 fun GeneticScreen(
     gridData: GridMap,
     buildingsData: List<Building>,
-    zonesData: Map<String, List<List<Int>>>
+    zonesData: Map<String, List<List<Int>>>,
+    mapViewModel: MapViewModel = viewModel()
 ) {
     SetStatusBarColor(true)
     val context = LocalContext.current
@@ -35,6 +39,7 @@ fun GeneticScreen(
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
     var isLoading by remember { mutableStateOf(false) }
     var resultText by remember { mutableStateOf("") }
+    var selectedBuilding by remember { mutableStateOf<Building?>(null) }
 
     Box(
         modifier = Modifier
@@ -71,6 +76,12 @@ fun GeneticScreen(
                         this.gridMap = gridData
                         this.buildings = buildingsData
                         this.zones = zonesData
+
+                        // ПЕРЕДАЕМ КЛИК: ищем здание через ViewModel
+                        this.onBuildingClicked = { x, y ->
+                            selectedBuilding = mapViewModel.findBuilding(x, y)
+                        }
+
                         setupInitialView()
                         mapViewRef = this
                     }
@@ -109,24 +120,19 @@ fun GeneticScreen(
                 onClick = {
                     isLoading = true
                     resultText = ""
-
                     try {
                         val ga = GeneticAlgorithm(gridData, buildingsData)
-
                         val bestRoute = ga.evolve(
                             requiredProducts = listOf("кофе", "блинчики"),
                             startPosition = Pair(50, 50),
                             startTime = LocalTime.now()
                         )
-
                         val fullPath = ga.buildFullPath(bestRoute.placeIds, Pair(50, 50))
                         mapViewRef?.showGeneticRoute(fullPath)
-
                         val names = bestRoute.placeIds.mapNotNull { id ->
                             buildingsData.find { it.id == id }?.name
                         }
                         resultText = "Оптимальный маршрут:\n${names.joinToString(" → ")}"
-
                     } catch (e: Exception) {
                         resultText = "Ошибка: ${e.message}"
                     } finally {
@@ -148,6 +154,13 @@ fun GeneticScreen(
                     Text("Построить оптимальный маршрут")
                 }
             }
+        }
+
+        if (selectedBuilding != null) {
+            BuildingBottomSheet(
+                building = selectedBuilding!!,
+                onDismiss = { selectedBuilding = null }
+            )
         }
     }
 }

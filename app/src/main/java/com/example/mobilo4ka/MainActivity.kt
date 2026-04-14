@@ -48,13 +48,13 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("ants") {AntsScreen()}
                     composable("astar") {
-                            gridData?.let { data ->
-                                AStarScreen(
-                                    gridData = data,
-                                    buildingsData = buildingsData,
-                                    zonesData = zonesData
-                                )
-                            }
+                        gridData?.let { data ->
+                            AStarScreen(
+                                gridData = data,
+                                buildingsData = buildingsData,
+                                zonesData = zonesData
+                            )
+                        }
                     }
                     composable("clustering") { ClusteringScreen() }
                     composable("genetic") {
