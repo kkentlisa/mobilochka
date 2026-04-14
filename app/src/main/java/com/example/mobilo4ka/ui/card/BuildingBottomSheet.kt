@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,7 +85,7 @@ fun BuildingBottomSheet(
 
             if (!building.openTime.isNullOrBlank()) {
                 Text(
-                    text = "${R.string.work} ${building.openTime} — ${building.closeTime}",
+                    text = "${stringResource(id = R.string.work)} ${building.openTime} — ${building.closeTime}",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(vertical = Dimens.paddingMediumSmall)
@@ -101,7 +102,7 @@ fun BuildingBottomSheet(
 
             if (building.menu.isNotEmpty()) {
                 Text(
-                    text = "${R.string.menu}",
+                    text = stringResource(id = R.string.menu),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
