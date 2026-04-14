@@ -117,7 +117,7 @@ fun BuildingBottomSheet(
                         Text(
                             text = item.replaceFirstChar { it.uppercase() },
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(horizontal = Dimens.paddingLarge, vertical = Dimens.paddingLowerMeduim),
+                            modifier = Modifier.padding(horizontal = Dimens.paddingLarge, vertical = Dimens.paddingLowerMedium),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
