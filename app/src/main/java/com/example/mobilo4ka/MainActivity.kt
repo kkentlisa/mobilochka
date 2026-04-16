@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mobilo4ka.ui.card.MapViewModel
 import com.example.mobilo4ka.ui.main.MainScreen
 import com.example.mobilo4ka.ui.main.MainViewModel
 import com.example.mobilo4ka.ui.screens.ants.AntsScreen
@@ -93,12 +94,13 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("genetic") {
                         gridData?.let { data ->
-                            val clusteringViewModel: ClusteringViewModel = viewModel()
+                            val mapViewModel: MapViewModel = viewModel()
+
                             GeneticScreen(
                                 gridData = data,
                                 buildingsData = buildingsData,
                                 zonesData = zonesData,
-                                viewModel = clusteringViewModel
+                                mapViewModel = mapViewModel
                             )
                         }
                     }

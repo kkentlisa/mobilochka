@@ -41,4 +41,13 @@ data class Building(
     fun hasProduct(product: String): Boolean {
         return menu.any { it.equals(product, ignoreCase = true) }
     }
+
+    fun containsPoint(x: Int, y: Int): Boolean {
+        return pixels.any { it[0] == x && it[1] == y }
+    }
+
+    fun getFirstEntrance(): Pair<Int, Int>? {
+        val firstPixel = pixels.firstOrNull() ?: return null
+        return Pair(firstPixel[0], firstPixel[1])
+    }
 }

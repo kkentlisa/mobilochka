@@ -162,7 +162,7 @@ fun ClusteringScreen(
                             Spacer(modifier = Modifier.height(Dimens.paddingSmall))
 
                             Text(
-                                text = context.getString(R.string.clusters_count, state.kValue),
+                                text = stringResource(R.string.clusters_count, state.kValue),
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.align(Alignment.Start)
                             )
