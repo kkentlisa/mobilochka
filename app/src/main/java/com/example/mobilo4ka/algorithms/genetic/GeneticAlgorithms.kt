@@ -5,116 +5,183 @@ import androidx.annotation.RequiresApi
 import com.example.mobilo4ka.algorithms.astar.AStarAlgorithm
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
+import java.time.LocalTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 class GeneticAlgorithm(
     private val gridMap: GridMap,
     private val buildings: List<Building>,
-    private val populationSize: Int = 100,
-    private val generations: Int = 150
+    private val populationSize: Int = 80,
+    private val generations: Int = 50
 ) {
     private val aStar = AStarAlgorithm()
+    private val buildingMap = buildings.associateBy { it.id }
+
+    // 🔥 КЭШ расстояний (ускоряет в разы)
+    private val distanceCache =
+        mutableMapOf<Pair<Pair<Int, Int>, Pair<Int, Int>>, Double>()
 
     fun isWalkable(x: Int, y: Int): Boolean {
         val matrix = gridMap.matrix ?: return false
         return y in matrix.indices && x in matrix[0].indices && matrix[y][x] == 0
     }
 
+    // ❗ БЕЗ suspend
     fun calculateRouteDistance(route: List<Int>, start: Pair<Int, Int>): Double {
-        var totalDistance = 0.0
+        var score = 0.0
         var currentPos = start
-        val startTime = java.time.LocalTime.now()
+        val startTime = LocalTime.now()
         var accumulatedMinutes = 0
 
         route.forEach { id ->
-            val building = buildings.find { it.id == id }
-            val entrance = building?.firstEntrance
-            if (entrance != null) {
-                val dx = (entrance.first - currentPos.first).toDouble()
-                val dy = (entrance.second - currentPos.second).toDouble()
-                val dist = Math.sqrt(dx * dx + dy * dy)
-                totalDistance += dist
+            val building = buildingMap[id] ?: return@forEach
+            val entrance = building.firstEntrance ?: return@forEach
 
-                accumulatedMinutes += (dist * 2 / 15).toInt()
-                val arrivalTime = startTime.plusMinutes(accumulatedMinutes.toLong())
+            val key = currentPos to entrance
 
-                val open = building.parsedOpenTime
-                val close = building.parsedCloseTime
-                if (open != null && close != null) {
-                    if (arrivalTime.isBefore(open) || arrivalTime.isAfter(close)) {
-                        totalDistance += 10000.0
-                    }
+            val dist = distanceCache.getOrPut(key) {
+                val path = aStar.findPath(
+                    currentPos.first,
+                    currentPos.second,
+                    entrance.first,
+                    entrance.second
+                ) { x, y ->
+                    (x == entrance.first && y == entrance.second) || isWalkable(x, y)
                 }
-                currentPos = entrance
+
+                if (path.isEmpty()) return@getOrPut 100000.0
+                path.size.toDouble()
             }
+
+            score += dist
+
+            accumulatedMinutes += (dist * 2 / 15).toInt()
+            val arrivalTime = startTime.plusMinutes(accumulatedMinutes.toLong())
+
+            val open = building.parsedOpenTime
+            val close = building.parsedCloseTime
+
+            if (open != null && close != null) {
+                if (arrivalTime.isBefore(open) || arrivalTime.isAfter(close)) {
+                    score += 10000.0
+                }
+            }
+
+            currentPos = entrance
         }
-        return totalDistance
+
+        return score
     }
 
-    fun evolve(
+    suspend fun evolve(
         products: List<String>,
         start: Pair<Int, Int>,
-        onStepFound: (List<Pair<Int, Int>>) -> Unit
-    ): List<Int> {
-        val targetIds = products.mapNotNull { prod ->
-            buildings.find { it.name != null && it.menu.contains(prod) }?.id
-        }.distinct()
+        onStepFound: suspend (List<Pair<Int, Int>>) -> Unit
+    ): List<Int> = withContext(Dispatchers.Default) {
 
-        if (targetIds.isEmpty()) return emptyList()
+        val optionsPerProduct = products.map { prod ->
+            buildings.filter { it.hasProduct(prod) }
+        }
 
-        var population = List(populationSize) { targetIds.shuffled() }
-        var bestIndividual = population[0]
-        var minDistance = calculateRouteDistance(bestIndividual, start)
+        if (optionsPerProduct.any { it.isEmpty() }) return@withContext emptyList()
 
-        val animationStep = (generations / 3).coerceAtLeast(1)
+        var population = List(populationSize) {
+            optionsPerProduct.map { it.random().id }
+        }
+
+        var bestIndividual = population.first()
+        var minScore = calculateRouteDistance(bestIndividual, start)
 
         repeat(generations) { generation ->
-            population = population.sortedBy { calculateRouteDistance(it, start) }
-            if (calculateRouteDistance(population[0], start) < minDistance) {
-                bestIndividual = population[0]
-                minDistance = calculateRouteDistance(bestIndividual, start)
+            if (generation % 5 == 0) yield()
+
+            population = population.sortedBy {
+                calculateRouteDistance(it, start)
             }
 
-            if (generation % animationStep == 0) {
-                onStepFound(buildFullPath(bestIndividual, start))
-                Thread.sleep(200)
+            val currentBest = population.first()
+            val currentScore = calculateRouteDistance(currentBest, start)
+
+            if (currentScore < minScore) {
+                bestIndividual = currentBest
+                minScore = currentScore
             }
 
             val nextGeneration = mutableListOf<List<Int>>()
-            val eliteSize = (populationSize * 0.1).toInt().coerceAtLeast(1)
-            nextGeneration.addAll(population.take(eliteSize))
+            nextGeneration.addAll(population.take(10))
 
             while (nextGeneration.size < populationSize) {
-                val parent = population.take(populationSize / 2).random()
-                nextGeneration.add(mutate(parent))
+                val parent = population.take(20).random()
+
+                val mutated = if ((0..1).random() == 0) {
+                    mutateOrder(parent)
+                } else {
+                    mutateBuildingChoice(parent, optionsPerProduct)
+                }
+
+                nextGeneration.add(mutated)
             }
+
             population = nextGeneration
         }
-        return bestIndividual
-    }
 
-    fun buildFullPath(routeIds: List<Int>, start: Pair<Int, Int>): List<Pair<Int, Int>> {
-        val fullPath = mutableListOf<Pair<Int, Int>>()
-        var currentPos = start
-        routeIds.forEach { id ->
-            val building = buildings.find { it.id == id }
-            val targetEntrance = building?.firstEntrance
-            if (targetEntrance != null) {
-                val segment = aStar.findPath(currentPos.first, currentPos.second, targetEntrance.first, targetEntrance.second) { x, y ->
-                    (x == targetEntrance.first && y == targetEntrance.second) || isWalkable(x, y)
-                }
-                fullPath.addAll(segment)
-                currentPos = targetEntrance
-            }
+        val finalPath = buildFullPath(bestIndividual, start)
+
+        withContext(Dispatchers.Main) {
+            onStepFound(finalPath)
         }
-        return fullPath
+
+        return@withContext bestIndividual
     }
 
-    private fun mutate(route: List<Int>): List<Int> {
+    private fun mutateOrder(route: List<Int>): List<Int> {
         if (route.size < 2) return route
         val mutated = route.toMutableList()
-        val i = mutated.indices.random(); val j = mutated.indices.random()
-        val temp = mutated[i]; mutated[i] = mutated[j]; mutated[j] = temp
+        val i = mutated.indices.random()
+        val j = mutated.indices.random()
+        mutated[i] = mutated[j].also { mutated[j] = mutated[i] }
         return mutated
+    }
+
+    private fun mutateBuildingChoice(
+        route: List<Int>,
+        options: List<List<Building>>
+    ): List<Int> {
+        val mutated = route.toMutableList()
+        val index = options.indices.random()
+        mutated[index] = options[index].random().id
+        return mutated
+    }
+
+    suspend fun buildFullPath(
+        routeIds: List<Int>,
+        start: Pair<Int, Int>
+    ): List<Pair<Int, Int>> {
+        val fullPath = mutableListOf<Pair<Int, Int>>()
+        var currentPos = start
+
+        routeIds.forEach { id ->
+            yield()
+
+            val building = buildingMap[id]
+            val target = building?.firstEntrance ?: return@forEach
+
+            val segment = aStar.findPath(
+                currentPos.first,
+                currentPos.second,
+                target.first,
+                target.second
+            ) { x, y ->
+                (x == target.first && y == target.second) || isWalkable(x, y)
+            }
+
+            fullPath.addAll(segment)
+            currentPos = target
+        }
+
+        return fullPath
     }
 }

@@ -43,11 +43,13 @@ fun GeneticScreen(
 
     var showRouteDetails by remember { mutableStateOf(false) }
     var routePathData by remember { mutableStateOf<List<Building>>(emptyList()) }
+    var hasRoute by remember { mutableStateOf(false) }
     var estimatedTime by remember { mutableIntStateOf(0) }
 
     var userStartPoint by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
+    var buildingProducts by remember { mutableStateOf<Map<Int, List<String>>>(emptyMap()) }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         Scaffold { paddingValues ->
@@ -71,87 +73,95 @@ fun GeneticScreen(
         }
 
         if (showRouteDetails) {
-            if (showRouteDetails) {
-                ModalBottomSheet(
-                    onDismissRequest = { showRouteDetails = false },
-                    sheetState = sheetState,
-                    containerColor = MaterialTheme.colorScheme.surface
+            ModalBottomSheet(
+                onDismissRequest = { showRouteDetails = false },
+                sheetState = sheetState,
+                containerColor = MaterialTheme.colorScheme.surface
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 32.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp)
-                            .padding(bottom = 32.dp)
+                    Text(
+                        text = "Ваш маршрут",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Общее время в пути: $estimatedTime мин.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+
+                    HorizontalDivider()
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(vertical = 16.dp)
                     ) {
-                        Text(
-                            text = "Ваш маршрут",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Общее время в пути: $estimatedTime мин.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                        item {
+                            val formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+                            val startTimeStr = java.time.LocalTime.now().format(formatter)
 
-                        HorizontalDivider()
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column {
+                                    Text(text = "Начало пути", style = MaterialTheme.typography.titleMedium)
+                                    Text(text = "Выход в $startTimeStr", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp)
+                        }
 
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(vertical = 16.dp)
-                        ) {
-                            item {
-                                val formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
-                                val startTimeStr = java.time.LocalTime.now().format(formatter)
+                        itemsIndexed(routePathData) { index, building ->
+                            val currentStart = userStartPoint ?: Pair(22, 15)
+                            val ga = GeneticAlgorithm(gridData, buildingsData)
 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                            val idsUpToThis = routePathData.take(index + 1).map { it.id }
+                            val distanceToPoint = ga.calculateRouteDistance(idsUpToThis, currentStart)
+
+                            val timeToThisPoint = (distanceToPoint * 2 / 15).toInt()
+                            val (arrivalStatus, statusColor, workHours) = getArrivalStatus(building, timeToThisPoint)
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = statusColor.copy(alpha = 0.1f),
+                                    modifier = Modifier.size(40.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, statusColor)
                                 ) {
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Column {
-                                        Text(text = "Начало пути", style = MaterialTheme.typography.titleMedium)
-                                        Text(text = "Выход в $startTimeStr", style = MaterialTheme.typography.bodySmall)
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = (index + 1).toString(),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = statusColor
+                                        )
                                     }
                                 }
-                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp)
-                            }
 
-                            itemsIndexed(routePathData) { index, building ->
-                                val currentStart = userStartPoint ?: Pair(22, 15)
-                                val ga = GeneticAlgorithm(gridData, buildingsData)
+                                Spacer(modifier = Modifier.width(16.dp))
 
-                                val idsUpToThis = routePathData.take(index + 1).map { it.id }
-                                val distanceToPoint = ga.calculateRouteDistance(idsUpToThis, currentStart)
+                                Column {
+                                    Text(text = building.name ?: "Здание", style = MaterialTheme.typography.titleMedium)
+                                    Text(text = arrivalStatus, color = statusColor, style = MaterialTheme.typography.bodyMedium)
+                                    Text(text = "Режим: $workHours", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
 
-                                val timeToThisPoint = (distanceToPoint * 2 / 15).toInt()
-                                val (arrivalStatus, statusColor, workHours) = getArrivalStatus(building, timeToThisPoint)
+                                    val productsHere = buildingProducts[building.id]
 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Surface(
-                                        shape = CircleShape,
-                                        color = statusColor.copy(alpha = 0.1f),
-                                        modifier = Modifier.size(40.dp),
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, statusColor)
-                                    ) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                            Text(
-                                                text = (index + 1).toString(),
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = statusColor
-                                            )
-                                        }
-                                    }
-
-                                    Spacer(modifier = Modifier.width(16.dp))
-
-                                    Column {
-                                        Text(text = building.name ?: "Здание", style = MaterialTheme.typography.titleMedium)
-                                        Text(text = arrivalStatus, color = statusColor, style = MaterialTheme.typography.bodyMedium)
-                                        Text(text = "Режим: $workHours", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                                    if (!productsHere.isNullOrEmpty()) {
+                                        Text(
+                                            text = "Купить: ${productsHere.joinToString()}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
                                     }
                                 }
                             }
@@ -178,56 +188,88 @@ fun GeneticScreen(
                 }
             }
 
+
             Button(
                 onClick = {
-                    val currentStart = userStartPoint ?: Pair(22, 15)
-                    val ga = GeneticAlgorithm(gridData, interestingBuildings)
+                    if (userStartPoint == null) return@Button
 
-                    if (!ga.isWalkable(currentStart.first, currentStart.second)) {
-                        resultText = "Невозможно построить маршрут: выберите дорожку"
-                    } else {
-                        isLoading = true
-                        scope.launch(Dispatchers.Default) {
-                            try {
-                                suspend fun drawPathFast(path: List<Pair<Int, Int>>, entrances: List<Pair<Int, Int>>, step: Int) {
-                                    withContext(Dispatchers.Main) {
-                                        for (i in 1..path.size step step) {
-                                            val partial = path.take(i)
-                                            mapViewRef?.showGeneticRoute(partial, entrances.filter { partial.contains(it) })
-                                            delay(1)
-                                        }
-                                        mapViewRef?.showGeneticRoute(path, entrances)
-                                    }
-                                }
+                    isLoading = true
+                    resultText = ""
 
-                                val routeIds = ga.evolve(listOf("кофе", "блинчики"), currentStart) { intermediate ->
-                                    runBlocking(Dispatchers.Main) { drawPathFast(intermediate, emptyList(), 100) }
-                                }
+                    scope.launch {
+                        try {
+                            val ga = GeneticAlgorithm(gridData, interestingBuildings)
+                            val startPoint = userStartPoint!!
 
-                                if (routeIds.isNotEmpty()) {
-                                    val finalPath = ga.buildFullPath(routeIds, currentStart)
-                                    drawPathFast(finalPath, routeIds.mapNotNull { id -> buildingsData.find { it.id == id }?.firstEntrance }, 40)
+                            val resultIds = ga.evolve(
+                                listOf("кофе", "блинчики"),
+                                startPoint
+                            ) { finalPath ->
 
-                                    withContext(Dispatchers.Main) {
-                                        routePathData = routeIds.mapNotNull { id -> buildingsData.find { it.id == id } }
-                                        estimatedTime = (finalPath.size * 2 / 15).coerceAtLeast(1)
-                                        resultText = ""
-                                        showRouteDetails = true
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                withContext(Dispatchers.Main) { resultText = "Ошибка: ${e.localizedMessage}" }
-                            } finally {
-                                withContext(Dispatchers.Main) { isLoading = false }
+                                mapViewRef?.showGeneticRoute(finalPath, emptyList())
+
+                                estimatedTime = (finalPath.size * 2 / 15).coerceAtLeast(1)
+                                showRouteDetails = true
+                                hasRoute = true
                             }
+
+                            routePathData = resultIds
+                                .mapNotNull { id -> buildingsData.find { it.id == id } }
+                                .distinctBy { it.id }
+
+                            val products = listOf("кофе", "блинчики")
+
+                            val buildingProductsMap = mutableMapOf<Int, MutableList<String>>()
+
+                            resultIds.forEach { buildingId ->
+                                val building = buildingsData.find { it.id == buildingId } ?: return@forEach
+
+                                products.forEach { product ->
+                                    if (building.hasProduct(product)) {
+                                        buildingProductsMap
+                                            .getOrPut(buildingId) { mutableListOf() }
+                                            .add(product)
+                                    }
+                                }
+                            }
+
+                            buildingProducts = buildingProductsMap
+
+                            products.forEachIndexed { index, product ->
+                                val buildingId = resultIds.getOrNull(index)
+                                if (buildingId != null) {
+                                    val list = buildingProductsMap.getOrPut(buildingId) { mutableListOf() }
+                                    list.add(product)
+                                }
+                            }
+
+                        } catch (e: Exception) {
+                            resultText = "Ошибка: ${e.message}"
+                        } finally {
+                            isLoading = false
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 enabled = !isLoading
             ) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                else Text(if (userStartPoint == null) "Выберите точку" else "Построить маршрут")
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                } else {
+                    Text(if (userStartPoint == null) "Выберите точку" else "Построить маршрут")
+                }
+            }
+            if (hasRoute && !showRouteDetails) {
+                OutlinedButton(
+                    onClick = { showRouteDetails = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    Text("Показать маршрут")
+                }
             }
         }
     }
