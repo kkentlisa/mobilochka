@@ -22,7 +22,7 @@ class KMeans(
     }
 
     private fun getBuildingEntrance(x: Int, y: Int): Pair<Int, Int>? {
-        return buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
+        return buildings.find { it.containsPoint(x, y) }?.firstEntrance
     }
 
     fun calculate(

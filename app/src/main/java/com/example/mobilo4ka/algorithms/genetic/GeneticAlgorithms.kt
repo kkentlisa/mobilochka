@@ -52,7 +52,7 @@ class GeneticAlgorithm(
                     entrance.second,
                     isWalkable = { x, y -> (x == entrance.first && y == entrance.second) || isWalkable(x, y) },
                     isBuilding = { x, y -> buildings.any { it.containsPoint(x, y) } },
-                    getBuildingEntrance = { x, y -> buildings.find { it.containsPoint(x, y) }?.getFirstEntrance() }
+                    getBuildingEntrance = { x, y -> buildings.find { it.containsPoint(x, y) }?.firstEntrance }
                 )
 
                 if (path.isEmpty()) 100000.0 else path.size.toDouble()

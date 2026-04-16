@@ -94,13 +94,12 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("genetic") {
                         gridData?.let { data ->
-                            val mapViewModel: MapViewModel = viewModel()
-
+                            val mapVM: MapViewModel = viewModel()
                             GeneticScreen(
                                 gridData = data,
                                 buildingsData = buildingsData,
                                 zonesData = zonesData,
-                                mapViewModel = mapViewModel
+                                mapViewModel = mapVM
                             )
                         }
                     }

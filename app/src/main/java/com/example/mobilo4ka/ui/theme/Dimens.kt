@@ -34,6 +34,7 @@ object Dimens{
     val cardWeight = 280.dp
 
     val shadowElevation = 4.dp
+    val cardCornerRadius = 16.dp
 
     val borderSize = 2.dp
 

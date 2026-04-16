@@ -9,10 +9,8 @@ data class Building(
     val id: Int,
     val pixels: List<List<Int>>,
     val name: String? = null,
-
     @SerializedName("category")
     val category: String? = null,
-
     val entrances: List<List<Int>>? = null,
     val menu: List<String> = emptyList(),
     val openTime: String? = null,
@@ -44,10 +42,5 @@ data class Building(
 
     fun containsPoint(x: Int, y: Int): Boolean {
         return pixels.any { it[0] == x && it[1] == y }
-    }
-
-    fun getFirstEntrance(): Pair<Int, Int>? {
-        val firstPixel = pixels.firstOrNull() ?: return null
-        return Pair(firstPixel[0], firstPixel[1])
     }
 }
