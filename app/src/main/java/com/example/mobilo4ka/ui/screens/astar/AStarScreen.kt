@@ -31,6 +31,7 @@ import com.example.mobilo4ka.ui.card.MapViewModel
 import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun AStarScreen(
@@ -64,7 +65,7 @@ fun AStarScreen(
                         modifier = Modifier.size(Dimens.logoSize)
                     )
                     Text(
-                        text = context.getString(R.string.algo_astar),
+                        text = stringResource(R.string.algo_astar),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.padding(start = Dimens.paddingSmall)

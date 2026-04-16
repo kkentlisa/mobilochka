@@ -1,5 +1,6 @@
 package com.example.mobilo4ka.data.repository
 
+import android.R.attr.id
 import android.content.Context
 import com.example.mobilo4ka.data.models.Building
 import org.json.JSONArray
@@ -26,18 +27,19 @@ class BuildingRepository(private val context: Context) {
             val bObj = buildingsArray.getJSONObject(i)
             val id = bObj.getInt("id")
 
-            val pixelsArray = bObj.getJSONArray("pixels")
-            for (j in 0 until pixelsArray.length()) {
-                val point = pixelsArray.getJSONArray(j)
-                pixelToBuildingIdMap[Pair(point.getInt(0), point.getInt(1))] = id
+            val pixelsList = parsePoints(bObj.getJSONArray("pixels"))
+            val entrancesList = if (bObj.has("entrances")) parsePoints(bObj.getJSONArray("entrances")) else null
+
+            pixelsList.forEach { point ->
+                pixelToBuildingIdMap[Pair(point[0], point[1])] = id
             }
 
             val building = Building(
                 id = id,
-                pixels = emptyList(),
+                pixels = pixelsList,
                 category = if (bObj.has("category")) bObj.getString("category") else null,
-                entrances = if (bObj.has("entrances")) parsePoints(bObj.getJSONArray("entrances")) else null,
                 name = if (bObj.has("name")) bObj.getString("name") else null,
+                entrances = entrancesList, // ОБЯЗАТЕЛЬНО ПЕРЕДАЙ ВХОДЫ
                 openTime = if (bObj.has("openTime")) bObj.getString("openTime") else null,
                 closeTime = if (bObj.has("closeTime")) bObj.getString("closeTime") else null,
                 menu = if (bObj.has("menu")) parseStringList(bObj.getJSONArray("menu")) else emptyList()
