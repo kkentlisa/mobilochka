@@ -33,6 +33,7 @@ object Dimens{
 
     val cardCornerRadius = 16.dp
 
+    val iconSize = 40.dp
     val borderSize = 2.dp
 
     val mapRouteWidth = 0.4f
