@@ -5,12 +5,15 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.*
 import androidx.compose.ui.graphics.toArgb
+import com.example.mobilo4ka.algorithms.clustering.ClusterPoint
+import com.example.mobilo4ka.algorithms.clustering.ClusteringMode
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
 import com.example.mobilo4ka.ui.screens.astar.RouteDrawer
+import com.example.mobilo4ka.ui.screens.clustering.ClusterDrawer
 import com.example.mobilo4ka.ui.theme.*
 
-class MapView (context: Context, attrs: AttributeSet? = null): View(context, attrs) {
+class MapView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
     var gridMap: GridMap? = null
         set(value) {
             field = value
@@ -27,7 +30,18 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
             invalidate()
         }
 
-    private val routeDrawer = RouteDrawer(this)
+    var routeDrawer: RouteDrawer? = null
+    var isAstarEnabled: Boolean = false
+
+    private val clusterDrawer = ClusterDrawer()
+    var isClusteringEnabled: Boolean = false
+
+    fun updateClustering(points: List<ClusterPoint>, mode: ClusteringMode) {
+        clusterDrawer.points = points
+        clusterDrawer.mode = mode
+        invalidate()
+    }
+
     val mapMatrix = Matrix()
 
     private val buildingPaint = Paint().apply {
@@ -86,6 +100,8 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
         }
 
         override fun onSingleTapUp(e: MotionEvent): Boolean {
+            if (!isAstarEnabled) return false
+
             val inverse = Matrix()
             mapMatrix.invert(inverse)
             val pts = floatArrayOf(e.x, e.y)
@@ -95,7 +111,7 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
             val gridY = pts[1].toInt()
 
             if (gridX in 0 until mapWidth.toInt() && gridY in 0 until mapHeight.toInt()) {
-                routeDrawer.onMapClicked(gridX, gridY)
+                routeDrawer?.onMapClicked(gridX, gridY)
             }
 
             performClick()
@@ -137,6 +153,7 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
         gestureDetector.onTouchEvent(event)
         return true
     }
+
     override fun performClick(): Boolean {
         super.performClick()
         return true
@@ -147,7 +164,13 @@ class MapView (context: Context, attrs: AttributeSet? = null): View(context, att
         canvas.save()
         canvas.concat(mapMatrix)
 
-        routeDrawer.drawRoute(canvas)
+        drawBaseMap(canvas)
+
+        routeDrawer?.drawRoute(canvas)
+
+        gridMap?.let { map ->
+            if (isClusteringEnabled) clusterDrawer.draw(canvas, map.width, map.height)
+        }
         canvas.restore()
 
     }

@@ -33,7 +33,7 @@ class AStarAlgorithm {
         return abs(x1 - x2) + abs(y1 - y2)
     }
 
-    private fun findNearestRoad(
+    fun findNearestRoad(
         x: Int, y: Int,
         isWalkable: (Int, Int) -> Boolean,
         isBuilding: (Int, Int) -> Boolean

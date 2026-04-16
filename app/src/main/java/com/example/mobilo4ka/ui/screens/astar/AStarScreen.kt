@@ -33,7 +33,7 @@ fun AStarScreen(
 ) {
     val context = LocalContext.current
 
-    SetStatusBarColor(true)
+    SetStatusBarColor(false)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -68,6 +68,9 @@ fun AStarScreen(
                         this.gridMap = gridData
                         this.buildings = buildingsData
                         this.zones = zonesData
+                        this.routeDrawer = RouteDrawer(this)
+                        this.isAstarEnabled = true
+                        this.isClusteringEnabled = false
 
                         setupInitialView()
                     }
