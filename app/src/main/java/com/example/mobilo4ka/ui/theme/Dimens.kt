@@ -2,8 +2,8 @@ package com.example.mobilo4ka.ui.theme
 
 import androidx.compose.ui.unit.dp
 
-object Dimens {
-
+object Dimens{
+    val paddingDefault = 1.dp
     val paddingExtraSmall = 4.dp
     val paddingMediumSmall = 6.dp
     val paddingSmall = 8.dp
@@ -13,21 +13,16 @@ object Dimens {
     val paddingExtraLarge = 24.dp
     val paddingBottomScale = 40.dp
 
-    val cardCornerRadius = 16.dp
+    val logoSize = 50.dp
 
+    val buttonHeight = 120.dp
     val spacingLarge = 16.dp
 
-    val iconSize = 40.dp
-    val logoSize = 50.dp
-    val topBarHeight = 100.dp
-
     val shadowHeight = 3.dp
-    val buttonHeight = 120.dp
     val buttonCornerRadius = 8.dp
     val buttonRadius = 12.dp
     val bannerSize = 320.dp
     val dividerThickness = 1.dp
-    val paddingDefault = 1.dp
 
     val cornerSmall = 8.dp
     val cornerMedium = 12.dp
@@ -36,8 +31,23 @@ object Dimens {
     val sheetCorner = 28.dp
 
     val buttonSmall = 4.dp
-
     val cardWeight = 280.dp
 
     val shadowElevation = 4.dp
+
+    val borderSize = 2.dp
+
+    val mapRouteWidth = 0.4f
+    val mapPointRadius = 0.5f
+    val mapMaxScale = 50f
+    val mapMinScale = 8f
+    val mapWidhtSize = 202f
+    val mapHeightSize = 161f
+
+    val fabSize = 48.dp
+    val fabIconSize = 30.dp
+    val sliderThumbSize = 20.dp
+    val sliderTrackSize = 10.dp
+    val clusterLegend = 12.dp
+    val clusterButton = 52.dp
 }

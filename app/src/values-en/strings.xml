@@ -10,7 +10,7 @@
     <string name="algo_genetic">Route through establishments (Genetic)</string>
     <string name="algo_ants">Coworking spaces (Ants)</string>
     <string name="algo_tree">Where to eat (Tree)</string>
-    <string name="algo_neural">Rate establishment (Neural)</string>
+    <string name="algo_neural">Rate establishment</string>
 
     <string name="tsu_logo">TSU logo</string>
 
@@ -27,4 +27,17 @@
 
     <string name="neural_button_recognize">Recognize</string>
     <string name="neural_button_clear">Clear</string>
+    <string name="neural_button_train">Train</string>
+    <string name="draw_number">Draw number</string>
+    <string name="rating">Rating: %1$d</string>
+
+    <string name="clustering_settings">Clustering Settings</string>
+    <string name="close_settings">Close</string>
+    <string name="clusters_count">Number of clusters: %d</string>
+    <string name="mode_euclidean">Euclidean</string>
+    <string name="mode_astar">A*</string>
+    <string name="mode_comparison">Compare</string>
+    <string name="legend_euclidean">- Euclidean</string>
+    <string name="legend_astar">- A*</string>
+    <string name="calculate_clusters">Calculate</string>
 </resources>

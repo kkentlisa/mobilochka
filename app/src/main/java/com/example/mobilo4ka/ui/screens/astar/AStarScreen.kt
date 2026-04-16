@@ -42,7 +42,7 @@ fun AStarScreen(
     var selectedBuilding by remember { mutableStateOf<Building?>(null) }
     val context = LocalContext.current
 
-    SetStatusBarColor(true)
+    SetStatusBarColor(false)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -80,6 +80,9 @@ fun AStarScreen(
                         this.onBuildingClicked = { x, y ->
                             selectedBuilding = mapViewModel.findBuilding(x, y)
                         }
+                        this.routeDrawer = RouteDrawer(this)
+                        this.isAstarEnabled = true
+                        this.isClusteringEnabled = false
 
                         setupInitialView()
                     }
