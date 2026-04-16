@@ -4,9 +4,11 @@ import androidx.compose.ui.unit.dp
 
 object Dimens{
     val paddingDefault = 1.dp
+    val paddingExtraSmall = 4.dp
     val paddingSmall = 8.dp
     val paddingMedium = 12.dp
     val paddingLarge = 16.dp
+    val paddingExtraLarge = 24.dp
 
     val logoSize = 50.dp
 
@@ -25,7 +27,7 @@ object Dimens{
     val buttonSmall = 4.dp
     val cardWeight = 280.dp
 
-    val borderSize = 1.dp
+    val borderSize = 2.dp
 
     val mapRouteWidth = 0.4f
     val mapPointRadius = 0.5f
@@ -33,4 +35,11 @@ object Dimens{
     val mapMinScale = 8f
     val mapWidhtSize = 202f
     val mapHeightSize = 161f
+
+    val fabSize = 48.dp
+    val fabIconSize = 30.dp
+    val sliderThumbSize = 20.dp
+    val sliderTrackSize = 10.dp
+    val clusterLegend = 12.dp
+    val clusterButton = 52.dp
 }

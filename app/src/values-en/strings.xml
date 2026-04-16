@@ -30,4 +30,14 @@
     <string name="neural_button_train">Train</string>
     <string name="draw_number">Draw number</string>
     <string name="rating">Rating: %1$d</string>
+
+    <string name="clustering_settings">Clustering Settings</string>
+    <string name="close_settings">Close</string>
+    <string name="clusters_count">Number of clusters: %d</string>
+    <string name="mode_euclidean">Euclidean</string>
+    <string name="mode_astar">A*</string>
+    <string name="mode_comparison">Compare</string>
+    <string name="legend_euclidean">- Euclidean</string>
+    <string name="legend_astar">- A*</string>
+    <string name="calculate_clusters">Calculate</string>
 </resources>
