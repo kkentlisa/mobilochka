@@ -2,23 +2,21 @@ package com.example.mobilo4ka.ui.card
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items // Важно для работы со списками
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.ui.theme.AppAlpha
 import com.example.mobilo4ka.ui.theme.Dimens
-import com.example.mobilo4ka.ui.theme.Typography
 import com.example.mobilo4ka.ui.theme.lineHeight
 
 @Composable
@@ -48,77 +46,96 @@ fun BuildingBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = Dimens.cornerExtraLarge, Dimens.cornerExtraLarge),
+        shape = RoundedCornerShape(
+            topStart = Dimens.cornerExtraLarge,
+            topEnd = Dimens.cornerExtraLarge
+        ),
         containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingExtraLarge)
-                .padding(bottom = Dimens.paddingBottomScale)
+                .padding(horizontal = Dimens.paddingExtraLarge),
+            contentPadding = PaddingValues(bottom = Dimens.paddingBottomScale)
         ) {
-            Card(
-                shape = RoundedCornerShape(Dimens.cornerExtraLarge),
-                modifier = Modifier
-                    .size(width = Dimens.bannerSize, height = Dimens.bannerSize)
-                    .align(Alignment.CenterHorizontally),
-                elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingExtraSmall)
-            ) {
-                Image(
-                    painter = painterResource(id = getDrawableByCategory(building.category)),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = Dimens.paddingSmall),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Card(
+                        shape = RoundedCornerShape(Dimens.cornerExtraLarge),
+                        modifier = Modifier
+                            .size(width = Dimens.bannerSize, height = Dimens.bannerSize),
+                        elevation = CardDefaults.cardElevation(defaultElevation = Dimens.paddingExtraSmall)
+                    ) {
+                        Image(
+                            painter = painterResource(id = getDrawableByCategory(building.category)),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
 
-            Spacer(modifier = Modifier.height(Dimens.paddingExtraLarge))
+                Spacer(modifier = Modifier.height(Dimens.paddingExtraLarge))
 
-            Text(
-                text = building.name ?: "${R.string.building}",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                lineHeight = lineHeight
-            )
-
-            if (!building.openTime.isNullOrBlank()) {
                 Text(
-                    text = "${stringResource(id = R.string.work)} ${building.openTime} — ${building.closeTime}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(vertical = Dimens.paddingMediumSmall)
+                    text = building.name ?: stringResource(id = R.string.building),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = lineHeight
+                )
+
+                if (!building.openTime.isNullOrBlank()) {
+                    Text(
+                        text = "${stringResource(id = R.string.work)} ${building.openTime} — ${building.closeTime}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(vertical = Dimens.paddingMedium)
+                    )
+                }
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = Dimens.paddingSmall),
+                    thickness = Dimens.dividerThickness,
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
             }
-
-            Spacer(modifier = Modifier.height(Dimens.cornerExtraLarge))
-
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = Dimens.paddingSmall),
-                thickness = Dimens.dividerThickness,
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
 
             if (building.menu.isNotEmpty()) {
-                Text(
-                    text = stringResource(id = R.string.menu),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = Dimens.paddingMedium)
-                )
+                item {
+                    Text(
+                        text = stringResource(id = R.string.menu),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(
+                            top = Dimens.paddingSmall,
+                            bottom = Dimens.paddingMedium
+                        )
+                    )
+                }
 
-                building.menu.forEach { item ->
+                items(building.menu) { item ->
                     Surface(
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = AppAlpha.COLOR),
                         shape = RoundedCornerShape(Dimens.paddingSmall),
-                        modifier = Modifier.padding(vertical = Dimens.paddingExtraSmall).fillMaxWidth()
+                        modifier = Modifier
+                            .padding(vertical = Dimens.paddingExtraSmall)
+                            .fillMaxWidth()
                     ) {
                         Text(
                             text = item.replaceFirstChar { it.uppercase() },
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(horizontal = Dimens.paddingLarge, vertical = Dimens.paddingLowerMedium),
+                            modifier = Modifier.padding(
+                                horizontal = Dimens.paddingLarge,
+                                vertical = Dimens.paddingMedium
+                            ),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
