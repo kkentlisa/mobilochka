@@ -63,14 +63,14 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(navController = navController, startDestination = "main") {
 
-                    composable("main") {
-                        MainScreen(
+                    composable("main"){
+                        MainScreen (
                             state = state,
                             onToggleMenu = viewModel::toggleMenu,
-                            onNavigate = { route -> navController.navigate(route) },
+                            onNavigate = {route -> navController.navigate(route)},
                         )
                     }
-                    composable("ants") { AntsScreen() }
+                    composable("ants") {AntsScreen()}
                     composable("astar") {
                         gridData?.let { data ->
                             AStarScreen(
@@ -91,7 +91,17 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                    composable("genetic") { GeneticScreen() }
+                    composable("genetic") {
+                        gridData?.let { data ->
+                            val clusteringViewModel: ClusteringViewModel = viewModel()
+                            GeneticScreen(
+                                gridData = data,
+                                buildingsData = buildingsData,
+                                zonesData = zonesData,
+                                viewModel = clusteringViewModel
+                            )
+                        }
+                    }
                     composable("neural") {
                         val neuralViewModel: NeuralViewModel = viewModel(factory = neuralFactory)
                         NeuralScreen(neuralViewModel)
