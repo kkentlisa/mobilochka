@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity() {
                         MainScreen(
                             state = state,
                             onToggleMenu = viewModel::toggleMenu,
+                            onCloseMenu = viewModel::toggleMenu,
                             onNavigate = { route -> navController.navigate(route) },
                         )
                     }

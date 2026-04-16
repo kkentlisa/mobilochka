@@ -2,7 +2,7 @@ package com.example.mobilo4ka.ui.theme
 
 import androidx.compose.ui.unit.dp
 
-object Dimens{
+object Dimens {
     val paddingDefault = 1.dp
     val paddingExtraSmall = 4.dp
     val paddingSmall = 8.dp
@@ -21,7 +21,6 @@ object Dimens{
     val buttonRadius = 12.dp
 
     val cardCornerRadius = 16.dp
-    val topBarHeight = 100.dp
 
     val iconSize = 40.dp
     val buttonSmall = 4.dp
@@ -42,4 +41,7 @@ object Dimens{
     val sliderTrackSize = 10.dp
     val clusterLegend = 12.dp
     val clusterButton = 52.dp
+
+    val zeroCornerRadius = 0.dp
+    val menuWidth = 300.dp
 }
