@@ -71,7 +71,15 @@ class MainActivity : ComponentActivity() {
                             onNavigate = {route -> navController.navigate(route)},
                         )
                     }
-                    composable("ants") {AntsScreen()}
+                    composable("ants") {
+                        gridData?.let { data ->
+                            AntsScreen(
+                                gridData = data,
+                                buildingsData = buildingsData,
+                                zonesData = zonesData
+                            )
+                        }
+                    }
                     composable("astar") {
                         gridData?.let { data ->
                             AStarScreen(
