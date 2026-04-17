@@ -192,9 +192,19 @@ class GeneticAlgorithm(
 }
 
 @Composable
-fun formatTime(totalMinutes: Int): String {
-    val hours = totalMinutes / 60
-    val minutes = totalMinutes % 60
+fun formatToString(timeString: String): String {
+    val parts = timeString.split(":")
+    val hours = parts.getOrNull(0)?.toIntOrNull() ?: 0
+    val minutes = parts.getOrNull(1)?.toIntOrNull() ?: 0
 
     return stringResource(id = R.string.time_format, hours, minutes)
+}
+
+@Composable
+fun formatTimeToMinutes(totalMinutes: Int): String {
+    val hours = totalMinutes / 60
+    val minutes = totalMinutes % 60
+    val formattedStartTime = String.format("%02d:%02d", hours, minutes)
+
+    return formatToString(formattedStartTime)
 }

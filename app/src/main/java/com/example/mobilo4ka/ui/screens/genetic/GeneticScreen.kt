@@ -41,7 +41,8 @@ import kotlinx.coroutines.*
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import com.example.mobilo4ka.R
-import com.example.mobilo4ka.algorithms.genetic.formatTime
+import com.example.mobilo4ka.algorithms.genetic.formatTimeToMinutes
+import com.example.mobilo4ka.algorithms.genetic.formatToString
 
 data class RouteStepInfo(
     val building: Building,
@@ -380,7 +381,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                stringResource(R.string.total_time) + " " + formatTime(estimatedTime),
+                                stringResource(R.string.total_time) + " " + formatTimeToMinutes(estimatedTime),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -390,7 +391,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "Начало: $formattedStartTime",
+                                "${context.getString(R.string.start)} ${formatToString(formattedStartTime)}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

@@ -62,6 +62,7 @@
     <string name="close">Закрыто в это время</string>
     <string name="arrival">Прибытие</string>
     <string name="opening_hours">Часы работы не указаны</string>
+    <string name="start">Начало: </string>
 
     <string name="building">Заведение</string>
     <string name="work">🕒 Работает:</string>

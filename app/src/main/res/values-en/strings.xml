@@ -62,6 +62,7 @@
     <string name="close">Closed at this time</string>
     <string name="arrival">Arrival</string>
     <string name="opening_hours">Opening hours not specified</string>
+    <string name="start">Start: </string>
 
     <string name="building">Place</string>
     <string name="work">🕒 Working hours:</string>
