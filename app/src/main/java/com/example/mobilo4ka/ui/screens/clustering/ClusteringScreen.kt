@@ -25,6 +25,7 @@ import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
 import com.example.mobilo4ka.ui.card.BuildingBottomSheet
 import com.example.mobilo4ka.ui.card.MapViewModel
+import com.example.mobilo4ka.ui.map.MapDataViewModel
 import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
@@ -39,10 +40,12 @@ fun ClusteringScreen(
     zonesData: Map<String, List<List<Int>>>,
     viewModel: ClusteringViewModel = viewModel(),
     mapViewModel: MapViewModel = viewModel(),
-    onNavigateToNeural: () -> Unit
+    mapDataViewModel: MapDataViewModel,
+    onNavigateToNeural: (Building) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var selectedBuilding by remember { mutableStateOf<Building?>(null) }
+    val currentRating = mapDataViewModel.ratings[selectedBuilding?.id.toString()]
 
     SetStatusBarColor(false)
 
@@ -317,10 +320,12 @@ fun ClusteringScreen(
             if (selectedBuilding != null) {
                 BuildingBottomSheet(
                     building = selectedBuilding!!,
+                    rating = currentRating,
                     onDismiss = { selectedBuilding = null },
                     onLeaveReviewClick = {
+                        val buildingToRate = selectedBuilding!!
                         selectedBuilding = null
-                        onNavigateToNeural()
+                        onNavigateToNeural(buildingToRate)
                     }
                 )
             }

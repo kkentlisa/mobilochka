@@ -4,11 +4,11 @@
     <string name="header_title">Campus services</string>
     <string name="language_button">Русская версия</string>
 
-    <string name="algo_astar">Build route (A*)</string>
-    <string name="algo_clustering">Cafes, canteens and shops (Clustering)</string>
-    <string name="algo_genetic">Route through establishments (Genetic)</string>
-    <string name="algo_ants">Coworking spaces (Ants)</string>
-    <string name="algo_tree">Where to eat (Tree)</string>
+    <string name="algo_astar">Build route</string>
+    <string name="algo_clustering">Cafes, canteens and shops</string>
+    <string name="algo_genetic">Route through establishments</string>
+    <string name="algo_ants">Coworking spaces</string>
+    <string name="algo_tree">Where to eat</string>
     <string name="algo_neural">Rate place</string>
 
     <string name="tsu_logo">TSU logo</string>
@@ -63,4 +63,11 @@
 
     <string name="no_way">There is no way</string>
     <string name="time_format">%1$dh %2$dm</string>
+
+    <string name="rate_place">Rate place</string>
+    <string name="no_ratings">There are no ratings</string>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="confirm">Rating: %1$d. Rate this place?</string>
 </resources>

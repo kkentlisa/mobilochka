@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,9 +24,15 @@ import com.example.mobilo4ka.R
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @Composable
-fun NeuralScreen(viewModel: NeuralViewModel) {
+fun NeuralScreen(
+    viewModel: NeuralViewModel,
+    onPredictionSuccess: (Int) -> Unit
+) {
     SetStatusBarColor(false)
 
     val state by viewModel.state.collectAsState()
@@ -34,6 +41,37 @@ fun NeuralScreen(viewModel: NeuralViewModel) {
     val trainingViewModel: TrainingViewModel = viewModel()
     val networkState = remember { mutableStateOf(NeuralNetwork.createEmpty()) }
     */
+
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.predictedDigit) {
+        if (state.predictedDigit != -1) {
+            showConfirmDialog = true
+        }
+    }
+
+    val confirmText = if (state.predictedDigit != -1) {
+        stringResource(id = R.string.confirm, state.predictedDigit)
+    } else ""
+
+    val yesText = stringResource(R.string.yes)
+    val noText = stringResource(R.string.no)
+
+    if (showConfirmDialog && state.predictedDigit != -1) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            text = { Text(confirmText) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfirmDialog = false
+                    onPredictionSuccess(state.predictedDigit)
+                }) { Text(yesText) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) { Text(noText) }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -106,7 +144,9 @@ fun NeuralScreen(viewModel: NeuralViewModel) {
                      */
                     ActionButton(
                         titleRes = R.string.neural_button_recognize,
-                        onClick = { viewModel.recognize(context) }
+                        onClick = {
+                            viewModel.recognize(context)
+                        }
                     )
                     ActionButton(
                         titleRes = R.string.neural_button_clear,

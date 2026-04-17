@@ -115,7 +115,10 @@ class MainActivity : ComponentActivity() {
                                     gridData = data,
                                     buildingsData = mapDataViewModel.buildingsData,
                                     zonesData = mapDataViewModel.zonesData,
-                                    onNavigateToNeural = { navController.navigate("neural") }
+                                    mapDataViewModel = mapDataViewModel,
+                                    onNavigateToNeural = { building ->
+                                        navController.navigate("neural/${building.id}")
+                                    }
                                 )
                             }
                         }
@@ -131,7 +134,10 @@ class MainActivity : ComponentActivity() {
                                     buildingsData = mapDataViewModel.buildingsData,
                                     zonesData = mapDataViewModel.zonesData,
                                     viewModel = clusteringViewModel,
-                                    onNavigateToNeural = { navController.navigate("neural") }
+                                    mapDataViewModel = mapDataViewModel,
+                                    onNavigateToNeural = { building ->
+                                        navController.navigate("neural/${building.id}")
+                                    }
                                 )
                             }
                         }
@@ -146,14 +152,24 @@ class MainActivity : ComponentActivity() {
                                     buildingsData = mapDataViewModel.buildingsData,
                                     zonesData = mapDataViewModel.zonesData,
                                     mapViewModel = mapVM,
-                                    onNavigateToNeural = { navController.navigate("neural") }
+                                    mapDataViewModel = mapDataViewModel,
+                                    onNavigateToNeural = { building ->
+                                        navController.navigate("neural/${building.id}")
+                                    }
                                 )
                             }
                         }
-                        composable("neural") {
+                        composable("neural/{buildingId}") { backStackEntry ->
+                            val buildingId = backStackEntry.arguments?.getString("buildingId") ?: ""
                             val neuralViewModel: NeuralViewModel =
                                 viewModel(factory = neuralFactory)
-                            NeuralScreen(neuralViewModel)
+                            NeuralScreen(
+                                viewModel = neuralViewModel,
+                                onPredictionSuccess = { rating ->
+                                    mapDataViewModel.saveRating(buildingId, rating)
+                                    navController.popBackStack()
+                                }
+                            )
                         }
                         composable("tree") { TreeScreen(state.currentLanguage) }
                     }

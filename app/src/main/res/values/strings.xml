@@ -1,14 +1,14 @@
 <resources>
-    <string name="app_name">Кампус ТГУ</string>
+    <string name="app_name">Campus</string>
 
     <string name="header_title">Сервисы кампуса</string>
     <string name="language_button">English version</string>
 
-    <string name="algo_astar">Построить маршрут (А*)</string>
-    <string name="algo_clustering">Кафе, столовые и магазины (Clustering)</string>
-    <string name="algo_genetic">Маршрут по заведениям (Genetic)</string>
-    <string name="algo_ants">Коворкинги (Ants)</string>
-    <string name="algo_tree">Где поесть (Tree)</string>
+    <string name="algo_astar">Построить маршрут</string>
+    <string name="algo_clustering">Кафе, столовые и магазины</string>
+    <string name="algo_genetic">Маршрут по заведениям</string>
+    <string name="algo_ants">Коворкинги</string>
+    <string name="algo_tree">Где поесть</string>
     <string name="algo_neural">Оценить заведение</string>
 
     <string name="tsu_logo">Логотип ТГУ</string>
@@ -63,4 +63,11 @@
 
     <string name="no_way">Пути не существует</string>
     <string name="time_format">%1$d ч. %2$d мин.</string>
+
+    <string name="rate_place">Оставить оценку</string>
+    <string name="no_ratings">Нет оценок</string>
+
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="confirm">Оценка: %1$d. Оценить заведение?</string>
 </resources>
