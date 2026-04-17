@@ -243,6 +243,8 @@ object TreeAlgorithm {
         path.clear()
     }
 
+    fun getRoot(): TreeNode? = rootNode
+
     private fun parsePlacesWithQuestions(
         context: Context,
         userCsvPath: String? = null
@@ -309,6 +311,45 @@ object TreeAlgorithm {
         val filename = "user_places.csv"
         context.openFileOutput(filename, Context.MODE_PRIVATE).use { output ->
             output.write(csvContent.toByteArray(Charsets.UTF_8))
+        }
+    }
+
+    fun getFullTreeVisual(): String {
+        val root = rootNode ?: return "Дерево пусто"
+        val sb = StringBuilder()
+        generateTreeString(root, "", true, sb)
+        return sb.toString()
+    }
+
+    private fun generateTreeString(
+        node: TreeNode,
+        prefix: String,
+        isLast: Boolean,
+        sb: StringBuilder
+    ) {
+        val marker = if (isLast) "└── " else "├── "
+        sb.append(prefix).append(marker)
+
+        when (node) {
+            is TreeNode.Leaf -> {
+                val results = node.results.joinToString(", ") { it.first }
+                sb.append("Результат: $results\n")
+            }
+            is TreeNode.Decision -> {
+                sb.append("Вопрос: ${node.question.text}\n")
+
+                val childList = node.children.entries.toList()
+                val newPrefix = prefix + if (isLast) "    " else "│   "
+
+                childList.forEachIndexed { index, entry ->
+                    val isLastChild = index == childList.size - 1
+                    sb.append(newPrefix)
+                        .append(if (isLastChild) "└── " else "├── ")
+                        .append("[Вариант: ${entry.key}]\n")
+
+                    generateTreeString(entry.value, newPrefix + if (isLastChild) "    " else "│   ", true, sb)
+                }
+            }
         }
     }
 }
