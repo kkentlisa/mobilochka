@@ -6,6 +6,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.collectAsState
@@ -18,6 +19,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mobilo4ka.ui.card.MapViewModel
 import com.example.mobilo4ka.ui.main.MainScreen
 import com.example.mobilo4ka.ui.main.MainViewModel
 import com.example.mobilo4ka.ui.screens.ants.AntsScreen
@@ -32,6 +34,7 @@ import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 import com.example.mobilo4ka.utils.LoadMapData
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     @ExperimentalLayoutApi
     @ExperimentalMaterial3Api
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,7 +93,17 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                    composable("genetic") { GeneticScreen() }
+                    composable("genetic") {
+                        gridData?.let { data ->
+                            val mapVM: MapViewModel = viewModel()
+                            GeneticScreen(
+                                gridData = data,
+                                buildingsData = buildingsData,
+                                zonesData = zonesData,
+                                mapViewModel = mapVM
+                            )
+                        }
+                    }
                     composable("neural") {
                         val neuralViewModel: NeuralViewModel = viewModel(factory = neuralFactory)
                         NeuralScreen(neuralViewModel)

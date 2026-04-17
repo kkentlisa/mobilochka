@@ -22,9 +22,7 @@
     <string name="base_table">Встроенная CSV</string>
     <string name="input_table">Загрузить CSV</string>
     <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
-    <string name="recommended_places">"Рекомендованные места: "</string>
-    <string name="output_tree">"Путь прохождения: "</string>
-    
+
     <string name="neural_button_recognize">Распознать</string>
     <string name="neural_button_clear">Стереть</string>
     <string name="neural_button_train">Обучить</string>
@@ -40,4 +38,10 @@
     <string name="legend_euclidean">- Евклид</string>
     <string name="legend_astar">- A*</string>
     <string name="calculate_clusters">Рассчитать</string>
+    <string name="recommended_places">Рекомендованные места: </string>
+    <string name="output_tree">Путь прохождения: </string>
+
+    <string name="building">Заведение</string>
+    <string name="work">🕒 Работает:</string>
+    <string name="menu">Меню: </string>
 </resources>

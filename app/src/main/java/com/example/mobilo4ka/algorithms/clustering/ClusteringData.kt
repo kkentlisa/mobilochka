@@ -7,7 +7,7 @@ object ClusteringData {
         return buildings
             .filter { !it.name.isNullOrBlank() }
             .map { building ->
-                val entrance = building.getFirstEntrance()
+                val entrance = building.firstEntrance
 
                 val xCoord = entrance?.first ?: building.pixels.first()[0]
                 val yCoord = entrance?.second ?: building.pixels.first()[1]

@@ -11,7 +11,8 @@ import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.MapRoute
 import android.os.Handler
-class RouteDrawer (private val mapView: MapView){
+
+class RouteDrawer(private val mapView: MapView) {
 
     var currentPath: List<Pair<Int, Int>> = emptyList()
     var startPoint: Pair<Int, Int>? = null
@@ -21,17 +22,18 @@ class RouteDrawer (private val mapView: MapView){
         color = MapRoute.toArgb()
         style = Paint.Style.STROKE
         strokeWidth = Dimens.mapRouteWidth
+        isAntiAlias = true
     }
 
     private val pointPaint = Paint().apply {
         color = MapRoute.toArgb()
         style = Paint.Style.FILL
+        isAntiAlias = true
     }
 
     private val linePath = Path()
 
-    fun drawRoute (canvas: Canvas) {
-        mapView.drawBaseMap(canvas)
+    fun drawRoute(canvas: Canvas) {
 
         if (currentPath.isNotEmpty()) {
             linePath.reset()
@@ -47,6 +49,7 @@ class RouteDrawer (private val mapView: MapView){
         startPoint?.let { canvas.drawCircle(it.first + 0.5f, it.second + 0.5f, Dimens.mapPointRadius, pointPaint) }
         endPoint?.let { canvas.drawCircle(it.first + 0.5f, it.second + 0.5f, Dimens.mapPointRadius, pointPaint) }
     }
+
     fun onMapClicked(gridX: Int, gridY: Int) {
         if (startPoint == null || endPoint != null) {
             startPoint = Pair(gridX, gridY)
@@ -69,8 +72,12 @@ class RouteDrawer (private val mapView: MapView){
                 start.first, start.second,
                 end.first, end.second,
                 isWalkable = { x, y -> mapView.gridMap?.isWalkable(x, y) ?: false },
-                isBuilding = { x, y -> mapView.buildings.any { it.containsPoint(x, y) } },
-                getBuildingEntrance = { x, y -> mapView.buildings.find { it.containsPoint(x, y) }?.getFirstEntrance() }
+                isBuilding = { x, y ->
+                    mapView.buildings.any { it.containsPoint(x, y) }
+                },
+                getBuildingEntrance = { x, y ->
+                    mapView.buildings.find { it.containsPoint(x, y) }?.firstEntrance
+                }
             )
 
             Handler(Looper.getMainLooper()).post {
