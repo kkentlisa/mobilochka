@@ -30,7 +30,7 @@ class GeneticAlgorithm(
     }
 
     private fun getEntranceForBuilding(x: Int, y: Int): Pair<Int, Int>? {
-        return buildings.find { it.containsPoint(x, y) }?.firstEntrance
+        return buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
     }
 
     suspend fun calculateRouteDistance(route: List<Int>, start: Pair<Int, Int>): Double {
@@ -39,7 +39,7 @@ class GeneticAlgorithm(
 
         route.forEach { id ->
             val building = buildingMap[id] ?: return@forEach
-            val entrance = building.firstEntrance ?: return@forEach
+            val entrance = building.getFirstEntrance() ?: return@forEach
 
             val key = Pair(currentPos, entrance)
             val dist = distanceCache.getOrPut(key) {
@@ -48,7 +48,7 @@ class GeneticAlgorithm(
                     entrance.first, entrance.second,
                     isWalkable = { x, y -> (x == entrance.first && y == entrance.second) || isWalkable(x, y) },
                     isBuilding = { x, y -> isAnyBuilding(x, y) },
-                    getBuildingEntrance = { x, y -> buildings.find { it.containsPoint(x, y) }?.firstEntrance }
+                    getBuildingEntrance = { x, y -> buildings.find { it.containsPoint(x, y) }?.getFirstEntrance() }
                 )
                 if (path.isEmpty()) 100000.0 else path.size.toDouble()
             }
@@ -144,7 +144,7 @@ class GeneticAlgorithm(
         routeIds.forEach { id ->
             yield()
             val building = buildingMap[id]
-            val target = building?.firstEntrance
+            val target = building?.getFirstEntrance()
                 ?: building?.pixels?.firstOrNull()?.let { Pair(it[0], it[1]) }
                 ?: return@forEach
 
@@ -153,7 +153,7 @@ class GeneticAlgorithm(
                 target.first, target.second,
                 isWalkable = { x, y -> (x == target.first && y == target.second) || isWalkable(x, y) },
                 isBuilding = { x, y -> isAnyBuilding(x, y) },
-                getBuildingEntrance = { x, y -> buildings.find { it.containsPoint(x, y) }?.firstEntrance }
+                getBuildingEntrance = { x, y -> buildings.find { it.containsPoint(x, y) }?.getFirstEntrance() }
             )
 
             fullPath.addAll(segment)
