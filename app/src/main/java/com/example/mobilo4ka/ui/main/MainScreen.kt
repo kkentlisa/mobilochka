@@ -33,8 +33,7 @@ private val buttons = listOf(
     ButtonData(R.string.algo_clustering, R.drawable.ic_clustering, "clustering"),
     ButtonData(R.string.algo_genetic, R.drawable.ic_genetic, "genetic"),
     ButtonData(R.string.algo_ants, R.drawable.ic_ants, "ants"),
-    ButtonData(R.string.algo_tree, R.drawable.ic_tree, "tree"),
-    ButtonData(R.string.algo_neural, R.drawable.ic_neural, "neural")
+    ButtonData(R.string.algo_tree, R.drawable.ic_tree, "tree")
 )
 
 @Composable

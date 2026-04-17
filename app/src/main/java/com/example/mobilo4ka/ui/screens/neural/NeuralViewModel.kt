@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 
 data class NeuralUIState(
     val cellStates: List<Boolean> = List(2500) { false },
-    val resultText: String = ""
+    val resultText: String = "",
+    val predictedDigit: Int = -1
 )
 
 class NeuralViewModel(context: Context) : ViewModel() {
@@ -49,7 +50,8 @@ class NeuralViewModel(context: Context) : ViewModel() {
     fun clear(context: Context) {
         _state.value = _state.value.copy(
             cellStates = List(2500) { false },
-            resultText = context.getString(R.string.draw_number)
+            resultText = context.getString(R.string.draw_number),
+            predictedDigit = -1
         )
     }
 
@@ -70,7 +72,8 @@ class NeuralViewModel(context: Context) : ViewModel() {
         val predictDigit = result.indices.maxByOrNull { result[it] } ?: -1
 
         _state.value = _state.value.copy(
-            resultText = context.getString(R.string.rating, predictDigit)
+            resultText = context.getString(R.string.rating, predictDigit),
+            predictedDigit = predictDigit
         )
     }
 }

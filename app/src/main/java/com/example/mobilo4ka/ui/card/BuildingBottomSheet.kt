@@ -42,11 +42,14 @@ fun getDrawableByCategory(category: String?): Int {
 @Composable
 fun BuildingBottomSheet(
     building: Building,
+    rating: Float?,
     onDismiss: () -> Unit,
     onLeaveReviewClick: () -> Unit,
     placeStr: String = stringResource(R.string.building),
     workStr: String = stringResource(R.string.work),
-    menuStr: String = stringResource(R.string.menu)
+    menuStr: String = stringResource(R.string.menu),
+    rateStr: String = stringResource(R.string.rate_place),
+    noRatingsStr: String = stringResource(R.string.no_ratings)
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -107,7 +110,7 @@ fun BuildingBottomSheet(
                     )
                     Spacer(modifier = Modifier.width(Dimens.paddingSmall))
                     Text(
-                        text = "Нет отзывов",
+                        text = if (rating != null) "$rating" else noRatingsStr,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -120,7 +123,7 @@ fun BuildingBottomSheet(
                         .padding(vertical = Dimens.paddingMedium),
                     shape = RoundedCornerShape(Dimens.paddingSmall)
                 ) {
-                    Text(text = "Оставить отзыв")
+                    Text(text = rateStr)
                 }
 
                 if (!building.openTime.isNullOrBlank()) {

@@ -44,6 +44,7 @@ import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.genetic.formatTimeToMinutes
 import com.example.mobilo4ka.algorithms.genetic.formatToString
 import com.example.mobilo4ka.algorithms.genetic.parseTimeToMinutes
+import com.example.mobilo4ka.ui.map.MapDataViewModel
 
 data class RouteStepInfo(
     val building: Building,
@@ -63,9 +64,11 @@ fun GeneticScreen(
     buildingsData: List<Building>,
     zonesData: Map<String, List<List<Int>>>,
     mapViewModel: MapViewModel = viewModel(),
-    onNavigateToNeural: () -> Unit
+    mapDataViewModel: MapDataViewModel,
+    onNavigateToNeural: (Building) -> Unit
 ) {
     var selectedBuilding by remember { mutableStateOf<Building?>(null) }
+    val currentRating = mapDataViewModel.ratings[selectedBuilding?.id.toString()]
     val interestingBuildings = remember(buildingsData) {
         buildingsData.filter { !it.name.isNullOrBlank() }
     }
@@ -452,10 +455,12 @@ fun GeneticScreen(
             if (selectedBuilding != null) {
                 BuildingBottomSheet(
                     building = selectedBuilding!!,
+                    rating = currentRating,
                     onDismiss = { selectedBuilding = null },
                     onLeaveReviewClick = {
+                        val buildingToRate = selectedBuilding!!
                         selectedBuilding = null
-                        onNavigateToNeural()
+                        onNavigateToNeural(buildingToRate)
                     }
                 )
             }
