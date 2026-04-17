@@ -49,4 +49,8 @@ object Dimens{
     val sliderTrackSize = 10.dp
     val clusterLegend = 12.dp
     val clusterButton = 52.dp
+
+    val mapControlOffset = 42.dp
+
+    val routeInfoButtonHeight = 56.dp
 }

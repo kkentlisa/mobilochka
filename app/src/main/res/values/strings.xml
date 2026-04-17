@@ -22,6 +22,8 @@
     <string name="base_table">Встроенная CSV</string>
     <string name="input_table">Загрузить CSV</string>
     <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
+    <string name="recommended_places">Рекомендованные места: </string>
+    <string name="output_tree">Путь прохождения: </string>
 
     <string name="neural_button_recognize">Распознать</string>
     <string name="neural_button_clear">Стереть</string>
@@ -38,9 +40,23 @@
     <string name="legend_euclidean">- Евклид</string>
     <string name="legend_astar">- A*</string>
     <string name="calculate_clusters">Рассчитать</string>
-    <string name="recommended_places">Рекомендованные места: </string>
-    <string name="output_tree">Путь прохождения: </string>
 
+    <string name="products">Продукты</string>
+    <string name="apply">Применить</string>
+    <string name="show_route">Показать текущий маршрут</string>
+    <string name="select_point">Выберите точку на карте</string>
+    <string name="select_products">Выберите товары в меню ☰</string>
+    <string name="plan_rout">Построить маршрут</string>
+    <string name="rout">Ваш маршрут</string>
+    <string name="total_time">Общее время: </string>
+    <string name="shop">Купить: </string>
+    <string name="arrival_open">Успеете (прибытие в </string>
+    <string name="arrival_close">Не успеете (прибытие в </string>
+    <string name="open">Открыто до</string>
+    <string name="close">Закрыто в это время</string>
+    <string name="arrival">Прибытие</string>
+    <string name="opening_hours">Часы работы не указаны</string>
+    
     <string name="building">Заведение</string>
     <string name="work">🕒 Работает:</string>
     <string name="menu">Меню: </string>
