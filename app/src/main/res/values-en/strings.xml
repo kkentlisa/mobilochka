@@ -23,6 +23,13 @@
     <string name="base_table">Built-in CSV</string>
     <string name="input_table">Upload CSV</string>
     <string name="recommended_places">Recommended places: </string>
+    <string name="tree_structure">View the tree structure</string>
+    <string name="structure">Interactive structure</string>
+    <string name="root_tree">The root of the tree</string>
+    <string name="not_found_tree">Tree not found</string>
+    <string name="question">Question: </string>
+    <string name="result">Result: </string>
+    <string name="answer">Answer: </string>
 
     <string name="neural_button_recognize">Recognize</string>
     <string name="neural_button_clear">Clear</string>

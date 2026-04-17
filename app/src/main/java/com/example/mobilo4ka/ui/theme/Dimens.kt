@@ -50,7 +50,7 @@ object Dimens{
     val clusterLegend = 12.dp
     val clusterButton = 52.dp
 
-    val mapControlOffset = 42.dp
+    val buttonQuestions = 70.dp
 
     val routeInfoButtonHeight = 56.dp
 

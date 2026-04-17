@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
 import com.example.mobilo4ka.ui.main.Language
@@ -244,7 +243,7 @@ fun TreeScreenContent(currentLanguage: Language) {
                             columns = GridCells.Fixed(2),
                             modifier = Modifier
                                 .padding(Dimens.paddingLarge)
-                                .heightIn(max = 250.dp),
+                                .heightIn(max = Dimens.cardWeight),
                             horizontalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
                             verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
                         ) {
@@ -267,7 +266,7 @@ fun TreeScreenContent(currentLanguage: Language) {
                                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         ) {
-                            Text("Посмотреть структуру дерева")
+                            Text(context.getString(R.string.tree_structure))
                         }
 
                         Spacer(Modifier.height(Dimens.paddingSmall))
@@ -352,7 +351,7 @@ fun AnswerButton(text: String, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(70.dp),
+            .height(Dimens.buttonQuestions),
         shape = RoundedCornerShape(Dimens.paddingMedium),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.background,

@@ -38,8 +38,14 @@
     <string name="legend_euclidean">- Евклид</string>
     <string name="legend_astar">- A*</string>
     <string name="calculate_clusters">Рассчитать</string>
-    <string name="output_tree">Путь:</string>
     <string name="recommended_places">Рекомендованное место: </string>
+    <string name="tree_structure">Посмотреть структуру дерева</string>
+    <string name="structure">Интерактивная структура</string>
+    <string name="root_tree">Корень дерева</string>
+    <string name="not_found_tree">Дерево не найдено</string>
+    <string name="question">Вопрос: </string>
+    <string name="result">Результат: </string>
+    <string name="answer">Ответ: </string>
 
     <string name="products">Продукты</string>
     <string name="apply">Применить</string>

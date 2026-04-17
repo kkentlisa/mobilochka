@@ -3,7 +3,6 @@ package com.example.mobilo4ka.ui.screens.tree
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,11 +12,12 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.*
+import com.example.mobilo4ka.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
 import com.example.mobilo4ka.algorithms.tree.TreeNode
@@ -34,7 +34,7 @@ fun TreeStructureScreen(onBack: () -> Unit) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Интерактивная структура",
+                        text = stringResource(R.string.structure),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
@@ -68,12 +68,12 @@ fun TreeStructureScreen(onBack: () -> Unit) {
                 if (rootNode != null) {
                     TreeNodeItem(
                         node = rootNode,
-                        label = "Корень дерева",
+                        label = stringResource(R.string.root_tree),
                         depth = 0
                     )
                 } else {
                     Text(
-                        text = "Дерево не найдено",
+                        text = stringResource(R.string.not_found_tree),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(Dimens.paddingMedium)
@@ -112,7 +112,7 @@ fun TreeNodeItem(
             },
             shadowElevation = Dimens.paddingDefault,
             border = BorderStroke(
-                width = 1.dp,
+                width = Dimens.dividerThickness,
                 color = MaterialTheme.colorScheme.outlineVariant
             )
         ) {
@@ -147,10 +147,10 @@ fun TreeNodeItem(
                     Text(
                         text = when (node) {
                             is TreeNode.Decision ->
-                                "Вопрос: ${node.question.text}"
+                                "${stringResource(R.string.question)} ${node.question.text}"
 
                             is TreeNode.Leaf ->
-                                "Результаты: ${node.results.joinToString { it.first }}"
+                                "${stringResource(R.string.result)} ${node.results.joinToString { it.first }}"
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
@@ -169,7 +169,7 @@ fun TreeNodeItem(
                     node.children.forEach { (option, child) ->
                         TreeNodeItem(
                             node = child,
-                            label = "Если ответ: $option",
+                            label = "${stringResource(R.string.answer)} $option",
                             depth = depth + 1
                         )
                     }
