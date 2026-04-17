@@ -41,10 +41,10 @@ import kotlinx.coroutines.*
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import com.example.mobilo4ka.R
-import com.example.mobilo4ka.algorithms.genetic.formatTimeToMinutes
-import com.example.mobilo4ka.algorithms.genetic.formatToString
-import com.example.mobilo4ka.algorithms.genetic.parseTimeToMinutes
+import com.example.mobilo4ka.utils.parseTimeToMinutes
 import com.example.mobilo4ka.ui.map.MapDataViewModel
+import com.example.mobilo4ka.utils.formatTimeToMinutes
+import com.example.mobilo4ka.utils.formatToString
 
 data class RouteStepInfo(
     val building: Building,
@@ -98,6 +98,13 @@ fun GeneticScreen(
     val context = LocalContext.current
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    val stringShop = stringResource(R.string.shop)
+    val stringRout = stringResource(R.string.rout)
+    val stringTotalTime = stringResource(R.string.total_time)
+    val stringStart = stringResource(R.string.start)
+    val stringDuration = stringResource(R.string.format_duration)
+    val stringTime = stringResource(R.string.format_time)
 
     var selectedProducts by remember { mutableStateOf(setOf<String>()) }
     var formattedStartTime by remember { mutableStateOf("") }
@@ -266,11 +273,21 @@ fun GeneticScreen(
                                     ga.evolve(productsToFind, userStartPoint!!) { path, ids ->
                                         scope.launch(Dispatchers.Main) {
                                             if (path.isNotEmpty()) {
+                                                geneticDrawerRef?.updateRoute(emptyList())
                                                 geneticDrawerRef?.visitedBuildingIds = ids
+
+                                                val pointsPerStep = 5
+                                                val frameDelay = 10L
+
+                                                for (i in 0..path.size step pointsPerStep) {
+                                                    val currentChunk = path.take(i)
+                                                    geneticDrawerRef?.updateRoute(currentChunk)
+                                                    delay(frameDelay)
+                                                }
+
                                                 geneticDrawerRef?.updateRoute(path)
 
-                                                estimatedTime =
-                                                    (path.size * 2 / 10).coerceAtLeast(1)
+                                                estimatedTime = (path.size * 2 / 10).coerceAtLeast(1)
 
                                                 val speedFactor = 10
                                                 val metersPerCell = 2.0
@@ -375,7 +392,7 @@ fun GeneticScreen(
                             .padding(bottom = Dimens.fabIconSize)
                     ) {
                         Text(
-                            stringResource(R.string.rout),
+                            stringRout,
                             style = MaterialTheme.typography.headlineSmall,
                             color = TsuBlue
                         )
@@ -385,7 +402,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                stringResource(R.string.total_time) + " " + formatTimeToMinutes(estimatedTime),
+                                stringTotalTime + " " + formatTimeToMinutes(estimatedTime, stringDuration),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -395,7 +412,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "${stringResource(R.string.start)} ${formatToString(formattedStartTime)}",
+                                "${stringStart} ${formatToString(formattedStartTime, stringTime)}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -439,7 +456,7 @@ fun GeneticScreen(
                                         )
                                         if (info.productsToBuy.isNotEmpty()) {
                                             Text(
-                                                stringResource(R.string.shop) + info.productsToBuy.joinToString(),
+                                                stringShop + info.productsToBuy.joinToString(),
                                                 color = TsuBlue,
                                                 style = MaterialTheme.typography.bodySmall
                                             )

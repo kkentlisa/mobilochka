@@ -69,7 +69,8 @@
     <string name="menu">Меню: </string>
 
     <string name="no_way">Пути не существует</string>
-    <string name="time_format">%1$d ч. %2$d мин.</string>
+    <string name="format_duration">HH ч. mm мин.</string>
+    <string name="format_time">HH:mm</string>
 
     <string name="rate_place">Оставить оценку</string>
     <string name="no_ratings">Нет оценок</string>
