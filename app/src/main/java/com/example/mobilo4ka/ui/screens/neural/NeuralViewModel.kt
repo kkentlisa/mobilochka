@@ -2,10 +2,14 @@ package com.example.mobilo4ka.ui.screens.neural
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.neural.ModelLoader
+import com.example.mobilo4ka.algorithms.neural.NeuralNetwork
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 data class NeuralUIState(
     val cellStates: List<Boolean> = List(2500) { false },
@@ -18,7 +22,12 @@ class NeuralViewModel (context: Context): ViewModel() {
     ))
     val state: StateFlow<NeuralUIState> = _state
 
-    private val network = ModelLoader.load(context)
+    private var network: NeuralNetwork? = null
+    init{
+        viewModelScope.launch(Dispatchers.IO){
+            network = ModelLoader.load(context)
+        }
+    }
 
     fun onCellsTouched(indices: List<Int>) {
         val newList = _state.value.cellStates.toMutableList()
@@ -42,6 +51,8 @@ class NeuralViewModel (context: Context): ViewModel() {
     }
 
     fun recognize(context: Context) {
+        val currentNetwork = network
+        if (currentNetwork == null) return
         val currentCells = _state.value.cellStates
         val pointsCount = currentCells.count { it }
         if (pointsCount < 35) {
@@ -52,7 +63,7 @@ class NeuralViewModel (context: Context): ViewModel() {
         }
 
         val input = centerImage(currentCells, 50)
-        val result = network.recognize(input)
+        val result = currentNetwork.recognize(input)
         val predictDigit = result.indices.maxByOrNull { result[it] } ?: -1
 
         _state.value = _state.value.copy(

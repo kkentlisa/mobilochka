@@ -11,11 +11,14 @@ private val ColorScheme = lightColorScheme(
     onBackground = TextDark,
     surface = SurfaceWhite,
     onSurface = TextDark,
-    outline = Line
+    outline = Line,
+    surfaceTint = BackgroundLight
 )
 
 object AppAlpha {
     const val USER_MESSAGE = 0.2f
+
+    const val COLOR = 0.5f
 }
 
 @Composable
