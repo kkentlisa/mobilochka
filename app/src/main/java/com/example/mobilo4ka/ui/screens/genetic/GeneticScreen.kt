@@ -273,11 +273,21 @@ fun GeneticScreen(
                                     ga.evolve(productsToFind, userStartPoint!!) { path, ids ->
                                         scope.launch(Dispatchers.Main) {
                                             if (path.isNotEmpty()) {
+                                                geneticDrawerRef?.updateRoute(emptyList())
                                                 geneticDrawerRef?.visitedBuildingIds = ids
+
+                                                val pointsPerStep = 5
+                                                val frameDelay = 10L
+
+                                                for (i in 0..path.size step pointsPerStep) {
+                                                    val currentChunk = path.take(i)
+                                                    geneticDrawerRef?.updateRoute(currentChunk)
+                                                    delay(frameDelay)
+                                                }
+
                                                 geneticDrawerRef?.updateRoute(path)
 
-                                                estimatedTime =
-                                                    (path.size * 2 / 10).coerceAtLeast(1)
+                                                estimatedTime = (path.size * 2 / 10).coerceAtLeast(1)
 
                                                 val speedFactor = 10
                                                 val metersPerCell = 2.0

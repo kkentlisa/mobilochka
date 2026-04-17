@@ -48,7 +48,7 @@ class GeneticDrawer(private val mapView: MapView) {
 
     fun updateRoute(route: List<Pair<Int, Int>>) {
         this.geneticRoute = route
-        mapView.invalidate()
+        mapView.postInvalidateOnAnimation()
     }
 
     fun updateStartPoint(point: Pair<Int, Int>?) {
