@@ -1,7 +1,9 @@
 package com.example.mobilo4ka.ui.screens.tree
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
 import com.example.mobilo4ka.algorithms.tree.TreeNode
 import com.example.mobilo4ka.ui.theme.*
@@ -23,35 +26,58 @@ import com.example.mobilo4ka.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TreeStructureScreen(onBack: () -> Unit) {
+
     val rootNode = remember { TreeAlgorithm.getRoot() }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Интерактивная структура", color = SurfaceWhite) },
+                title = {
+                    Text(
+                        text = "Интерактивная структура",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null, tint = SurfaceWhite)
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = TsuBlue
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             )
         }
     ) { padding ->
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(BackgroundLight),
-            contentPadding = PaddingValues(16.dp)
+                .background(MaterialTheme.colorScheme.surface),
+            contentPadding = PaddingValues(Dimens.paddingLarge),
+            verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
         ) {
+
             item {
                 if (rootNode != null) {
-                    TreeNodeItem(node = rootNode, label = "Корень дерева")
+                    TreeNodeItem(
+                        node = rootNode,
+                        label = "Корень дерева",
+                        depth = 0
+                    )
                 } else {
-                    Text("Дерево не найдено", color = TextDark, modifier = Modifier.padding(16.dp))
+                    Text(
+                        text = "Дерево не найдено",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(Dimens.paddingMedium)
+                    )
                 }
             }
         }
@@ -59,49 +85,76 @@ fun TreeStructureScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun TreeNodeItem(node: TreeNode, label: String, depth: Int = 0) {
+fun TreeNodeItem(
+    node: TreeNode,
+    label: String,
+    depth: Int = 0
+) {
     var isExpanded by remember { mutableStateOf(depth < 1) }
+
+    val shape = RoundedCornerShape(Dimens.paddingMedium)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = (depth * 12).dp)
+            .padding(start = (depth * Dimens.paddingMedium))
     ) {
+
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp)
                 .clickable { isExpanded = !isExpanded },
-            color = if (node is TreeNode.Leaf) MapGrass else SurfaceWhite,
-            shape = RoundedCornerShape(8.dp),
-            shadowElevation = 2.dp
+            shape = shape,
+            color = if (node is TreeNode.Leaf) {
+                MaterialTheme.colorScheme.secondaryContainer
+            } else {
+                MaterialTheme.colorScheme.surface
+            },
+            shadowElevation = Dimens.paddingDefault,
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
         ) {
+
             Row(
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier.padding(Dimens.paddingMedium),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 if (node is TreeNode.Decision) {
                     Icon(
-                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight,
+                        imageVector = if (isExpanded)
+                            Icons.Default.KeyboardArrowDown
+                        else
+                            Icons.Default.KeyboardArrowRight,
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = TsuBlue
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(Dimens.logoSize)
                     )
                 }
 
+                Spacer(Modifier.width(Dimens.paddingSmall))
+
                 Column {
+
                     Text(
                         text = label,
                         style = MaterialTheme.typography.labelSmall,
-                        color = Line
+                        color = MaterialTheme.colorScheme.primary
                     )
+
                     Text(
                         text = when (node) {
-                            is TreeNode.Decision -> "Вопрос: ${node.question.text}"
-                            is TreeNode.Leaf -> "Результаты: ${node.results.joinToString { it.first }}"
+                            is TreeNode.Decision ->
+                                "Вопрос: ${node.question.text}"
+
+                            is TreeNode.Leaf ->
+                                "Результаты: ${node.results.joinToString { it.first }}"
                         },
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                        color = TextDark
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -109,7 +162,10 @@ fun TreeNodeItem(node: TreeNode, label: String, depth: Int = 0) {
 
         if (node is TreeNode.Decision) {
             AnimatedVisibility(visible = isExpanded) {
-                Column {
+                Column(
+                    modifier = Modifier.padding(top = Dimens.paddingSmall),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
+                ) {
                     node.children.forEach { (option, child) ->
                         TreeNodeItem(
                             node = child,

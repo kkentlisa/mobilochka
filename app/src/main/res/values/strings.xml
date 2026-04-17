@@ -39,7 +39,6 @@
     <string name="legend_astar">- A*</string>
     <string name="calculate_clusters">Рассчитать</string>
     <string name="recommended_places">Рекомендованные места: </string>
-    <string name="output_tree">Путь прохождения: </string>
 
     <string name="products">Продукты</string>
     <string name="apply">Применить</string>
