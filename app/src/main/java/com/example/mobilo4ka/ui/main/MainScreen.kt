@@ -42,6 +42,7 @@ fun MainScreen(
     state: MainUiState,
     onToggleMenu: () -> Unit,
     onCloseMenu: () -> Unit,
+    onToggleLanguage: () -> Unit,
     onNavigate: (String) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -76,7 +77,7 @@ fun MainScreen(
                         )
                     },
                     selected = false,
-                    onClick = {},
+                    onClick = onToggleLanguage,
                     shape = RoundedCornerShape(Dimens.zeroCornerRadius),
                     modifier = Modifier
                         .fillMaxWidth()

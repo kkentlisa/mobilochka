@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TSU Campus</string>
 
@@ -10,7 +9,7 @@
     <string name="algo_genetic">Route through establishments (Genetic)</string>
     <string name="algo_ants">Coworking spaces (Ants)</string>
     <string name="algo_tree">Where to eat (Tree)</string>
-    <string name="algo_neural">Rate establishment</string>
+    <string name="algo_neural">Rate place</string>
 
     <string name="tsu_logo">TSU logo</string>
 
@@ -19,11 +18,12 @@
 
     <string name="error_file">File upload error: </string>
     <string name="type_table">Which table do you want to use?</string>
-    <string name="download_file">Click the + button in the top right corner to upload your table</string>
-    <string name="output_tree">Path:</string>
-    <string name="input_table">Upload CSV</string>
-    <string name="base_table">Built-in CSV</string>
     <string name="again_button">Retake the survey</string>
+    <string name="download_file">Click the + button in the top right corner to upload your table</string>
+    <string name="base_table">Built-in CSV</string>
+    <string name="input_table">Upload CSV</string>
+    <string name="output_tree">Path:</string>
+    <string name="recommended_places">Recommended places: </string>
 
     <string name="neural_button_recognize">Recognize</string>
     <string name="neural_button_clear">Clear</string>
@@ -40,4 +40,10 @@
     <string name="legend_euclidean">- Euclidean</string>
     <string name="legend_astar">- A*</string>
     <string name="calculate_clusters">Calculate</string>
+
+    <string name="building">Place</string>
+    <string name="work">🕒 Working hours:</string>
+    <string name="menu">Menu: </string>
+
+    <string name="no_way">There is no way</string>
 </resources>

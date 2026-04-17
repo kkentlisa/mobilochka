@@ -248,7 +248,14 @@ object TreeAlgorithm {
         val inputStream = if (userCsvPath != null) {
             context.openFileInput(userCsvPath)
         } else {
-            context.assets.open("table/version-ru/places.csv")
+            val lang = context.resources.configuration.locales[0].language
+            val folder = if (lang == "en") "version-en" else "version-ru"
+
+            try {
+                context.assets.open("table/$folder/places.csv")
+            } catch (e: Exception) {
+                context.assets.open("table/version-ru/places.csv")
+            }
         }
 
         val reader = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8))

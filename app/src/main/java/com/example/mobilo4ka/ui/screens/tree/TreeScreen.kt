@@ -1,6 +1,5 @@
 package com.example.mobilo4ka.ui.screens.tree
 
-import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -17,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.AppAlpha
@@ -32,25 +30,33 @@ import androidx.compose.ui.res.stringResource
 import android.net.Uri
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import com.example.mobilo4ka.ui.main.Language
 import com.example.mobilo4ka.ui.theme.Dimens
-import com.example.mobilo4ka.ui.theme.Dimens.cardWeight
 
 data class ChatMessage(val text: String, val isUser: Boolean)
 
 @Composable
-fun TreeScreen() {
+fun TreeScreen(currentLanguage: Language) {
     Mobilo4kaTheme {
-        TreeScreenContent()
+        TreeScreenContent(currentLanguage)
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TreeScreenContent() {
+fun TreeScreenContent(currentLanguage: Language) {
     SetStatusBarColor(false)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
+
+    val typeTableStr = stringResource(R.string.type_table)
+    val baseTableStr = stringResource(R.string.base_table)
+    val inputTableStr = stringResource(R.string.input_table)
+    val downloadFileStr = stringResource(R.string.download_file)
+    val errorFileStr = stringResource(R.string.error_file)
+    val recommendedPlacesStr = stringResource(R.string.recommended_places)
+    val ouputTreeStr = stringResource(R.string.output_tree)
 
     val messages = remember { mutableStateListOf<ChatMessage>() }
     var showOptions by remember { mutableStateOf(false) }
@@ -58,6 +64,14 @@ fun TreeScreenContent() {
     var firstStepCompleted by remember { mutableStateOf(false) }
     var userCsvUploaded by remember { mutableStateOf(false) }
     var showCsvBlock by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        TreeAlgorithm.loadPlaces(context)
+        TreeAlgorithm.reset()
+
+        messages.add(ChatMessage(typeTableStr, isUser = false))
+        showOptions = true
+    }
 
     val csvLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -78,7 +92,7 @@ fun TreeScreenContent() {
                         firstStepCompleted = true
                     }
                 } catch (e: Exception) {
-                    messages.add(ChatMessage(context.getString(R.string.error_file) + "${e.message}", isUser = false))
+                    messages.add(ChatMessage("$errorFileStr ${e.message}", isUser = false))
                 }
             }
         }
@@ -88,25 +102,20 @@ fun TreeScreenContent() {
         if (messages.isNotEmpty()) listState.animateScrollToItem(messages.size - 1)
     }
 
-    LaunchedEffect(Unit) {
-        messages.add(ChatMessage(context.getString(R.string.type_table), isUser = false))
-        showOptions = true
-    }
-
     fun handleAnswer(answer: String) {
         if (isSearching) return
         messages.add(ChatMessage(answer, isUser = true))
 
         if (!firstStepCompleted) {
             when (answer) {
-                context.getString(R.string.base_table) -> {
+                baseTableStr -> {
                     TreeAlgorithm.loadPlaces(context)
                     TreeAlgorithm.reset()
                     firstStepCompleted = true
                 }
-                context.getString(R.string.input_table) -> {
+                inputTableStr -> {
                     showCsvBlock = true
-                    messages.add(ChatMessage(context.getString(R.string.download_file), isUser = false))
+                    messages.add(ChatMessage(downloadFileStr, isUser = false))
                     return
                 }
             }
@@ -134,7 +143,7 @@ fun TreeScreenContent() {
 
             val resultMessage = buildString {
                 if (TreeAlgorithm.hasMultipleResults()) {
-                    appendLine(context.getString(R.string.recommended_places))
+                    appendLine(recommendedPlacesStr)
                     appendLine()
                     val results = TreeAlgorithm.getResults()
                     results.forEach { (name, address) ->
@@ -149,7 +158,7 @@ fun TreeScreenContent() {
                     appendLine(address)
                     appendLine()
                 }
-                appendLine(context.getString(R.string.output_tree))
+                appendLine(ouputTreeStr)
                 path.forEachIndexed { index, step ->
                     val prefix = if (index == path.lastIndex) "└─ " else "├─ "
                     appendLine("$prefix $step")
@@ -193,7 +202,7 @@ fun TreeScreenContent() {
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
-                                contentDescription = context.getString(R.string.input_table),
+                                contentDescription = inputTableStr,
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -231,12 +240,12 @@ fun TreeScreenContent() {
                         verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
                     ) {
                         item {
-                            AnswerButton(context.getString(R.string.base_table))
-                            { handleAnswer(context.getString(R.string.base_table)) }
+                            AnswerButton(baseTableStr)
+                            { handleAnswer(baseTableStr) }
                         }
                         item {
-                            AnswerButton(context.getString(R.string.input_table))
-                            { handleAnswer(context.getString(R.string.input_table)) }
+                            AnswerButton(inputTableStr)
+                            { handleAnswer(inputTableStr) }
                         }
                     }
                 }
@@ -251,8 +260,8 @@ fun TreeScreenContent() {
                         verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
                     ) {
                         item {
-                            AnswerButton(context.getString(R.string.base_table)) {
-                                handleAnswer(context.getString(R.string.base_table))
+                            AnswerButton(baseTableStr) {
+                                handleAnswer(baseTableStr)
                                 showCsvBlock = false
                             }
                         }
@@ -297,7 +306,7 @@ fun TreeScreenContent() {
                             userCsvUploaded = false
                             showCsvBlock = false
                             TreeAlgorithm.reset()
-                            messages.add(ChatMessage(context.getString(R.string.type_table), isUser = false))
+                            messages.add(ChatMessage(typeTableStr, isUser = false))
                         },
                         modifier = Modifier
                             .fillMaxWidth()

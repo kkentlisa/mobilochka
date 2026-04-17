@@ -5,8 +5,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
+enum class Language {RU, EN }
+
 data class MainUiState(
-    val isMenuOpen: Boolean = false
+    val isMenuOpen: Boolean = false,
+    val currentLanguage: Language = Language.RU
 )
 
 class MainViewModel : ViewModel() {
@@ -15,5 +18,14 @@ class MainViewModel : ViewModel() {
 
     fun toggleMenu() {
         _state.update { it.copy(isMenuOpen = !it.isMenuOpen) }
+    }
+
+    fun toggleLanguage() {
+        _state.update {
+            it.copy(
+                currentLanguage = if (it.currentLanguage == Language.RU) Language.EN else Language.RU,
+                isMenuOpen = false
+            )
+        }
     }
 }
