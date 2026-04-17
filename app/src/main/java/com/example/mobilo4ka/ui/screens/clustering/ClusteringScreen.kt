@@ -38,7 +38,8 @@ fun ClusteringScreen(
     buildingsData: List<Building>,
     zonesData: Map<String, List<List<Int>>>,
     viewModel: ClusteringViewModel = viewModel(),
-    mapViewModel: MapViewModel = viewModel()
+    mapViewModel: MapViewModel = viewModel(),
+    onNavigateToNeural: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var selectedBuilding by remember { mutableStateOf<Building?>(null) }
@@ -316,7 +317,11 @@ fun ClusteringScreen(
             if (selectedBuilding != null) {
                 BuildingBottomSheet(
                     building = selectedBuilding!!,
-                    onDismiss = { selectedBuilding = null }
+                    onDismiss = { selectedBuilding = null },
+                    onLeaveReviewClick = {
+                        selectedBuilding = null
+                        onNavigateToNeural()
+                    }
                 )
             }
         }

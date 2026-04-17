@@ -60,7 +60,8 @@ fun GeneticScreen(
     gridData: GridMap,
     buildingsData: List<Building>,
     zonesData: Map<String, List<List<Int>>>,
-    mapViewModel: MapViewModel = viewModel()
+    mapViewModel: MapViewModel = viewModel(),
+    onNavigateToNeural: () -> Unit
 ) {
     var selectedBuilding by remember { mutableStateOf<Building?>(null) }
     val interestingBuildings = remember(buildingsData) {
@@ -449,7 +450,12 @@ fun GeneticScreen(
             if (selectedBuilding != null) {
                 BuildingBottomSheet(
                     building = selectedBuilding!!,
-                    onDismiss = { selectedBuilding = null })
+                    onDismiss = { selectedBuilding = null },
+                    onLeaveReviewClick = {
+                        selectedBuilding = null
+                        onNavigateToNeural()
+                    }
+                )
             }
         }
     }

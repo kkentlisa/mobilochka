@@ -109,7 +109,8 @@ class MainActivity : ComponentActivity() {
                                 AStarScreen(
                                     gridData = data,
                                     buildingsData = mapDataViewModel.buildingsData,
-                                    zonesData = mapDataViewModel.zonesData
+                                    zonesData = mapDataViewModel.zonesData,
+                                    onNavigateToNeural = { navController.navigate("neural") }
                                 )
                             }
                         }
@@ -120,7 +121,8 @@ class MainActivity : ComponentActivity() {
                                     gridData = data,
                                     buildingsData = mapDataViewModel.buildingsData,
                                     zonesData = mapDataViewModel.zonesData,
-                                    viewModel = clusteringViewModel
+                                    viewModel = clusteringViewModel,
+                                    onNavigateToNeural = { navController.navigate("neural") }
                                 )
                             }
                         }
@@ -131,7 +133,8 @@ class MainActivity : ComponentActivity() {
                                     gridData = data,
                                     buildingsData = mapDataViewModel.buildingsData,
                                     zonesData = mapDataViewModel.zonesData,
-                                    mapViewModel = mapVM
+                                    mapViewModel = mapVM,
+                                    onNavigateToNeural = { navController.navigate("neural") }
                                 )
                             }
                         }

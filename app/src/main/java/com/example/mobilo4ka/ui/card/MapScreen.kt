@@ -11,7 +11,8 @@ import com.example.mobilo4ka.data.models.Building
 @Composable
 fun MapScreen(
     allBuildings: List<Building>,
-    onFindBuilding: (Int, Int) -> Building?
+    onFindBuilding: (Int, Int) -> Building?,
+    onNavigateToNeural: () -> Unit
 ) {
     var selectedBuilding by remember { mutableStateOf<Building?>(null) }
 
@@ -33,7 +34,11 @@ fun MapScreen(
         if (selectedBuilding != null) {
             BuildingBottomSheet(
                 building = selectedBuilding!!,
-                onDismiss = { selectedBuilding = null }
+                onDismiss = { selectedBuilding = null },
+                onLeaveReviewClick = {
+                    selectedBuilding = null
+                    onNavigateToNeural()
+                }
             )
         }
     }

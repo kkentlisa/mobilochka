@@ -42,7 +42,8 @@ fun getDrawableByCategory(category: String?): Int {
 @Composable
 fun BuildingBottomSheet(
     building: Building,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onLeaveReviewClick: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -90,6 +91,34 @@ fun BuildingBottomSheet(
                     color = MaterialTheme.colorScheme.onSurface,
                     lineHeight = lineHeight
                 )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = Dimens.paddingSmall)
+                ) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.btn_star_big_on),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(Dimens.paddingLarge)
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.paddingSmall))
+                    Text(
+                        text = "Нет отзывов",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Button(
+                    onClick = onLeaveReviewClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = Dimens.paddingMedium),
+                    shape = RoundedCornerShape(Dimens.paddingSmall)
+                ) {
+                    Text(text = "Оставить отзыв")
+                }
 
                 if (!building.openTime.isNullOrBlank()) {
                     Text(
