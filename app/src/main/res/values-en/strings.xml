@@ -69,7 +69,7 @@
     <string name="menu">Menu: </string>
 
     <string name="no_way">There is no way</string>
-    <string name="time_format">%1$dh %2$dm</string>
+    <string name="time_format">%1$d h. %2$d min.</string>
 
     <string name="rate_place">Rate place</string>
     <string name="no_ratings">There are no ratings</string>

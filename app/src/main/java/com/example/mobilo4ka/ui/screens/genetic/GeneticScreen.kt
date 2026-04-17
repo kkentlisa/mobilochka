@@ -99,6 +99,11 @@ fun GeneticScreen(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
+    val stringShop = stringResource(R.string.shop)
+    val stringRout = stringResource(R.string.rout)
+    val stringTotalTime = stringResource(R.string.total_time)
+    val stringStart = stringResource(R.string.start)
+
     var selectedProducts by remember { mutableStateOf(setOf<String>()) }
     var formattedStartTime by remember { mutableStateOf("") }
     var calculatedRouteSteps by remember { mutableStateOf<List<RouteStepInfo>>(emptyList()) }
@@ -375,7 +380,7 @@ fun GeneticScreen(
                             .padding(bottom = Dimens.fabIconSize)
                     ) {
                         Text(
-                            stringResource(R.string.rout),
+                            stringRout,
                             style = MaterialTheme.typography.headlineSmall,
                             color = TsuBlue
                         )
@@ -385,7 +390,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                stringResource(R.string.total_time) + " " + formatTimeToMinutes(estimatedTime),
+                                stringTotalTime + " " + formatTimeToMinutes(estimatedTime),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -395,7 +400,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "${stringResource(R.string.start)} ${formatToString(formattedStartTime)}",
+                                "${stringStart} ${formatToString(formattedStartTime)}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -439,7 +444,7 @@ fun GeneticScreen(
                                         )
                                         if (info.productsToBuy.isNotEmpty()) {
                                             Text(
-                                                stringResource(R.string.shop) + info.productsToBuy.joinToString(),
+                                                stringShop + info.productsToBuy.joinToString(),
                                                 color = TsuBlue,
                                                 style = MaterialTheme.typography.bodySmall
                                             )

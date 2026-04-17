@@ -227,12 +227,10 @@ fun parseTimeToMinutes(timeStr: String?): Int {
         if (time != null) {
             time.hour * 60 + time.minute
         } else {
-            android.util.Log.e("TimeParse", "Failed to parse: '$timeStr'")
             1440
         }
 
     } catch (e: Exception) {
-        android.util.Log.e("TimeParse", "Failed to parse: '$timeStr'")
         1440
     }
 }
