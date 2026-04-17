@@ -5,7 +5,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object ModelLoader {
-    fun load(context: Context): NeuralNetwork{
+    fun load(context: Context): NeuralNetwork {
         val jsonString = context.assets.open("neural/weights.json")
             .bufferedReader()
             .use { it.readText() }
@@ -26,7 +26,8 @@ object ModelLoader {
 
     fun parse1D(array: JSONArray): FloatArray {
         return FloatArray(array.length()) { i ->
-            array.getDouble(i).toFloat()}
+            array.getDouble(i).toFloat()
+        }
     }
 
     fun parse2D(array: JSONArray): Array<FloatArray> {

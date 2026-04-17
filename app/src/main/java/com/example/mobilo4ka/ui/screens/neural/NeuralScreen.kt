@@ -25,7 +25,7 @@ import com.example.mobilo4ka.ui.theme.Dimens
 import androidx.compose.runtime.getValue
 
 @Composable
-fun NeuralScreen(viewModel: NeuralViewModel){
+fun NeuralScreen(viewModel: NeuralViewModel) {
     SetStatusBarColor(false)
 
     val state by viewModel.state.collectAsState()
@@ -127,7 +127,7 @@ fun DrawingGrid(
     val drawColor = MaterialTheme.colorScheme.onSurface
     val gridLineColor = MaterialTheme.colorScheme.outline
 
-    Box (
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(Dimens.paddingLarge)
@@ -149,8 +149,10 @@ fun DrawingGrid(
 
                     for (i in 0..steps) {
                         val t = i / steps.toFloat()
-                        val interpX = change.previousPosition.x + (change.position.x - change.previousPosition.x) * t
-                        val interpY = change.previousPosition.y + (change.position.y - change.previousPosition.y) * t
+                        val interpX =
+                            change.previousPosition.x + (change.position.x - change.previousPosition.x) * t
+                        val interpY =
+                            change.previousPosition.y + (change.position.y - change.previousPosition.y) * t
 
                         val x = (interpX / cellWidth).toInt().coerceIn(0, gridSize - 1)
                         val y = (interpY / cellHeight).toInt().coerceIn(0, gridSize - 1)
@@ -171,12 +173,12 @@ fun DrawingGrid(
                 }
             }
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()){
+        Canvas(modifier = Modifier.fillMaxSize()) {
             val cellWidth = size.width / gridSize
             val cellHeight = size.height / gridSize
 
-            for (y in 0 until gridSize){
-                for (x in 0 until gridSize){
+            for (y in 0 until gridSize) {
+                for (x in 0 until gridSize) {
                     val index = y * gridSize + x
                     if (cellStates[index]) {
                         drawRect(
@@ -188,11 +190,21 @@ fun DrawingGrid(
                 }
             }
 
-            for (i in 0..gridSize){
+            for (i in 0..gridSize) {
                 val posX = i * cellWidth
                 val posY = i * cellHeight
-                drawLine(gridLineColor, Offset(posX, 0f), Offset(posX, size.height), strokeWidth = 0.5f)
-                drawLine(gridLineColor, Offset(0f, posY), Offset(size.width, posY), strokeWidth = 0.5f)
+                drawLine(
+                    gridLineColor,
+                    Offset(posX, 0f),
+                    Offset(posX, size.height),
+                    strokeWidth = 0.5f
+                )
+                drawLine(
+                    gridLineColor,
+                    Offset(0f, posY),
+                    Offset(size.width, posY),
+                    strokeWidth = 0.5f
+                )
             }
         }
     }
@@ -201,13 +213,15 @@ fun DrawingGrid(
 @Composable
 fun ActionButton(
     titleRes: Int,
-    onClick : () -> Unit
-){
+    onClick: () -> Unit
+) {
     Button(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground
+        ),
         shape = RoundedCornerShape(Dimens.buttonRadius)
     ) {
         Text(

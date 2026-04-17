@@ -18,7 +18,7 @@ object MnistLoader {
 
         for (i in 0 until numberOfImages) {
             val image = FloatArray(rows * cols)
-            for (j in 0 until rows * cols){
+            for (j in 0 until rows * cols) {
                 image[j] = (dataInputStream.readUnsignedByte().toFloat() / 255)
             }
             images.add(image)

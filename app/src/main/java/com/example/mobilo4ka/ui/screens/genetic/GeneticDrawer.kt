@@ -6,11 +6,12 @@ import android.graphics.Path
 import androidx.compose.ui.graphics.toArgb
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.ui.map.MapView
-import com.example.mobilo4ka.ui.theme.*
 import com.example.mobilo4ka.ui.theme.AppAlpha.GHOST_BUTTON_ALPHA
 import com.example.mobilo4ka.ui.theme.AppAlpha.RADIUS_POINT
 import com.example.mobilo4ka.ui.theme.AppAlpha.STROKE_WIDTH_BORDER
 import com.example.mobilo4ka.ui.theme.AppAlpha.STROKE_WIDTH_PATH
+import com.example.mobilo4ka.ui.theme.*
+
 
 class GeneticDrawer(private val mapView: MapView) {
 
@@ -59,9 +60,15 @@ class GeneticDrawer(private val mapView: MapView) {
     fun draw(canvas: Canvas, buildingsData: List<Building>) {
         if (geneticRoute.isNotEmpty()) {
             val gPath = Path()
-            gPath.moveTo(geneticRoute[0].first + GHOST_BUTTON_ALPHA, geneticRoute[0].second + GHOST_BUTTON_ALPHA)
+            gPath.moveTo(
+                geneticRoute[0].first + GHOST_BUTTON_ALPHA,
+                geneticRoute[0].second + GHOST_BUTTON_ALPHA
+            )
             for (i in 1 until geneticRoute.size) {
-                gPath.lineTo(geneticRoute[i].first + GHOST_BUTTON_ALPHA, geneticRoute[i].second + GHOST_BUTTON_ALPHA)
+                gPath.lineTo(
+                    geneticRoute[i].first + GHOST_BUTTON_ALPHA,
+                    geneticRoute[i].second + GHOST_BUTTON_ALPHA
+                )
             }
             canvas.drawPath(gPath, geneticPathPaint)
         }
@@ -79,8 +86,18 @@ class GeneticDrawer(private val mapView: MapView) {
         }
 
         userStartPoint?.let { point ->
-            canvas.drawCircle(point.first + GHOST_BUTTON_ALPHA, point.second + GHOST_BUTTON_ALPHA, 1.0f, startPointPaint)
-            canvas.drawCircle(point.first + GHOST_BUTTON_ALPHA, point.second + GHOST_BUTTON_ALPHA, 1.0f, startPointBorderPaint)
+            canvas.drawCircle(
+                point.first + GHOST_BUTTON_ALPHA,
+                point.second + GHOST_BUTTON_ALPHA,
+                1.0f,
+                startPointPaint
+            )
+            canvas.drawCircle(
+                point.first + GHOST_BUTTON_ALPHA,
+                point.second + GHOST_BUTTON_ALPHA,
+                1.0f,
+                startPointBorderPaint
+            )
         }
     }
 }

@@ -16,15 +16,18 @@ data class NeuralUIState(
     val resultText: String = ""
 )
 
-class NeuralViewModel (context: Context): ViewModel() {
-    private val _state = MutableStateFlow(NeuralUIState(
-        resultText = context.getString(R.string.draw_number)
-    ))
+class NeuralViewModel(context: Context) : ViewModel() {
+    private val _state = MutableStateFlow(
+        NeuralUIState(
+            resultText = context.getString(R.string.draw_number)
+        )
+    )
     val state: StateFlow<NeuralUIState> = _state
 
     private var network: NeuralNetwork? = null
-    init{
-        viewModelScope.launch(Dispatchers.IO){
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
             network = ModelLoader.load(context)
         }
     }
@@ -45,7 +48,7 @@ class NeuralViewModel (context: Context): ViewModel() {
 
     fun clear(context: Context) {
         _state.value = _state.value.copy(
-            cellStates = List(2500) {false},
+            cellStates = List(2500) { false },
             resultText = context.getString(R.string.draw_number)
         )
     }

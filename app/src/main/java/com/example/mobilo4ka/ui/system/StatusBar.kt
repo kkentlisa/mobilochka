@@ -7,7 +7,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 @Composable
-fun SetStatusBarColor(isLight : Boolean){
+fun SetStatusBarColor(isLight: Boolean) {
     val view = LocalView.current
 
     SideEffect {

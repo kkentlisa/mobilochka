@@ -193,7 +193,8 @@ object TreeAlgorithm {
             val question = questionsList.find { it.text == step.first }
             if (question != null) {
                 currentData = currentData.filter { row ->
-                    val values = row.values[question.columnName]?.split(",")?.map { it.trim() } ?: emptyList()
+                    val values = row.values[question.columnName]?.split(",")?.map { it.trim() }
+                        ?: emptyList()
                     values.contains(step.second)
                 }
             }
@@ -242,7 +243,10 @@ object TreeAlgorithm {
         path.clear()
     }
 
-    private fun parsePlacesWithQuestions(context: Context, userCsvPath: String? = null): Pair<List<Place>, List<Question>> {
+    private fun parsePlacesWithQuestions(
+        context: Context,
+        userCsvPath: String? = null
+    ): Pair<List<Place>, List<Question>> {
         val places = mutableListOf<Place>()
 
         val inputStream = if (userCsvPath != null) {
@@ -259,7 +263,10 @@ object TreeAlgorithm {
         }
 
         val reader = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8))
-        val headers = reader.readLine()?.split(";")?.map { it.trim() } ?: return Pair(emptyList(), emptyList())
+        val headers = reader.readLine()?.split(";")?.map { it.trim() } ?: return Pair(
+            emptyList(),
+            emptyList()
+        )
 
         val resultColumnIndex = headers.size - 2
         val addressColumnIndex = headers.size - 1

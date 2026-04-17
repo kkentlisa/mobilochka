@@ -22,7 +22,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.genetic.GeneticAlgorithm
+import com.example.mobilo4ka.algorithms.genetic.formatTime
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
 import com.example.mobilo4ka.ui.card.BuildingBottomSheet
@@ -40,8 +42,6 @@ import com.example.mobilo4ka.ui.theme.TsuBlue
 import kotlinx.coroutines.*
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import com.example.mobilo4ka.R
-import com.example.mobilo4ka.algorithms.genetic.formatTime
 
 data class RouteStepInfo(
     val building: Building,

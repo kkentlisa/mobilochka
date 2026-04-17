@@ -1,7 +1,9 @@
 package com.example.mobilo4ka.ui.screens.tree
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,27 +13,25 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
+import com.example.mobilo4ka.ui.main.Language
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.AppAlpha
+import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 import com.example.mobilo4ka.ui.theme.Typography
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.example.mobilo4ka.R
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import android.net.Uri
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import com.example.mobilo4ka.ui.main.Language
-import com.example.mobilo4ka.ui.theme.Dimens
 
 data class ChatMessage(val text: String, val isUser: Boolean)
 
@@ -113,6 +113,7 @@ fun TreeScreenContent(currentLanguage: Language) {
                     TreeAlgorithm.reset()
                     firstStepCompleted = true
                 }
+
                 inputTableStr -> {
                     showCsvBlock = true
                     messages.add(ChatMessage(downloadFileStr, isUser = false))
@@ -135,42 +136,44 @@ fun TreeScreenContent(currentLanguage: Language) {
                 showOptions = true
             }
         } else {
-        showOptions = false
-        isSearching = true
-        scope.launch {
-            delay(500)
-            val path = TreeAlgorithm.getPath()
+            showOptions = false
+            isSearching = true
+            scope.launch {
+                delay(500)
+                val path = TreeAlgorithm.getPath()
 
-            val resultMessage = buildString {
-                if (TreeAlgorithm.hasMultipleResults()) {
-                    appendLine(recommendedPlacesStr)
-                    appendLine()
-                    val results = TreeAlgorithm.getResults()
-                    results.forEach { (name, address) ->
-                        appendLine("$name")
+                val resultMessage = buildString {
+                    if (TreeAlgorithm.hasMultipleResults()) {
+                        appendLine(recommendedPlacesStr)
+                        appendLine()
+                        val results = TreeAlgorithm.getResults()
+                        results.forEach { (name, address) ->
+                            appendLine("$name")
+                            appendLine(address)
+                            appendLine()
+                        }
+                    } else {
+                        val result = TreeAlgorithm.getResult()
+                        val address = TreeAlgorithm.getAddress()
+                        appendLine(result)
                         appendLine(address)
                         appendLine()
                     }
-                } else {
-                    val result = TreeAlgorithm.getResult()
-                    val address = TreeAlgorithm.getAddress()
-                    appendLine(result)
-                    appendLine(address)
-                    appendLine()
+                    appendLine(ouputTreeStr)
+                    path.forEachIndexed { index, step ->
+                        val prefix = if (index == path.lastIndex) "└─ " else "├─ "
+                        appendLine("$prefix $step")
+                    }
                 }
-                appendLine(ouputTreeStr)
-                path.forEachIndexed { index, step ->
-                    val prefix = if (index == path.lastIndex) "└─ " else "├─ "
-                    appendLine("$prefix $step")
-                }
-            }
-            messages.add(ChatMessage(resultMessage, isUser = false))
-            isSearching = false
+                messages.add(ChatMessage(resultMessage, isUser = false))
+                isSearching = false
             }
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.surface)) {
         Scaffold(
             topBar = {
                 Row(
@@ -310,7 +313,10 @@ fun TreeScreenContent(currentLanguage: Language) {
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = Dimens.paddingLarge, vertical = Dimens.paddingSmall)
+                            .padding(
+                                horizontal = Dimens.paddingLarge,
+                                vertical = Dimens.paddingSmall
+                            )
                     ) {
                         Text(stringResource(R.string.again_button))
                     }
