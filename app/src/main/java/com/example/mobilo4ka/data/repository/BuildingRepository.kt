@@ -1,6 +1,5 @@
 package com.example.mobilo4ka.data.repository
 
-import android.R.attr.id
 import android.content.Context
 import com.example.mobilo4ka.data.models.Building
 import org.json.JSONArray

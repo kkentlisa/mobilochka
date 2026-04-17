@@ -34,7 +34,7 @@ class GeneticAlgorithm(
     }
 
     private fun getEntranceForBuilding(x: Int, y: Int): Pair<Int, Int>? {
-        return buildings.find { it.containsPoint(x, y) }?.firstEntrance
+        return buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -48,7 +48,7 @@ class GeneticAlgorithm(
 
         route.forEach { gene ->
             val building = buildingMap[gene.buildingId] ?: return@forEach
-            val target = building.firstEntrance ?: return@forEach
+            val target = building.getFirstEntrance() ?: return@forEach
 
             val dx = (target.first - currentPos.first).toDouble()
             val dy = (target.second - currentPos.second).toDouble()
@@ -158,7 +158,7 @@ class GeneticAlgorithm(
             yield()
 
             val currentBuilding = buildingMap[id] ?: return@forEach
-            val targetEntrance = currentBuilding.firstEntrance ?: return@forEach
+            val targetEntrance = currentBuilding.getFirstEntrance() ?: return@forEach
             val fromBuilding = lastBuildingId?.let { buildingMap[it] }
 
             val segment = aStar.findPath(

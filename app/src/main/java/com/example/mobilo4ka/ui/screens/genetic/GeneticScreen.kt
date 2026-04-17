@@ -288,7 +288,7 @@ fun GeneticScreen(
                                                     val building =
                                                         buildingsData.find { it.id == id }
                                                             ?: return@forEachIndexed
-                                                    val targetEntrance = building.firstEntrance
+                                                    val targetEntrance = building.getFirstEntrance()
                                                         ?: return@forEachIndexed
 
                                                     val dx =

@@ -77,4 +77,8 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="confirm">Оценка: %1$d. Оценить заведение?</string>
+
+    <string name="landmark_count">Выбрано достопримечательностей: </string>
+    <string name="trow_off">Сбросить</string>
+    <string name="set_route">Построить маршрут</string>
 </resources>

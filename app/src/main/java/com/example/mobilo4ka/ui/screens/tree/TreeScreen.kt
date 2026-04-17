@@ -266,7 +266,7 @@ fun TreeScreenContent(currentLanguage: Language) {
                                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         ) {
-                            Text(context.getString(R.string.tree_structure))
+                            Text(stringResource(R.string.tree_structure))
                         }
 
                         Spacer(Modifier.height(Dimens.paddingSmall))
