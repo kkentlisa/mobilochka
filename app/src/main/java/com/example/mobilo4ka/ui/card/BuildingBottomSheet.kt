@@ -42,7 +42,10 @@ fun getDrawableByCategory(category: String?): Int {
 @Composable
 fun BuildingBottomSheet(
     building: Building,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    placeStr: String = stringResource(R.string.building),
+    workStr: String = stringResource(R.string.work),
+    menuStr: String = stringResource(R.string.menu)
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -84,7 +87,7 @@ fun BuildingBottomSheet(
                 Spacer(modifier = Modifier.height(Dimens.paddingExtraLarge))
 
                 Text(
-                    text = building.name ?: stringResource(id = R.string.building),
+                    text = building.name ?: placeStr,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -93,7 +96,7 @@ fun BuildingBottomSheet(
 
                 if (!building.openTime.isNullOrBlank()) {
                     Text(
-                        text = "${stringResource(id = R.string.work)} ${building.openTime} — ${building.closeTime}",
+                        text = "$workStr ${building.openTime} — ${building.closeTime}",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(vertical = Dimens.paddingMedium)
@@ -110,7 +113,7 @@ fun BuildingBottomSheet(
             if (building.menu.isNotEmpty()) {
                 item {
                     Text(
-                        text = stringResource(id = R.string.menu),
+                        text = menuStr,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
