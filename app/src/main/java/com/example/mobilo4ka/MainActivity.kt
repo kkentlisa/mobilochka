@@ -104,7 +104,19 @@ class MainActivity : ComponentActivity() {
                                 onNavigate = { route -> navController.navigate(route) },
                             )
                         }
-                        composable("ants") { AntsScreen() }
+                        composable("ants") {
+                            mapDataViewModel.gridData?.let { data ->
+                                val mapVM: MapViewModel = viewModel()
+                                LaunchedEffect(state.currentLanguage) {
+                                    mapVM.loadBuildingsByLanguage(state.currentLanguage == Language.RU)
+                                }
+                                AntsScreen(
+                                    gridData = data,
+                                    buildingsData = mapDataViewModel.buildingsData,
+                                    zonesData = mapDataViewModel.zonesData
+                                )
+                            }
+                        }
                         composable("astar") {
                             mapDataViewModel.gridData?.let { data ->
                                 val mapVM: MapViewModel = viewModel()

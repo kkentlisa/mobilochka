@@ -16,10 +16,6 @@ data class Building(
     val openTime: String? = null,
     val closeTime: String? = null
 ) {
-    val firstEntrance: Pair<Int, Int>?
-        get() = entrances?.firstOrNull()?.let { Pair(it[0], it[1]) }
-            ?: pixels.firstOrNull()?.let { Pair(it[0], it[1]) }
-
     val parsedOpenTime: LocalTime?
         @RequiresApi(Build.VERSION_CODES.O)
         get() = try {
@@ -42,5 +38,13 @@ data class Building(
 
     fun containsPoint(x: Int, y: Int): Boolean {
         return pixels.any { it[0] == x && it[1] == y }
+    }
+
+    fun getFirstEntrance(): Pair<Int, Int>? {
+        return entrances?.firstOrNull()?.let { Pair(it[0], it[1]) }
+    }
+
+    fun getFirstPixels(): Pair<Int, Int>? {
+        return pixels.firstOrNull()?.let { Pair(it[0], it[1]) }
     }
 }

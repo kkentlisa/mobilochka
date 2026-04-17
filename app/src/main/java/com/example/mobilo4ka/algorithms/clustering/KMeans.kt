@@ -22,7 +22,7 @@ class KMeans(
     }
 
     private fun getBuildingEntrance(x: Int, y: Int): Pair<Int, Int>? {
-        return buildings.find { it.containsPoint(x, y) }?.firstEntrance
+        return buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
     }
 
     fun calculate(
@@ -95,13 +95,14 @@ class KMeans(
                     val avgX = clusterMembers.map { it.x }.average().toFloat()
                     val avgY = clusterMembers.map { it.y }.average().toFloat()
                     if (mode == ClusteringMode.ASTAR) {
-                        val nearest = aStar.findNearestRoad(
+                        val nearest = aStar.findSegment(
                             avgX.toInt(),
                             avgY.toInt(),
                             ::isWalkable,
                             ::isBuilding
                         )
-                        Pair(nearest.first.toFloat(), nearest.second.toFloat())
+                        val point = if (nearest.isNotEmpty()) nearest.first() else (avgX.toInt() to avgY.toInt())
+                        Pair(point.first.toFloat(), point.second.toFloat())
                     } else {
                         Pair(avgX, avgY)
                     }

@@ -78,4 +78,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="confirm">Rating: %1$d. Rate this place?</string>
+    <string name="landmark_count">Landmarks selected</string>
+    <string name="trow_off">Trow off</string>
+    <string name="set_route">Set a route</string>
 </resources>

@@ -61,4 +61,5 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.google.gson)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.compose.material.icons.extended)
 }

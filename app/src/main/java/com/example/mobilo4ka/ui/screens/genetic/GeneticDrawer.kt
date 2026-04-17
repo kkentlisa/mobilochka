@@ -68,7 +68,7 @@ class GeneticDrawer(private val mapView: MapView) {
 
         visitedBuildingIds.forEach { id ->
             val building = buildingsData.find { it.id == id }
-            building?.firstEntrance?.let { entrance ->
+            building?.getFirstEntrance()?.let { entrance ->
                 canvas.drawCircle(
                     entrance.first + GHOST_BUTTON_ALPHA,
                     entrance.second + GHOST_BUTTON_ALPHA,

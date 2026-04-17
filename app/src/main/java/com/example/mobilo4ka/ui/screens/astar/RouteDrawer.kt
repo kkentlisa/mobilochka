@@ -12,10 +12,10 @@ import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.MapRoute
 
-class RouteDrawer(private val mapView: MapView) {
+open class RouteDrawer(private val mapView: MapView) {
 
     var currentPath: List<Pair<Int, Int>> = emptyList()
-    var startPoint: Pair<Int, Int>? = null
+    open var startPoint: Pair<Int, Int>? = null
     var endPoint: Pair<Int, Int>? = null
 
     private val pathRoutePaint = Paint().apply {
@@ -33,7 +33,7 @@ class RouteDrawer(private val mapView: MapView) {
 
     private val linePath = Path()
 
-    fun drawRoute(canvas: Canvas) {
+    open fun drawRoute(canvas: Canvas) {
 
         if (currentPath.isNotEmpty()) {
             linePath.reset()
@@ -90,7 +90,7 @@ class RouteDrawer(private val mapView: MapView) {
                     mapView.buildings.any { it.containsPoint(x, y) }
                 },
                 getBuildingEntrance = { x, y ->
-                    mapView.buildings.find { it.containsPoint(x, y) }?.firstEntrance
+                    mapView.buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
                 }
             )
 

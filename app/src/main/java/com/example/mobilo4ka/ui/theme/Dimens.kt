@@ -56,4 +56,7 @@ object Dimens{
 
     val zeroCornerRadius = 0.dp
     val menuWidth = 300.dp
+
+    val antStartWight = 0.5f
+    val antRouteWight = 5f
 }
