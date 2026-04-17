@@ -49,4 +49,7 @@ object Dimens{
     val sliderTrackSize = 10.dp
     val clusterLegend = 12.dp
     val clusterButton = 52.dp
+
+    val antStartWight = 0.5f
+    val antRouteWight = 5f
 }

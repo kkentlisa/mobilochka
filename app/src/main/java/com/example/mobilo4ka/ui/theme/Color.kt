@@ -23,3 +23,8 @@ val Cluster3 = Color(0xFF65D268)
 val Cluster4 = Color(0xFFFF96D5)
 val Cluster5 = Color(0xFF00CDD4)
 val Cluster6 = Color(0xFFE867FF)
+
+val AntLandmark = Color.Yellow
+val AntSelected = Color.Green
+val AntStart = Color.Red
+val AntRoute = Color.Blue
