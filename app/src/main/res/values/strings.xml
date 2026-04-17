@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Кампус ТГУ</string>
+    <string name="app_name">Campus</string>
 
     <string name="header_title">Сервисы кампуса</string>
     <string name="language_button">English version</string>

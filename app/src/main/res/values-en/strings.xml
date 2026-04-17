@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TSU Campus</string>
+    <string name="app_name">Campus</string>
 
     <string name="header_title">Campus services</string>
     <string name="language_button">Русская версия</string>

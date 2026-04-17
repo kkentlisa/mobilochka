@@ -6,6 +6,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -38,11 +40,19 @@ import com.example.mobilo4ka.ui.theme.Mobilo4kaTheme
 import com.example.mobilo4ka.utils.LocaleHelper
 
 class MainActivity : ComponentActivity() {
+    private val mapDataViewModel: MapDataViewModel by viewModels()
+
     @RequiresApi(Build.VERSION_CODES.O)
     @ExperimentalLayoutApi
     @ExperimentalMaterial3Api
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        splashScreen.setKeepOnScreenCondition {
+            !mapDataViewModel.isLoaded
+        }
+
         enableEdgeToEdge()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -53,8 +63,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: MainViewModel = viewModel()
             val state by viewModel.state.collectAsState()
-
-            val mapDataViewModel: MapDataViewModel = viewModel()
 
             val context = LocalContext.current
             val localizedContext = remember(state.currentLanguage) {
