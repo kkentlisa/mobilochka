@@ -91,6 +91,9 @@ open class RouteDrawer(private val mapView: MapView) {
                 },
                 getBuildingEntrance = { x, y ->
                     mapView.buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
+                },
+                getBuildingPixels = { x, y ->
+                    mapView.buildings.find { it.containsPoint(x, y) }?.pixels?.map { it[0] to it[1] }?.toSet()
                 }
             )
 
@@ -106,5 +109,9 @@ open class RouteDrawer(private val mapView: MapView) {
                 mapView.invalidate()
             }
         }
+    }
+    fun setEndPointAndCalculate(end: Pair<Int, Int>) {
+        endPoint = end
+        calculateAStarPath()
     }
 }

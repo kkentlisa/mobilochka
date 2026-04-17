@@ -24,7 +24,9 @@ class KMeans(
     private fun getBuildingEntrance(x: Int, y: Int): Pair<Int, Int>? {
         return buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
     }
-
+    private fun getBuildingPixels(x: Int, y: Int): Set<Pair<Int, Int>>? {
+        return buildings.find { it.containsPoint(x, y) }?.pixels?.map { it[0] to it[1] }?.toSet()
+    }
     fun calculate(
         points: List<ClusterPoint>,
         k: Int,
@@ -59,7 +61,8 @@ class KMeans(
                                 point.x, point.y,
                                 center.first.toInt(), center.second.toInt(),
                                 ::isWalkable, ::isBuilding,
-                                ::getBuildingEntrance
+                                ::getBuildingEntrance,
+                                ::getBuildingPixels
                             )
                             if (path.isEmpty()) {
                                 10000.0

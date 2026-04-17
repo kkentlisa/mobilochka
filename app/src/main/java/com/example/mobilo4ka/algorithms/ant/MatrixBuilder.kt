@@ -8,6 +8,7 @@ class MatrixBuilder(
     private val isWalkable: (Int, Int) -> Boolean,
     private val isBuilding: (Int, Int) -> Boolean,
     private val getBuildingEntrance: (Int, Int) -> Pair<Int, Int>?,
+    private val getBuildingPixels: (Int, Int) -> Set<Pair<Int, Int>>?
 ) {
     fun build(
         userX: Int, userY: Int,
@@ -26,7 +27,8 @@ class MatrixBuilder(
                     points[j].first, points[j].second,
                     isWalkable,
                     isBuilding,
-                    getBuildingEntrance
+                    getBuildingEntrance,
+                    getBuildingPixels
                 )
                 val distance = if (path.isNotEmpty()) path.size.toDouble() else Double.POSITIVE_INFINITY
                 dist[i][j] = distance

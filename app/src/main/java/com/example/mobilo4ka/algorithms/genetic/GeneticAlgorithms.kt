@@ -11,8 +11,6 @@ import com.example.mobilo4ka.data.models.GridMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import java.time.LocalTime
-import java.time.format.DateTimeFormatterBuilder
 import kotlin.math.sqrt
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -144,7 +142,9 @@ class GeneticAlgorithm(
 
         return@withContext bestRouteIds
     }
-
+    private fun getBuildingPixels(x: Int, y: Int): Set<Pair<Int, Int>>? {
+        return buildings.find { it.containsPoint(x, y) }?.pixels?.map { it[0] to it[1] }?.toSet()
+    }
     suspend fun buildFullPath(
         routeIds: List<Int>,
         start: Pair<Int, Int>
@@ -180,7 +180,8 @@ class GeneticAlgorithm(
                 },
                 getBuildingEntrance = { x, y ->
                     getEntranceForBuilding(x, y)
-                }
+                },
+                getBuildingPixels = ::getBuildingPixels
             )
 
             if (segment.isEmpty()) return emptyList()
