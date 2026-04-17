@@ -1,36 +1,63 @@
 package com.example.mobilo4ka.algorithms.astar
 
+import java.util.PriorityQueue
 import kotlin.math.abs
 
 data class Node(
     val x: Int,
     val y: Int,
-    var g: Int = 0,
-    var h: Int = 0,
-    var parent: Node? = null
-) {
+    val g: Int = 0,
+    val h: Int = 0,
+    val parent: Node? = null) {
     val f: Int get() = g + h
-    val pos: Pair<Int, Int> get() = Pair(x, y)
 }
-
+private val DIRECTIONS = arrayOf(0 to 1, 0 to -1, 1 to 0, -1 to 0)
+@Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class AStarAlgorithm {
     private val customObstacles = mutableSetOf<Pair<Int, Int>>()
 
-    private fun getBuildingPixels(startX: Int, startY: Int, isBuilding: (Int, Int) -> Boolean): Set<Pair<Int, Int>> {
-        val pixels = mutableSetOf<Pair<Int, Int>>()
-        val queue = ArrayDeque<Pair<Int, Int>>()
-        val start = Pair(startX, startY)
-        queue.add(start)
-        pixels.add(start)
+    private fun resolveTerminalPath(
+        x: Int, y: Int,
+        isWalkable: (Int, Int) -> Boolean,
+        isBuilding: (Int, Int) -> Boolean,
+        getEntrance: (Int, Int) -> Pair<Int, Int>?
+    ): List<Pair<Int, Int>> {
+        if (!isBuilding(x, y)) {
+            return findSegment(x, y, canStep = { cx, cy -> !isBuilding(cx, cy) }, isTarget = isWalkable)
+        }
 
-        val dirs = listOf(Pair(0, 1), Pair(0, -1), Pair(1, 0), Pair(-1, 0))
+        val entrance = getEntrance(x, y)
+        if (entrance != null) {
+            val pathInside = findSegment(x, y,
+                canStep = isBuilding,
+                isTarget = { cx, cy -> cx == entrance.first && cy == entrance.second })
+
+            val pathToRoad = findSegment(entrance.first, entrance.second,
+                canStep = { cx, cy -> !isBuilding(cx, cy) || (cx == entrance.first && cy == entrance.second) },
+                isTarget = isWalkable)
+
+            return if (pathInside.isNotEmpty() && pathToRoad.isNotEmpty()) {
+                pathInside + pathToRoad.drop(1)
+            } else emptyList()
+        }
+
+        val myBuilding = getBuildingPixels(x, y, isBuilding)
+        return findSegment(x, y,
+            canStep = { cx, cy -> !isBuilding(cx, cy) || (cx to cy) in myBuilding },
+            isTarget = isWalkable
+        )
+    }
+
+    private fun getBuildingPixels(startX: Int, startY: Int, isBuilding: (Int, Int) -> Boolean): Set<Pair<Int, Int>> {
+        val start = startX to startY
+        val pixels = mutableSetOf(start)
+        val queue = ArrayDeque<Pair<Int, Int>>().apply { add(start) }
+
         while (queue.isNotEmpty()) {
-            val curr = queue.removeFirst()
-            for (m in dirs) {
-                val nx = curr.first + m.first
-                val ny = curr.second + m.second
-                val next = Pair(nx, ny)
-                if (!pixels.contains(next) && isBuilding(nx, ny)) {
+            val (cx, cy) = queue.removeFirst()
+            for ((dx, dy) in DIRECTIONS) {
+                val next = (cx + dx) to (cy + dy)
+                if (next !in pixels && isBuilding(next.first, next.second)) {
                     pixels.add(next)
                     queue.add(next)
                 }
@@ -39,33 +66,33 @@ class AStarAlgorithm {
         return pixels
     }
 
-    private fun findSegment(
+    fun findSegment(
         startX: Int,
         startY: Int,
         canStep: (Int, Int) -> Boolean,
         isTarget: (Int, Int) -> Boolean
     ): List<Pair<Int, Int>> {
-        val queue = ArrayDeque<Pair<Int, Int>>()
-        val visited = mutableSetOf<Pair<Int, Int>>()
+        val startPoint = startX to startY
+        val queue = ArrayDeque<Pair<Int, Int>>().apply { add(startPoint) }
+        val visited = mutableSetOf(startPoint)
         val parents = mutableMapOf<Pair<Int, Int>, Pair<Int, Int>>()
-        val startPoint = Pair(startX, startY)
-
-        queue.add(startPoint)
-        visited.add(startPoint)
-        val directions = listOf(Pair(0, 1), Pair(0, -1), Pair(1, 0), Pair(-1, 0))
 
         while (queue.isNotEmpty()) {
             val curr = queue.removeFirst()
-            if (isTarget(curr.first, curr.second)) return reconstruct(curr, parents)
 
-            for (move in directions) {
-                val nx = curr.first + move.first
-                val ny = curr.second + move.second
-                val next = Pair(nx, ny)
+            if (isTarget(curr.first, curr.second)) {
+                return generateSequence(curr) { parents[it] }.toList().asReversed()
+            }
+
+            for ((dx, dy) in DIRECTIONS) {
+                val nx = curr.first + dx
+                val ny = curr.second + dy
+                val next = nx to ny
 
                 val maxSearchRadius = 200
                 if (abs(nx - startX) < maxSearchRadius && abs(ny - startY) < maxSearchRadius &&
-                    !visited.contains(next) && canStep(nx, ny) && !customObstacles.contains(next)) {
+                    next !in visited && next !in customObstacles && canStep(nx, ny)
+                ) {
                     visited.add(next)
                     parents[next] = curr
                     queue.add(next)
@@ -83,98 +110,60 @@ class AStarAlgorithm {
         getBuildingEntrance: (Int, Int) -> Pair<Int, Int>? = { _, _ -> null }
     ): List<Pair<Int, Int>> {
 
-        val fullStartPath = mutableListOf<Pair<Int, Int>>()
-        if (isBuilding(startX, startY)) {
-            val entrance = getBuildingEntrance(startX, startY)
-            if (entrance != null) {
-                val pathInside = findSegment(startX, startY,
-                    { x, y -> isBuilding(x, y) },
-                    { x, y -> x == entrance.first && y == entrance.second })
-                fullStartPath.addAll(pathInside)
-                val pathToRoad = findSegment(entrance.first, entrance.second,
-                     { x, y -> !isBuilding(x, y) ||
-                            (x == entrance.first && y == entrance.second) }, { x, y -> isWalkable(x, y) })
-                if (pathToRoad.size > 1) fullStartPath.addAll(pathToRoad.drop(1))
-            } else {
-                val myBuilding = getBuildingPixels(startX, startY, isBuilding)
-                val pathToRoad = findSegment(startX, startY,
-                    { x, y -> !isBuilding(x, y) || myBuilding.contains(Pair(x, y)) },
-                    { x, y -> isWalkable(x, y) })
-                fullStartPath.addAll(pathToRoad)
-            }
-        } else {
-            fullStartPath.addAll(findSegment(startX, startY,
-                { x, y -> !isBuilding(x, y) }, { x, y -> isWalkable(x, y) }))
-        }
+        val fullStartPath = resolveTerminalPath(startX, startY, isWalkable, isBuilding, getBuildingEntrance)
+        val endPathRaw = resolveTerminalPath(targetX, targetY, isWalkable, isBuilding, getBuildingEntrance)
+
+        if (fullStartPath.isEmpty() || endPathRaw.isEmpty()) return emptyList()
+
+        val fullEndPath = endPathRaw.reversed()
         val realStart = fullStartPath.last()
-
-        val fullEndPath = mutableListOf<Pair<Int, Int>>()
-        if (isBuilding(targetX, targetY)) {
-            val entrance = getBuildingEntrance(targetX, targetY)
-            if (entrance != null) {
-                val pathInside = findSegment(entrance.first, entrance.second,
-                     { x, y -> isBuilding(x, y) }, { x, y -> x == targetX && y == targetY })
-                val pathToRoad = findSegment(entrance.first, entrance.second,
-                     { x, y -> !isBuilding(x, y) || (x == entrance.first && y == entrance.second) }, { x, y -> isWalkable(x, y) })
-
-                fullEndPath.addAll(pathToRoad.reversed())
-                if (pathInside.size > 1) fullEndPath.addAll(pathInside.drop(1))
-            } else {
-                val myBuilding = getBuildingPixels(targetX, targetY, isBuilding)
-                val pathToRoad = findSegment(targetX, targetY,
-                    { x, y -> !isBuilding(x, y) || myBuilding.contains(Pair(x, y)) }, { x, y -> isWalkable(x, y) })
-                fullEndPath.addAll(pathToRoad.reversed())
-            }
-        } else {
-            val pathToRoad = findSegment(targetX, targetY,
-                { x, y -> !isBuilding(x, y) }, { x, y -> isWalkable(x, y) })
-            fullEndPath.addAll(pathToRoad.reversed())
-        }
         val realTarget = fullEndPath.first()
 
-        val openList = mutableListOf(Node(realStart.first, realStart.second).apply
-        { h = abs(x - realTarget.first) + abs(y - realTarget.second) })
-        val closedSet = mutableSetOf<Pair<Int, Int>>()
+        val openList = PriorityQueue<Node>(compareBy { it.f })
+        val gScores = mutableMapOf<Pair<Int, Int>, Int>()
+
+        openList.add(Node(realStart.first, realStart.second, 0, manhattan(realStart, realTarget), null))
+        gScores[realStart] = 0
+
         var foundNode: Node? = null
 
         while (openList.isNotEmpty()) {
-            val curr = openList.minByOrNull { it.f }!!
-            if (curr.x == realTarget.first && curr.y == realTarget.second) { foundNode = curr; break }
-            openList.remove(curr)
-            closedSet.add(curr.pos)
+            val curr = openList.poll()
+            val currPos = curr.x to curr.y
 
-            for (m in listOf(Pair(0, 1), Pair(0, -1), Pair(1, 0), Pair(-1, 0))) {
-                val nx = curr.x + m.first; val ny = curr.y + m.second
-                if (!isWalkable(nx, ny) || closedSet.contains(Pair(nx, ny)) ||
-                    customObstacles.contains(Pair(nx, ny))) continue
+            if (curr.x == realTarget.first && curr.y == realTarget.second) {
+                foundNode = curr
+                break
+            }
 
-                val gScore = curr.g + 1
-                val existing = openList.find { it.x == nx && it.y == ny }
-                if (existing == null) {
-                    openList.add(Node(nx, ny, gScore,
-                        abs(nx - realTarget.first) + abs(ny - realTarget.second), curr))
-                } else if (gScore < existing.g) {
-                    existing.g = gScore; existing.parent = curr
+            if (curr.g > gScores.getOrDefault(currPos, Int.MAX_VALUE)) continue
+
+            for ((dx, dy) in DIRECTIONS) {
+                val nx = curr.x + dx
+                val ny = curr.y + dy
+                val nextPos = nx to ny
+
+                if (!isWalkable(nx, ny) || nextPos in customObstacles) continue
+
+                val tentativeG = curr.g + 1
+                if (tentativeG < gScores.getOrDefault(nextPos, Int.MAX_VALUE)) {
+                    gScores[nextPos] = tentativeG
+                    openList.add(Node(nx, ny, tentativeG, manhattan(nextPos, realTarget), curr))
                 }
             }
         }
 
         if (foundNode == null) return emptyList()
 
-        return fullStartPath.dropLast(1) + reconstructPath(foundNode) + fullEndPath.drop(1)
+        val mainPath = generateSequence(foundNode) { it.parent }
+            .map { it.x to it.y }
+            .toList()
+            .asReversed()
+
+        return fullStartPath.dropLast(1) + mainPath + fullEndPath.drop(1)
     }
 
-    private fun reconstruct(end: Pair<Int, Int>, parents: Map<Pair<Int, Int>, Pair<Int, Int>>): List<Pair<Int, Int>> {
-        val path = mutableListOf<Pair<Int, Int>>()
-        var t: Pair<Int, Int>? = end
-        while (t != null) { path.add(t); t = parents[t] }
-        return path.reversed()
-    }
-
-    private fun reconstructPath(node: Node): List<Pair<Int, Int>> {
-        val path = mutableListOf<Pair<Int, Int>>()
-        var curr: Node? = node
-        while (curr != null) { path.add(curr.pos); curr = curr.parent }
-        return path.reversed()
+    private fun manhattan(a: Pair<Int, Int>, b: Pair<Int, Int>): Int {
+        return abs(a.first - b.first) + abs(a.second - b.second)
     }
 }
