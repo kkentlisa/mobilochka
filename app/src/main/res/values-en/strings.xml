@@ -41,6 +41,22 @@
     <string name="legend_astar">- A*</string>
     <string name="calculate_clusters">Calculate</string>
 
+    <string name="products">Products</string>
+    <string name="apply">Apply</string>
+    <string name="show_route">Show current route</string>
+    <string name="select_point">Select a point on the map</string>
+    <string name="select_products">Select products in the menu ☰</string>
+    <string name="plan_rout">Plan route</string>
+    <string name="rout">Your route</string>
+    <string name="total_time">Total time: </string>
+    <string name="shop">Buy: </string>
+    <string name="arrival_open">You will make it (arrival at </string>
+    <string name="arrival_close">You will not make it (arrival at </string>
+    <string name="open">Open until</string>
+    <string name="close">Closed at this time</string>
+    <string name="arrival">Arrival</string>
+    <string name="opening_hours">Opening hours not specified</string>
+
     <string name="building">Place</string>
     <string name="work">🕒 Working hours:</string>
     <string name="menu">Menu: </string>

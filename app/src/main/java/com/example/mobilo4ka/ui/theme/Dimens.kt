@@ -11,6 +11,8 @@ object Dimens{
     val paddingExtraLarge = 24.dp
     val paddingBottomScale = 40.dp
 
+    val paddingLowerMedium = 10.dp
+
     val logoSize = 50.dp
 
     val buttonHeight = 120.dp
