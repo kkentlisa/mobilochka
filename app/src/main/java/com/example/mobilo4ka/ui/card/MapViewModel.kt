@@ -10,15 +10,16 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = BuildingRepository(application)
 
-    init {
-        repository.loadBuildings("bildings/version-ru/BuildingsWithEntrances.json")
+    fun loadBuildingsByLanguage(isRu: Boolean) {
+        val path = if (isRu) {
+            "bildings/version-ru/BuildingsWithEntrances.json"
+        } else {
+            "bildings/version-en/BuildingsWithEntrances.json"
+        }
+        repository.loadBuildings(path)
     }
 
     fun findBuilding(x: Int, y: Int): Building? {
         return repository.findActiveBuildingByPoint(x, y)
-    }
-
-    fun getAllBuildings(): List<Building> {
-        return repository.getAllBuildings()
     }
 }

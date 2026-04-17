@@ -25,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mobilo4ka.ui.card.MapViewModel
+import com.example.mobilo4ka.ui.main.Language
 import com.example.mobilo4ka.ui.main.MainScreen
 import com.example.mobilo4ka.ui.main.MainViewModel
 import com.example.mobilo4ka.ui.map.MapDataViewModel
@@ -69,9 +70,9 @@ class MainActivity : ComponentActivity() {
                 LocaleHelper.updateLocale(context, state.currentLanguage)
             }
 
+            val langCode = if (state.currentLanguage == Language.RU) "ru" else "en"
             LaunchedEffect(state.currentLanguage) {
-                mapDataViewModel.isLoaded = false
-                mapDataViewModel.preloadData(localizedContext)
+                mapDataViewModel.preloadData(localizedContext, langCode)
             }
 
             val registryOwner = context as? androidx.activity.result.ActivityResultRegistryOwner
@@ -106,6 +107,10 @@ class MainActivity : ComponentActivity() {
                         composable("ants") { AntsScreen() }
                         composable("astar") {
                             mapDataViewModel.gridData?.let { data ->
+                                val mapVM: MapViewModel = viewModel()
+                                LaunchedEffect(state.currentLanguage) {
+                                    mapVM.loadBuildingsByLanguage(state.currentLanguage == Language.RU)
+                                }
                                 AStarScreen(
                                     gridData = data,
                                     buildingsData = mapDataViewModel.buildingsData,
@@ -117,6 +122,10 @@ class MainActivity : ComponentActivity() {
                         composable("clustering") {
                             mapDataViewModel.gridData?.let { data ->
                                 val clusteringViewModel: ClusteringViewModel = viewModel()
+                                val mapVM: MapViewModel = viewModel()
+                                LaunchedEffect(state.currentLanguage) {
+                                    mapVM.loadBuildingsByLanguage(state.currentLanguage == Language.RU)
+                                }
                                 ClusteringScreen(
                                     gridData = data,
                                     buildingsData = mapDataViewModel.buildingsData,
@@ -129,6 +138,9 @@ class MainActivity : ComponentActivity() {
                         composable("genetic") {
                             mapDataViewModel.gridData?.let { data ->
                                 val mapVM: MapViewModel = viewModel()
+                                LaunchedEffect(state.currentLanguage) {
+                                    mapVM.loadBuildingsByLanguage(state.currentLanguage == Language.RU)
+                                }
                                 GeneticScreen(
                                     gridData = data,
                                     buildingsData = mapDataViewModel.buildingsData,

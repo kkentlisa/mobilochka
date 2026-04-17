@@ -20,21 +20,33 @@ class MapDataViewModel : ViewModel() {
 
     var isLoaded by mutableStateOf(false)
 
-    fun preloadData(context: Context) {
-        if (isLoaded) return
+    private fun getBuildingsPath(language: String): String {
+        return if (language == "en") {
+            "bildings/version-en/BuildingsWithEntrances.json"
+        } else {
+            "bildings/version-ru/BuildingsWithEntrances.json"
+        }
+    }
+
+    fun preloadData(context: Context, language: String) {
+        val path = getBuildingsPath(language)
 
         viewModelScope.launch {
-            val data = withContext(Dispatchers.IO) {
-                val grid = LoadMapData.loadMapData(context)
-                val buildings = LoadMapData.loadBuildings(context)
-                val zones = LoadMapData.loadZones(context)
-                Triple(grid, buildings, zones)
+            val buildings = withContext(Dispatchers.IO) {
+                LoadMapData.loadBuildings(context, path)
             }
+            buildingsData = buildings
 
-            gridData = data.first
-            buildingsData = data.second
-            zonesData = data.third
-            isLoaded = true
+            if (!isLoaded) {
+                val (grid, zones) = withContext(Dispatchers.IO) {
+                    val g = LoadMapData.loadMapData(context)
+                    val z = LoadMapData.loadZones(context)
+                    Pair(g, z)
+                }
+                gridData = grid
+                zonesData = zones
+                isLoaded = true
+            }
         }
     }
 }
