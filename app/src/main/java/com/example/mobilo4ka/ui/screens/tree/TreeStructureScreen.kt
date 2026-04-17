@@ -21,13 +21,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.times
 import com.example.mobilo4ka.algorithms.tree.TreeAlgorithm
 import com.example.mobilo4ka.algorithms.tree.TreeNode
+import com.example.mobilo4ka.algorithms.tree.TreeOptimizer
 import com.example.mobilo4ka.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TreeStructureScreen(onBack: () -> Unit) {
 
-    val rootNode = remember { TreeAlgorithm.getRoot() }
+    val rootNode = remember {
+        TreeAlgorithm.getRoot()?.let { TreeOptimizer.optimize(it) }
+    }
 
     Scaffold(
         topBar = {
