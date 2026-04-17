@@ -128,6 +128,9 @@ fun TreeScreenContent(currentLanguage: Language) {
 
         TreeAlgorithm.answerSelected(answer)
 
+        showOptions = false
+        showOptions = true
+
         if (!TreeAlgorithm.isFinished()) {
             TreeAlgorithm.getCurrentQuestion()?.let {
                 messages.add(ChatMessage(it.text, false))
@@ -347,7 +350,9 @@ fun AnswerButton(text: String, onClick: () -> Unit) {
 
     Button(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp),
         shape = RoundedCornerShape(Dimens.paddingMedium),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.background,
