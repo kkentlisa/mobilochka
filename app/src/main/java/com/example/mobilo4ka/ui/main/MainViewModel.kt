@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-enum class Language {RU, EN }
+enum class Language { RU, EN }
 
 data class MainUiState(
     val isMenuOpen: Boolean = false,

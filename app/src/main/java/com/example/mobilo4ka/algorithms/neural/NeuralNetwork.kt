@@ -7,12 +7,12 @@ class NeuralNetwork(
     b2: FloatArray,
     w3: Array<FloatArray>,
     b3: FloatArray,
-){
+) {
     val layer1 = Layer(w1, b1)
     val layer2 = Layer(w2, b2)
     val layer3 = Layer(w3, b3, false)
 
-    fun recognize(input: FloatArray): FloatArray{
+    fun recognize(input: FloatArray): FloatArray {
         val output1 = layer1.forward(input)
         val output2 = layer2.forward(output1)
         val output3 = layer3.forward(output2)
@@ -41,7 +41,7 @@ class NeuralNetwork(
                 }
             }
 
-            fun zeros1D(size: Int): FloatArray = FloatArray(size) {0f}
+            fun zeros1D(size: Int): FloatArray = FloatArray(size) { 0f }
 
             return NeuralNetwork(
                 w1 = random2D(128, 2500),

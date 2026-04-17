@@ -5,13 +5,13 @@ import androidx.compose.ui.unit.dp
 object Dimens{
     val paddingDefault = 1.dp
     val paddingExtraSmall = 4.dp
+    val paddingMediumSmall = 6.dp
     val paddingSmall = 8.dp
+    val paddingLowerMedium = 10.dp
     val paddingMedium = 12.dp
     val paddingLarge = 16.dp
     val paddingExtraLarge = 24.dp
     val paddingBottomScale = 40.dp
-
-    val paddingLowerMedium = 10.dp
 
     val logoSize = 50.dp
 

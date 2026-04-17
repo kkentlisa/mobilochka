@@ -22,7 +22,6 @@
     <string name="download_file">Click the + button in the top right corner to upload your table</string>
     <string name="base_table">Built-in CSV</string>
     <string name="input_table">Upload CSV</string>
-    <string name="output_tree">Path:</string>
     <string name="recommended_places">Recommended places: </string>
 
     <string name="neural_button_recognize">Recognize</string>

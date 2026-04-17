@@ -60,7 +60,8 @@ fun GeneticScreen(
     gridData: GridMap,
     buildingsData: List<Building>,
     zonesData: Map<String, List<List<Int>>>,
-    mapViewModel: MapViewModel = viewModel()
+    mapViewModel: MapViewModel = viewModel(),
+    onNavigateToNeural: () -> Unit
 ) {
     var selectedBuilding by remember { mutableStateOf<Building?>(null) }
     val interestingBuildings = remember(buildingsData) {
@@ -82,7 +83,7 @@ fun GeneticScreen(
 
     val allAvailableProducts = remember(buildingsData) {
         buildingsData
-            .flatMap { it.menu ?: emptyList() }
+            .flatMap { it.menu }
             .filter { it.isNotBlank() }
             .distinct()
             .sorted()
@@ -273,7 +274,7 @@ fun GeneticScreen(
                                                 var accumulatedDistance = 0.0
                                                 var lastPoint = userStartPoint!!
 
-                                                ids.forEachIndexed { index, id ->
+                                                ids.forEachIndexed { _, id ->
                                                     val building =
                                                         buildingsData.find { it.id == id }
                                                             ?: return@forEachIndexed
@@ -303,7 +304,7 @@ fun GeneticScreen(
 
                                                     val productsInThisBuilding =
                                                         productsToFind.filter { p ->
-                                                            building.menu?.contains(p) == true
+                                                            building.menu.contains(p) == true
                                                         }
 
                                                     tempSteps.add(
@@ -327,7 +328,7 @@ fun GeneticScreen(
                                             isLoading = false
                                         }
                                     }
-                                } catch (e: Exception) {
+                                } catch (_: Exception) {
                                     withContext(Dispatchers.Main) { isLoading = false }
                                 }
                             }
@@ -449,7 +450,12 @@ fun GeneticScreen(
             if (selectedBuilding != null) {
                 BuildingBottomSheet(
                     building = selectedBuilding!!,
-                    onDismiss = { selectedBuilding = null })
+                    onDismiss = { selectedBuilding = null },
+                    onLeaveReviewClick = {
+                        selectedBuilding = null
+                        onNavigateToNeural()
+                    }
+                )
             }
         }
     }
