@@ -15,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
@@ -24,9 +23,12 @@ import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.clustering.ClusteringMode
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
+import com.example.mobilo4ka.ui.card.BuildingBottomSheet
+import com.example.mobilo4ka.ui.card.MapViewModel
 import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
+
 
 @Composable
 @ExperimentalLayoutApi
@@ -35,10 +37,11 @@ fun ClusteringScreen(
     gridData: GridMap,
     buildingsData: List<Building>,
     zonesData: Map<String, List<List<Int>>>,
-    viewModel: ClusteringViewModel = viewModel()
+    viewModel: ClusteringViewModel = viewModel(),
+    mapViewModel: MapViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    var selectedBuilding by remember { mutableStateOf<Building?>(null) }
 
     SetStatusBarColor(false)
 
@@ -77,6 +80,9 @@ fun ClusteringScreen(
                         this.gridMap = gridData
                         this.buildings = buildingsData
                         this.zones = zonesData
+                        this.onBuildingClicked = { x, y ->
+                            selectedBuilding = mapViewModel.findBuilding(x, y)
+                        }
                         this.isAstarEnabled = false
                         this.isClusteringEnabled = true
                         setupInitialView()
@@ -306,6 +312,12 @@ fun ClusteringScreen(
                         }
                     }
                 }
+            }
+            if (selectedBuilding != null) {
+                BuildingBottomSheet(
+                    building = selectedBuilding!!,
+                    onDismiss = { selectedBuilding = null }
+                )
             }
         }
     }

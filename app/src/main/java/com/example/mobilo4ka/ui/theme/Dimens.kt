@@ -45,4 +45,7 @@ object Dimens{
     val sliderTrackSize = 10.dp
     val clusterLegend = 12.dp
     val clusterButton = 52.dp
+
+    val zeroCornerRadius = 0.dp
+    val menuWidth = 300.dp
 }
