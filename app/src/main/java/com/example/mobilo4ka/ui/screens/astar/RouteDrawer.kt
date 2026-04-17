@@ -76,7 +76,7 @@ class RouteDrawer(private val mapView: MapView) {
                     mapView.buildings.any { it.containsPoint(x, y) }
                 },
                 getBuildingEntrance = { x, y ->
-                    mapView.buildings.find { it.containsPoint(x, y) }?.firstEntrance
+                    mapView.buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
                 }
             )
 
