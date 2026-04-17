@@ -22,6 +22,8 @@ object Dimens{
     val bannerSize = 320.dp
     val dividerThickness = 1.dp
 
+    val topBarHeight = 100.dp
+
     val cornerExtraLarge = 20.dp
 
     val buttonSmall = 4.dp
@@ -45,6 +47,10 @@ object Dimens{
     val sliderTrackSize = 10.dp
     val clusterLegend = 12.dp
     val clusterButton = 52.dp
+
+    val mapControlOffset = 42.dp
+
+    val routeInfoButtonHeight = 56.dp
 
     val zeroCornerRadius = 0.dp
     val menuWidth = 300.dp

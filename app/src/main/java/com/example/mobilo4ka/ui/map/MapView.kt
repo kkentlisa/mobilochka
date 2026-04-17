@@ -14,15 +14,22 @@ import com.example.mobilo4ka.ui.screens.astar.RouteDrawer
 import com.example.mobilo4ka.ui.screens.clustering.ClusterDrawer
 import com.example.mobilo4ka.ui.screens.genetic.GeneticDrawer
 import com.example.mobilo4ka.ui.theme.*
+import androidx.core.graphics.withMatrix
 
 class MapView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
 
     var gridMap: GridMap? = null
-        set(value) { field = value; invalidate() }
+        set(value) {
+            field = value; invalidate()
+        }
     var buildings: List<Building> = emptyList()
-        set(value) { field = value; invalidate() }
+        set(value) {
+            field = value; invalidate()
+        }
     var zones: Map<String, List<List<Int>>> = emptyMap()
-        set(value) { field = value; invalidate() }
+        set(value) {
+            field = value; invalidate()
+        }
 
     var routeDrawer: RouteDrawer? = null
     var geneticDrawer: GeneticDrawer? = null
@@ -63,7 +70,8 @@ class MapView(context: Context, attrs: AttributeSet? = null) : View(context, att
             var newDy = -dy
 
             if (currentTransX + newDx > 0) newDx = -currentTransX
-            else if (currentTransX + newDx < width - contentWidth) newDx = (width - contentWidth) - currentTransX
+            else if (currentTransX + newDx < width - contentWidth) newDx =
+                (width - contentWidth) - currentTransX
 
             if (contentHeight <= height) {
                 val targetY = (height - contentHeight) / 2f
@@ -71,7 +79,8 @@ class MapView(context: Context, attrs: AttributeSet? = null) : View(context, att
                 newDy = 0f
             } else {
                 if (currentTransY + newDy > 0) newDy = -currentTransY
-                else if (currentTransY + newDy < height - contentHeight) newDy = (height - contentHeight) - currentTransY
+                else if (currentTransY + newDy < height - contentHeight) newDy =
+                    (height - contentHeight) - currentTransY
             }
 
             mapMatrix.postTranslate(newDx, newDy)
@@ -130,16 +139,6 @@ class MapView(context: Context, attrs: AttributeSet? = null) : View(context, att
         return true
     }
 
-
-    fun showGeneticRoute(route: List<Pair<Int, Int>>, extra: List<Any>? = null) {
-        geneticDrawer?.updateRoute(route)
-    }
-
-    fun setStartMarker(point: Pair<Int, Int>?) {
-        geneticDrawer?.userStartPoint = point
-        invalidate()
-    }
-
     fun updateClustering(points: List<ClusterPoint>, mode: ClusteringMode) {
         clusterDrawer.points = points
         clusterDrawer.mode = mode
@@ -149,20 +148,18 @@ class MapView(context: Context, attrs: AttributeSet? = null) : View(context, att
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.save()
-        canvas.concat(mapMatrix)
+        canvas.withMatrix(mapMatrix) {
+            drawBaseMap(this)
 
-        drawBaseMap(canvas)
+            routeDrawer?.drawRoute(this)
 
-        routeDrawer?.drawRoute(canvas)
+            geneticDrawer?.draw(this, buildings)
 
-        geneticDrawer?.draw(canvas)
+            if (isClusteringEnabled) {
+                gridMap?.let { clusterDrawer.draw(this, it.width, it.height) }
+            }
 
-        if (isClusteringEnabled) {
-            gridMap?.let { clusterDrawer.draw(canvas, it.width, it.height) }
         }
-
-        canvas.restore()
     }
 
     fun drawBaseMap(canvas: Canvas) {
@@ -173,9 +170,16 @@ class MapView(context: Context, attrs: AttributeSet? = null) : View(context, att
         drawZone(canvas, "water", waterPaint)
 
         buildings.forEach { building ->
-            val paint = if (!building.name.isNullOrBlank()) interestingBuildingPaint else buildingPaint
+            val paint =
+                if (!building.name.isNullOrBlank()) interestingBuildingPaint else buildingPaint
             building.pixels.forEach { pixel ->
-                canvas.drawRect(pixel[0].toFloat(), pixel[1].toFloat(), pixel[0] + 1f, pixel[1] + 1f, paint)
+                canvas.drawRect(
+                    pixel[0].toFloat(),
+                    pixel[1].toFloat(),
+                    pixel[0] + 1f,
+                    pixel[1] + 1f,
+                    paint
+                )
             }
         }
     }

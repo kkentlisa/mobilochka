@@ -39,7 +39,7 @@ class BuildingRepository(private val context: Context) {
                 pixels = pixelsList,
                 category = if (bObj.has("category")) bObj.getString("category") else null,
                 name = if (bObj.has("name")) bObj.getString("name") else null,
-                entrances = entrancesList, // ОБЯЗАТЕЛЬНО ПЕРЕДАЙ ВХОДЫ
+                entrances = entrancesList,
                 openTime = if (bObj.has("openTime")) bObj.getString("openTime") else null,
                 closeTime = if (bObj.has("closeTime")) bObj.getString("closeTime") else null,
                 menu = if (bObj.has("menu")) parseStringList(bObj.getJSONArray("menu")) else emptyList()
