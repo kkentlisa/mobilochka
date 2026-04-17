@@ -36,8 +36,7 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen"}
-androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "composeBom" }
-
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
