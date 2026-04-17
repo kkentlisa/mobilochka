@@ -90,7 +90,6 @@ fun AntsScreen(
                     val pixel = LocationCalibration.gpsToPixel(location.latitude, location.longitude)
                     startPoint = pixel
                     calculatedRoute = emptyList()
-                    Toast.makeText(context, context.getString(R.string.location_determined), Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, context.getString(R.string.location_not_determined), Toast.LENGTH_SHORT).show()
                 }
