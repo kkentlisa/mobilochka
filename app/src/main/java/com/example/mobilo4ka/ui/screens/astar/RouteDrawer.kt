@@ -3,6 +3,7 @@ package com.example.mobilo4ka.ui.screens.astar
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.compose.ui.graphics.toArgb
@@ -10,7 +11,6 @@ import com.example.mobilo4ka.algorithms.astar.AStarAlgorithm
 import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.theme.Dimens
 import com.example.mobilo4ka.ui.theme.MapRoute
-import android.os.Handler
 
 class RouteDrawer(private val mapView: MapView) {
 
@@ -46,8 +46,22 @@ class RouteDrawer(private val mapView: MapView) {
             canvas.drawPath(linePath, pathRoutePaint)
         }
 
-        startPoint?.let { canvas.drawCircle(it.first + 0.5f, it.second + 0.5f, Dimens.mapPointRadius, pointPaint) }
-        endPoint?.let { canvas.drawCircle(it.first + 0.5f, it.second + 0.5f, Dimens.mapPointRadius, pointPaint) }
+        startPoint?.let {
+            canvas.drawCircle(
+                it.first + 0.5f,
+                it.second + 0.5f,
+                Dimens.mapPointRadius,
+                pointPaint
+            )
+        }
+        endPoint?.let {
+            canvas.drawCircle(
+                it.first + 0.5f,
+                it.second + 0.5f,
+                Dimens.mapPointRadius,
+                pointPaint
+            )
+        }
     }
 
     fun onMapClicked(gridX: Int, gridY: Int) {
@@ -82,7 +96,11 @@ class RouteDrawer(private val mapView: MapView) {
 
             Handler(Looper.getMainLooper()).post {
                 if (path.isEmpty()) {
-                    Toast.makeText(mapView.context, "Пути не существует", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        mapView.context,
+                        mapView.context.getString(com.example.mobilo4ka.R.string.no_way),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 currentPath = path
                 mapView.invalidate()

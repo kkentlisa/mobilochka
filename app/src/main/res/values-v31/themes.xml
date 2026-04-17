@@ -4,6 +4,7 @@
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/tsu_blue</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/tsu_blue</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_tsu_white</item>
         <item name="postSplashScreenTheme">@style/Theme.Mobilo4ka</item>
         <item name="windowSplashScreenAnimationDuration">100</item>

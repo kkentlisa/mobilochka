@@ -2,15 +2,12 @@ package com.example.mobilo4ka.ui.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,48 +41,81 @@ private val buttons = listOf(
 fun MainScreen(
     state: MainUiState,
     onToggleMenu: () -> Unit,
+    onCloseMenu: () -> Unit,
+    onToggleLanguage: () -> Unit,
     onNavigate: (String) -> Unit
-){
+) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    LaunchedEffect(state.isMenuOpen) {
+        if (state.isMenuOpen) drawerState.open() else drawerState.close()
+    }
+
+    LaunchedEffect(drawerState.currentValue) {
+        if (drawerState.isClosed && state.isMenuOpen) {
+            onCloseMenu()
+        }
+    }
+
     SetStatusBarColor(isLight = false)
 
-    Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
-                    .statusBarsPadding()
-                    .padding(Dimens.paddingLarge),
-                verticalAlignment = Alignment.CenterVertically
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerContainerColor = MaterialTheme.colorScheme.primary,
+                drawerShape = RoundedCornerShape(Dimens.zeroCornerRadius),
+                modifier = Modifier.width(Dimens.menuWidth)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_tsu_white),
-                    contentDescription = stringResource(R.string.tsu_logo),
-                    modifier = Modifier.size(Dimens.logoSize)
-                )
-                Text(
-                    text = stringResource(R.string.header_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(Dimens.paddingSmall)
-                )
+                Spacer(Modifier.height(Dimens.paddingExtraLarge))
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                IconButton(
-                    onClick = onToggleMenu
+                NavigationDrawerItem(
+                    label = {
+                        Text(
+                            text = stringResource(R.string.language_button),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    },
+                    selected = false,
+                    onClick = onToggleLanguage,
+                    shape = RoundedCornerShape(Dimens.zeroCornerRadius),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = Dimens.paddingLarge)
+                )
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primary)
+                        .statusBarsPadding()
+                        .padding(Dimens.paddingLarge),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = if (state.isMenuExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (state.isMenuExpanded) stringResource(R.string.menu_close)
-                        else stringResource(R.string.menu_open),
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                    IconButton(
+                        onClick = onToggleMenu
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = stringResource(R.string.menu_open),
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(Dimens.iconSize)
+                        )
+                    }
+
+                    Text(
+                        text = stringResource(R.string.header_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(Dimens.paddingSmall)
                     )
                 }
             }
-        }
-    ) { paddingValues ->
-        Box (modifier = Modifier.fillMaxSize()) {
+        ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -95,8 +125,7 @@ fun MainScreen(
                 contentPadding = PaddingValues(
                     top = Dimens.paddingLarge,
                     bottom = Dimens.paddingLarge
-                ),
-                userScrollEnabled = !state.isMenuExpanded
+                )
             ) {
                 items(buttons) { button ->
                     AlgorithmButton(
@@ -104,42 +133,6 @@ fun MainScreen(
                         iconRes = button.iconRes,
                         onClick = { onNavigate(button.route) }
                     )
-                }
-            }
-
-            if (state.isMenuExpanded){
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
-                        .clickable (
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) { onToggleMenu() }
-                )
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(top = Dimens.topBarHeight)
-                        .padding(Dimens.paddingLarge)
-                        .align(Alignment.TopCenter)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {}
-                            .padding(Dimens.paddingMedium),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text(
-                            text = stringResource(R.string.language_button),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-
-                    }
                 }
             }
         }
@@ -150,8 +143,8 @@ fun MainScreen(
 private fun AlgorithmButton(
     titleRes: Int,
     iconRes: Int,
-    onClick : () -> Unit
-){
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
         modifier = Modifier

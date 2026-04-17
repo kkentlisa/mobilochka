@@ -17,13 +17,11 @@
     <string name="menu_close">Закрыть меню</string>
 
     <string name="error_file">"Ошибка загрузки файла: "</string>
-    <string name="again_button">Пройти опрос заново</string>
     <string name="type_table">Какую таблицу вы хотите использовать?</string>
+    <string name="again_button">Пройти опрос заново</string>
+    <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
     <string name="base_table">Встроенная CSV</string>
     <string name="input_table">Загрузить CSV</string>
-    <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
-    <string name="recommended_places">Рекомендованные места: </string>
-    <string name="output_tree">Путь прохождения: </string>
 
     <string name="neural_button_recognize">Распознать</string>
     <string name="neural_button_clear">Стереть</string>
@@ -56,8 +54,10 @@
     <string name="close">Закрыто в это время</string>
     <string name="arrival">Прибытие</string>
     <string name="opening_hours">Часы работы не указаны</string>
-    
+
     <string name="building">Заведение</string>
     <string name="work">🕒 Работает:</string>
     <string name="menu">Меню: </string>
+
+    <string name="no_way">Пути не существует</string>
 </resources>
