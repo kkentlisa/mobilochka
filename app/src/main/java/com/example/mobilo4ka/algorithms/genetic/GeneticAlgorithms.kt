@@ -11,6 +11,8 @@ import com.example.mobilo4ka.data.models.GridMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import java.time.LocalTime
+import java.time.format.DateTimeFormatterBuilder
 import kotlin.math.sqrt
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -35,8 +37,12 @@ class GeneticAlgorithm(
         return buildings.find { it.containsPoint(x, y) }?.firstEntrance
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun calculateFitness(route: List<Gene>, start: Pair<Int, Int>): Double {
-        var time = 0.0
+        val now = java.time.LocalTime.now()
+        val startMinutes = now.hour * 60 + now.minute
+
+        var currentTimeInMinutes = startMinutes.toDouble()
         var penalty = 0.0
         var currentPos = start
 
@@ -48,20 +54,22 @@ class GeneticAlgorithm(
             val dy = (target.second - currentPos.second).toDouble()
 
             val distance = sqrt(dx * dx + dy * dy)
-            time += distance / speed
+            val travelTime = distance / speed
 
-            val closeTime = building.closeTime?.toIntOrNull() ?: Int.MAX_VALUE
+            currentTimeInMinutes += travelTime
 
-            if (time > closeTime) {
-                penalty += (time - closeTime) * 1000.0
+            val closeMinutes = parseTimeToMinutes(building.closeTime)
+
+            if (currentTimeInMinutes > closeMinutes) {
+                penalty += (currentTimeInMinutes - closeMinutes) * 1000.0
             }
 
-            penalty += time * 0.05
+            penalty += travelTime * 0.05
 
             currentPos = target
         }
 
-        return time + penalty
+        return currentTimeInMinutes + penalty
     }
 
     private fun mutateAdvanced(
@@ -190,21 +198,66 @@ class GeneticAlgorithm(
         return fullPath
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
+fun parseTimeToMinutes(timeStr: String?): Int {
+    if (timeStr.isNullOrBlank()) return 1440
 
+    return try {
+        val cleaned = timeStr
+            .replace("\u00A0", " ")
+            .trim()
+
+        val formatters = listOf(
+            java.time.format.DateTimeFormatter.ofPattern("HH:mm"),
+            java.time.format.DateTimeFormatter.ofPattern("H:mm"),
+            java.time.format.DateTimeFormatter.ofPattern("hh:mm a", java.util.Locale.US),
+            java.time.format.DateTimeFormatter.ofPattern("h:mm a", java.util.Locale.US)
+        )
+
+        var time: java.time.LocalTime? = null
+
+        for (formatter in formatters) {
+            try {
+                time = java.time.LocalTime.parse(cleaned, formatter)
+                break
+            } catch (_: Exception) {
+            }
+        }
+
+        if (time != null) {
+            time.hour * 60 + time.minute
+        } else {
+            android.util.Log.e("TimeParse", "Failed to parse: '$timeStr'")
+            1440
+        }
+
+    } catch (e: Exception) {
+        android.util.Log.e("TimeParse", "Failed to parse: '$timeStr'")
+        1440
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun formatToString(timeString: String): String {
-    val parts = timeString.split(":")
-    val hours = parts.getOrNull(0)?.toIntOrNull() ?: 0
-    val minutes = parts.getOrNull(1)?.toIntOrNull() ?: 0
+fun formatToString(timeString: String?): String {
+    if (timeString.isNullOrBlank()) return ""
+
+    val totalMinutes = parseTimeToMinutes(timeString)
+
+    if (totalMinutes == 1440 && timeString != "1440") {
+    }
+
+    val hours = (totalMinutes / 60) % 24
+    val minutes = totalMinutes % 60
 
     return stringResource(id = R.string.time_format, hours, minutes)
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun formatTimeToMinutes(totalMinutes: Int): String {
-    val hours = totalMinutes / 60
+    val hours = (totalMinutes / 60) % 24
     val minutes = totalMinutes % 60
-    val formattedStartTime = String.format("%02d:%02d", hours, minutes)
 
-    return formatToString(formattedStartTime)
+    return stringResource(id = R.string.time_format, hours, minutes)
 }

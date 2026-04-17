@@ -43,6 +43,7 @@ import java.time.format.DateTimeFormatter
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.genetic.formatTimeToMinutes
 import com.example.mobilo4ka.algorithms.genetic.formatToString
+import com.example.mobilo4ka.algorithms.genetic.parseTimeToMinutes
 
 data class RouteStepInfo(
     val building: Building,
@@ -70,6 +71,7 @@ fun GeneticScreen(
     }
 
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+    val timeFormatter = DateTimeFormatter.ofPattern("h:mm a", java.util.Locale.US)
     var geneticDrawerRef by remember { mutableStateOf<GeneticDrawer?>(null) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -252,8 +254,7 @@ fun GeneticScreen(
                         onClick = {
                             if (!isValidStart || userStartPoint == null || selectedProducts.isEmpty()) return@Button
                             isLoading = true
-                            formattedStartTime =
-                                LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+                            formattedStartTime = LocalTime.now().format(timeFormatter)
                             scope.launch(Dispatchers.Default) {
                                 try {
                                     val ga = GeneticAlgorithm(gridData, interestingBuildings)
@@ -301,7 +302,7 @@ fun GeneticScreen(
                                                     )
                                                     val arrivalTimeStr = LocalTime.now()
                                                         .plusMinutes(timeToPoint.toLong())
-                                                        .format(DateTimeFormatter.ofPattern("HH:mm"))
+                                                        .format(timeFormatter)
 
                                                     val productsInThisBuilding =
                                                         productsToFind.filter { p ->
@@ -391,7 +392,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "${context.getString(R.string.start)} ${formatToString(formattedStartTime)}",
+                                "${stringResource(R.string.start)} ${formatToString(formattedStartTime)}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -468,18 +469,19 @@ fun getArrivalStatus(
     building: Building,
     minutesToArrival: Int
 ): Triple<String, Color, String> {
-    val arrivalTime = LocalTime.now().plusMinutes(minutesToArrival.toLong())
-    val open = building.parsedOpenTime
-    val close = building.parsedCloseTime
+    val now = LocalTime.now()
+    val startMinutes = now.hour * 60 + now.minute
+    val arrivalInMinutes = (startMinutes + minutesToArrival) % 1440
 
-    val locale = java.util.Locale.getDefault()
+    val openMinutes = parseTimeToMinutes(building.openTime)
+    val closeMinutes = parseTimeToMinutes(building.closeTime)
+
+    val arrivalTime = LocalTime.of((arrivalInMinutes / 60), (arrivalInMinutes % 60))
     val timeFormatter = DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT)
-        .withLocale(locale)
-
     val arrivalStr = arrivalTime.format(timeFormatter)
 
-    return if (open != null && close != null) {
-        if (arrivalTime.isAfter(open) && arrivalTime.isBefore(close)) {
+    return if (openMinutes < 1440 && closeMinutes < 1440) {
+        if (arrivalInMinutes in openMinutes..closeMinutes) {
             Triple(
                 "${context.getString(R.string.arrival_open)} $arrivalStr)",
                 Cluster3,
@@ -489,7 +491,7 @@ fun getArrivalStatus(
             Triple(
                 "${context.getString(R.string.arrival_close)} $arrivalStr)",
                 Cluster1,
-                context.getString(R.string.close)
+                "${context.getString(R.string.close)} ${building.closeTime}"
             )
         }
     } else {
