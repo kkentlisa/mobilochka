@@ -2,18 +2,14 @@ package com.example.mobilo4ka.algorithms.genetic
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.astar.AStarAlgorithm
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import java.time.LocalTime
-import java.time.format.DateTimeFormatterBuilder
 import kotlin.math.sqrt
+import com.example.mobilo4ka.utils.parseTimeToMinutes
 
 @RequiresApi(Build.VERSION_CODES.O)
 class GeneticAlgorithm(
@@ -197,65 +193,4 @@ class GeneticAlgorithm(
 
         return fullPath
     }
-}
-@RequiresApi(Build.VERSION_CODES.O)
-fun parseTimeToMinutes(timeStr: String?): Int {
-    if (timeStr.isNullOrBlank()) return 1440
-
-    return try {
-        val cleaned = timeStr
-            .replace("\u00A0", " ")
-            .trim()
-
-        val formatters = listOf(
-            java.time.format.DateTimeFormatter.ofPattern("HH:mm"),
-            java.time.format.DateTimeFormatter.ofPattern("H:mm"),
-            java.time.format.DateTimeFormatter.ofPattern("hh:mm a", java.util.Locale.US),
-            java.time.format.DateTimeFormatter.ofPattern("h:mm a", java.util.Locale.US)
-        )
-
-        var time: java.time.LocalTime? = null
-
-        for (formatter in formatters) {
-            try {
-                time = java.time.LocalTime.parse(cleaned, formatter)
-                break
-            } catch (_: Exception) {
-            }
-        }
-
-        if (time != null) {
-            time.hour * 60 + time.minute
-        } else {
-            1440
-        }
-
-    } catch (e: Exception) {
-        1440
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun formatToString(timeString: String?): String {
-    if (timeString.isNullOrBlank()) return ""
-
-    val totalMinutes = parseTimeToMinutes(timeString)
-
-    if (totalMinutes == 1440 && timeString != "1440") {
-    }
-
-    val hours = (totalMinutes / 60) % 24
-    val minutes = totalMinutes % 60
-
-    return stringResource(id = R.string.time_format, hours, minutes)
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun formatTimeToMinutes(totalMinutes: Int): String {
-    val hours = (totalMinutes / 60) % 24
-    val minutes = totalMinutes % 60
-
-    return stringResource(id = R.string.time_format, hours, minutes)
 }

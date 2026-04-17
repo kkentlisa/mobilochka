@@ -41,10 +41,10 @@ import kotlinx.coroutines.*
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import com.example.mobilo4ka.R
-import com.example.mobilo4ka.algorithms.genetic.formatTimeToMinutes
-import com.example.mobilo4ka.algorithms.genetic.formatToString
-import com.example.mobilo4ka.algorithms.genetic.parseTimeToMinutes
+import com.example.mobilo4ka.utils.parseTimeToMinutes
 import com.example.mobilo4ka.ui.map.MapDataViewModel
+import com.example.mobilo4ka.utils.formatTimeToMinutes
+import com.example.mobilo4ka.utils.formatToString
 
 data class RouteStepInfo(
     val building: Building,
@@ -103,6 +103,8 @@ fun GeneticScreen(
     val stringRout = stringResource(R.string.rout)
     val stringTotalTime = stringResource(R.string.total_time)
     val stringStart = stringResource(R.string.start)
+    val stringDuration = stringResource(R.string.format_duration)
+    val stringTime = stringResource(R.string.format_time)
 
     var selectedProducts by remember { mutableStateOf(setOf<String>()) }
     var formattedStartTime by remember { mutableStateOf("") }
@@ -390,7 +392,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                stringTotalTime + " " + formatTimeToMinutes(estimatedTime),
+                                stringTotalTime + " " + formatTimeToMinutes(estimatedTime, stringDuration),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -400,7 +402,7 @@ fun GeneticScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "${stringStart} ${formatToString(formattedStartTime)}",
+                                "${stringStart} ${formatToString(formattedStartTime, stringTime)}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
