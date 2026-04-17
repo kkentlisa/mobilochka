@@ -464,7 +464,12 @@ fun getArrivalStatus(
     val arrivalTime = LocalTime.now().plusMinutes(minutesToArrival.toLong())
     val open = building.parsedOpenTime
     val close = building.parsedCloseTime
-    val arrivalStr = arrivalTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+
+    val locale = java.util.Locale.getDefault()
+    val timeFormatter = DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT)
+        .withLocale(locale)
+
+    val arrivalStr = arrivalTime.format(timeFormatter)
 
     return if (open != null && close != null) {
         if (arrivalTime.isAfter(open) && arrivalTime.isBefore(close)) {

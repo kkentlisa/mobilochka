@@ -11,7 +11,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = BuildingRepository(application)
 
     init {
-        repository.loadBuildings("BuildingsWithEntrances.json")
+        repository.loadBuildings("bildings/version-ru/BuildingsWithEntrances.json")
     }
 
     fun findBuilding(x: Int, y: Int): Building? {
