@@ -1,4 +1,6 @@
-package com.example.mobilo4ka.data.models
+package com.example.mobilo4ka.data.repository
+
+import com.example.mobilo4ka.data.models.Building
 
 object LandmarkRepository {
     val landmarkIds = listOf(201, 202, 203, 204, 205, 206, 207, 208, 209, 210)

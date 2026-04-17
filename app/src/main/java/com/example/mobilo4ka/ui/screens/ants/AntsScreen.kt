@@ -23,7 +23,7 @@ import com.example.mobilo4ka.algorithms.ant.MatrixBuilder
 import com.example.mobilo4ka.algorithms.astar.AStarAlgorithm
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
-import com.example.mobilo4ka.data.models.LandmarkRepository
+import com.example.mobilo4ka.data.repository.LandmarkRepository
 import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.utils.LocationCalibration
@@ -90,7 +90,6 @@ fun AntsScreen(
                     val pixel = LocationCalibration.gpsToPixel(location.latitude, location.longitude)
                     startPoint = pixel
                     calculatedRoute = emptyList()
-                    Toast.makeText(context, context.getString(R.string.location_determined), Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, context.getString(R.string.location_not_determined), Toast.LENGTH_SHORT).show()
                 }

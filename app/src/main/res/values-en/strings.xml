@@ -81,7 +81,6 @@
     <string name="landmark_count">Landmarks selected</string>
     <string name="trow_off">Trow off</string>
     <string name="set_route">Set a route</string>
-    <string name="location_determined">The location is determined</string>
     <string name="location_not_determined">Couldn\'t determine location</string>
     <string name="permission">You need permission to determine your location</string>
     <string name="permission_again">Allow location and click the button again</string>

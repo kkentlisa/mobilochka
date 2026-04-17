@@ -83,7 +83,6 @@
     <string name="trow_off">Сбросить</string>
     <string name="set_route">Построить маршрут</string>
 
-    <string name="location_determined">Местоположение определено</string>
     <string name="location_not_determined">Не удалось определить местоположение</string>
     <string name="permission">Нужно разрешение для определения местоположения</string>
     <string name="permission_again">Разрешите местоположение и нажмите кнопку ещё раз</string>
