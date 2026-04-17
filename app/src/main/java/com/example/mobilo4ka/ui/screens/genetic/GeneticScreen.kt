@@ -83,7 +83,7 @@ fun GeneticScreen(
 
     val allAvailableProducts = remember(buildingsData) {
         buildingsData
-            .flatMap { it.menu }
+            .flatMap { it.menu ?: emptyList()  }
             .filter { it.isNotBlank() }
             .distinct()
             .sorted()
