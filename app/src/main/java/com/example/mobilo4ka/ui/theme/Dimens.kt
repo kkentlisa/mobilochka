@@ -5,7 +5,6 @@ import androidx.compose.ui.unit.dp
 object Dimens{
     val paddingDefault = 1.dp
     val paddingExtraSmall = 4.dp
-    val paddingMediumSmall = 6.dp
     val paddingSmall = 8.dp
     val paddingLowerMedium = 10.dp
     val paddingMedium = 12.dp
@@ -24,7 +23,6 @@ object Dimens{
     val bannerSize = 320.dp
     val dividerThickness = 1.dp
 
-    val topBarHeight = 100.dp
 
     val cornerExtraLarge = 20.dp
 
@@ -58,5 +56,4 @@ object Dimens{
     val menuWidth = 300.dp
 
     val antStartWight = 0.5f
-    val antRouteWight = 5f
 }
