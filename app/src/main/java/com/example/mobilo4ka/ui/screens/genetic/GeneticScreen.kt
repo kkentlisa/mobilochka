@@ -214,7 +214,7 @@ fun GeneticScreen(
                         end = Dimens.spacingLarge,
                         bottom = Dimens.spacingLarge
                     )
-                    .padding(top = Dimens.mapControlOffset),
+                    .padding(top = Dimens.fabSize),
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surface.copy(alpha = MAP_UI_ALPHA),
                     contentColor = MaterialTheme.colorScheme.onSurface
