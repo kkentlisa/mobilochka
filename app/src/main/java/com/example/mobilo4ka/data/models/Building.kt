@@ -9,4 +9,8 @@ data class Building(val id: Int, val pixels: List<List<Int>>, val name: String? 
     fun getFirstEntrance(): Pair<Int, Int>? {
         return entrances?.firstOrNull()?.let { Pair(it[0], it[1]) }
     }
+
+    fun getFirstPixels(): Pair<Int, Int>? {
+        return pixels.firstOrNull()?.let { Pair(it[0], it[1]) }
+    }
 }
