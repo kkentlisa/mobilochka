@@ -2,16 +2,16 @@ package com.example.mobilo4ka.ui.theme
 
 import androidx.compose.ui.unit.dp
 
-object Dimens {
+object Dimens{
     val paddingDefault = 1.dp
     val paddingExtraSmall = 4.dp
+    val paddingMediumSmall = 6.dp
     val paddingSmall = 8.dp
+    val paddingLowerMedium = 10.dp
     val paddingMedium = 12.dp
     val paddingLarge = 16.dp
     val paddingExtraLarge = 24.dp
     val paddingBottomScale = 40.dp
-
-    val paddingLowerMedium = 10.dp
 
     val logoSize = 50.dp
 
@@ -23,6 +23,8 @@ object Dimens {
     val buttonRadius = 12.dp
     val bannerSize = 320.dp
     val dividerThickness = 1.dp
+
+    val topBarHeight = 100.dp
 
     val cornerExtraLarge = 20.dp
 

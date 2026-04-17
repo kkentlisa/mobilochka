@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Campus</string>
+    <string name="app_name">Кампус ТГУ</string>
 
     <string name="header_title">Сервисы кампуса</string>
     <string name="language_button">English version</string>
@@ -17,13 +17,11 @@
     <string name="menu_close">Закрыть меню</string>
 
     <string name="error_file">"Ошибка загрузки файла: "</string>
-    <string name="type_table">Какую таблицу вы хотите использовать?</string>
     <string name="again_button">Пройти опрос заново</string>
-    <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
+    <string name="type_table">Какую таблицу вы хотите использовать?</string>
     <string name="base_table">Встроенная CSV</string>
     <string name="input_table">Загрузить CSV</string>
-    <string name="recommended_places">Рекомендованные места: </string>
-    <string name="output_tree">Путь прохождения: </string>
+    <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
 
     <string name="neural_button_recognize">Распознать</string>
     <string name="neural_button_clear">Стереть</string>
@@ -40,6 +38,8 @@
     <string name="legend_euclidean">- Евклид</string>
     <string name="legend_astar">- A*</string>
     <string name="calculate_clusters">Рассчитать</string>
+    <string name="recommended_places">Рекомендованные места: </string>
+    <string name="output_tree">Путь прохождения: </string>
 
     <string name="products">Продукты</string>
     <string name="apply">Применить</string>
