@@ -18,7 +18,7 @@ object LoadMapData {
 
     fun loadBuildings(context: Context): List<Building> {
         return try {
-            val jsonString = context.assets.open("BuildingsWithEntrances.json").bufferedReader().use { it.readText() }
+            val jsonString = context.assets.open("bildings/version-ru/BuildingsWithEntrances.json").bufferedReader().use { it.readText() }
             val wrapper = Gson().fromJson(jsonString, BuildingResponse::class.java)
             wrapper.buildings
         } catch (e: Exception) {
