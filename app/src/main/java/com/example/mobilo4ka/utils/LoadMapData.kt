@@ -16,9 +16,9 @@ object LoadMapData {
         }
     }
 
-    fun loadBuildings(context: Context): List<Building> {
+    fun loadBuildings(context: Context, path: String): List<Building> {
         return try {
-            val jsonString = context.assets.open("BuildingsWithEntrances.json").bufferedReader().use { it.readText() }
+            val jsonString = context.assets.open(path).bufferedReader().use { it.readText() }
             val wrapper = Gson().fromJson(jsonString, BuildingResponse::class.java)
             wrapper.buildings
         } catch (e: Exception) {
@@ -29,7 +29,8 @@ object LoadMapData {
 
     fun loadZones(context: Context): Map<String, List<List<Int>>> {
         return try {
-            val jsonString = context.assets.open("OtherZones.json").bufferedReader().use { it.readText() }
+            val jsonString =
+                context.assets.open("OtherZones.json").bufferedReader().use { it.readText() }
             val wrapper = Gson().fromJson(jsonString, ZonesResponse::class.java)
             wrapper.zones
         } catch (e: Exception) {

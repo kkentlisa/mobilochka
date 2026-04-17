@@ -50,6 +50,13 @@ object Dimens{
     val clusterLegend = 12.dp
     val clusterButton = 52.dp
 
+    val buttonQuestions = 70.dp
+
+    val routeInfoButtonHeight = 56.dp
+
+    val zeroCornerRadius = 0.dp
+    val menuWidth = 300.dp
+
     val antStartWight = 0.5f
     val antRouteWight = 5f
 }

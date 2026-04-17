@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,9 +24,15 @@ import com.example.mobilo4ka.R
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @Composable
-fun NeuralScreen(viewModel: NeuralViewModel){
+fun NeuralScreen(
+    viewModel: NeuralViewModel,
+    onPredictionSuccess: (Int) -> Unit
+) {
     SetStatusBarColor(false)
 
     val state by viewModel.state.collectAsState()
@@ -34,6 +41,37 @@ fun NeuralScreen(viewModel: NeuralViewModel){
     val trainingViewModel: TrainingViewModel = viewModel()
     val networkState = remember { mutableStateOf(NeuralNetwork.createEmpty()) }
     */
+
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.predictedDigit) {
+        if (state.predictedDigit != -1) {
+            showConfirmDialog = true
+        }
+    }
+
+    val confirmText = if (state.predictedDigit != -1) {
+        stringResource(id = R.string.confirm, state.predictedDigit)
+    } else ""
+
+    val yesText = stringResource(R.string.yes)
+    val noText = stringResource(R.string.no)
+
+    if (showConfirmDialog && state.predictedDigit != -1) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            text = { Text(confirmText) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfirmDialog = false
+                    onPredictionSuccess(state.predictedDigit)
+                }) { Text(yesText) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) { Text(noText) }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -106,7 +144,9 @@ fun NeuralScreen(viewModel: NeuralViewModel){
                      */
                     ActionButton(
                         titleRes = R.string.neural_button_recognize,
-                        onClick = { viewModel.recognize(context) }
+                        onClick = {
+                            viewModel.recognize(context)
+                        }
                     )
                     ActionButton(
                         titleRes = R.string.neural_button_clear,
@@ -127,7 +167,7 @@ fun DrawingGrid(
     val drawColor = MaterialTheme.colorScheme.onSurface
     val gridLineColor = MaterialTheme.colorScheme.outline
 
-    Box (
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(Dimens.paddingLarge)
@@ -149,8 +189,10 @@ fun DrawingGrid(
 
                     for (i in 0..steps) {
                         val t = i / steps.toFloat()
-                        val interpX = change.previousPosition.x + (change.position.x - change.previousPosition.x) * t
-                        val interpY = change.previousPosition.y + (change.position.y - change.previousPosition.y) * t
+                        val interpX =
+                            change.previousPosition.x + (change.position.x - change.previousPosition.x) * t
+                        val interpY =
+                            change.previousPosition.y + (change.position.y - change.previousPosition.y) * t
 
                         val x = (interpX / cellWidth).toInt().coerceIn(0, gridSize - 1)
                         val y = (interpY / cellHeight).toInt().coerceIn(0, gridSize - 1)
@@ -171,12 +213,12 @@ fun DrawingGrid(
                 }
             }
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()){
+        Canvas(modifier = Modifier.fillMaxSize()) {
             val cellWidth = size.width / gridSize
             val cellHeight = size.height / gridSize
 
-            for (y in 0 until gridSize){
-                for (x in 0 until gridSize){
+            for (y in 0 until gridSize) {
+                for (x in 0 until gridSize) {
                     val index = y * gridSize + x
                     if (cellStates[index]) {
                         drawRect(
@@ -188,11 +230,21 @@ fun DrawingGrid(
                 }
             }
 
-            for (i in 0..gridSize){
+            for (i in 0..gridSize) {
                 val posX = i * cellWidth
                 val posY = i * cellHeight
-                drawLine(gridLineColor, Offset(posX, 0f), Offset(posX, size.height), strokeWidth = 0.5f)
-                drawLine(gridLineColor, Offset(0f, posY), Offset(size.width, posY), strokeWidth = 0.5f)
+                drawLine(
+                    gridLineColor,
+                    Offset(posX, 0f),
+                    Offset(posX, size.height),
+                    strokeWidth = 0.5f
+                )
+                drawLine(
+                    gridLineColor,
+                    Offset(0f, posY),
+                    Offset(size.width, posY),
+                    strokeWidth = 0.5f
+                )
             }
         }
     }
@@ -201,13 +253,15 @@ fun DrawingGrid(
 @Composable
 fun ActionButton(
     titleRes: Int,
-    onClick : () -> Unit
-){
+    onClick: () -> Unit
+) {
     Button(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground
+        ),
         shape = RoundedCornerShape(Dimens.buttonRadius)
     ) {
         Text(

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="Theme.Mobilo4ka" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/tsu_blue</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_tsu_white</item>
+        <item name="postSplashScreenTheme">@style/Theme.Mobilo4ka</item>
+        <item name="windowSplashScreenAnimationDuration">100</item>
+    </style>
 </resources>

@@ -49,6 +49,7 @@ class ClusterDrawer {
                 ClusteringMode.EUCLIDEAN -> {
                     drawSinglePoint(canvas, cx, cy, point.euclideanClusterId, 1.2f, fillPaint)
                 }
+
                 ClusteringMode.ASTAR -> {
                     drawSinglePoint(canvas, cx, cy, point.astarClusterId, 1.2f, fillPaint)
                 }
@@ -81,12 +82,23 @@ class ClusterDrawer {
                         if (euclidId == astarId) {
                             regionPaint.color = clusterColors[euclidId % clusterColors.size]
                             regionPaint.alpha = 50
-                            canvas.drawRect(x.toFloat(), y.toFloat(), x + rectSize, y + rectSize, regionPaint)
-                        }
-                        else {
+                            canvas.drawRect(
+                                x.toFloat(),
+                                y.toFloat(),
+                                x + rectSize,
+                                y + rectSize,
+                                regionPaint
+                            )
+                        } else {
                             regionPaint.color = clusterColors[euclidId % clusterColors.size]
                             regionPaint.alpha = 50
-                            canvas.drawRect(x.toFloat(), y.toFloat(), x + rectSize, y + rectSize, regionPaint)
+                            canvas.drawRect(
+                                x.toFloat(),
+                                y.toFloat(),
+                                x + rectSize,
+                                y + rectSize,
+                                regionPaint
+                            )
 
                             if (x % 2 == 0) {
                                 regionPaint.color = clusterColors[astarId % clusterColors.size]
@@ -101,19 +113,32 @@ class ClusterDrawer {
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     val id = if (mode == ClusteringMode.EUCLIDEAN) euclidId else astarId
                     if (id != -1) {
                         regionPaint.color = clusterColors[id % clusterColors.size]
                         regionPaint.alpha = 50
-                        canvas.drawRect(x.toFloat(), y.toFloat(), x + rectSize, y + rectSize, regionPaint)
+                        canvas.drawRect(
+                            x.toFloat(),
+                            y.toFloat(),
+                            x + rectSize,
+                            y + rectSize,
+                            regionPaint
+                        )
                     }
                 }
             }
         }
     }
-    private fun drawSinglePoint(canvas: Canvas, x: Float, y: Float, clusterId: Int, radius: Float, paint: Paint) {
+
+    private fun drawSinglePoint(
+        canvas: Canvas,
+        x: Float,
+        y: Float,
+        clusterId: Int,
+        radius: Float,
+        paint: Paint
+    ) {
         if (clusterId == -1) return
         paint.color = clusterColors[clusterId % clusterColors.size]
         canvas.drawCircle(x, y, radius, paint)

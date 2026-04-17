@@ -56,8 +56,13 @@ class TrainingViewModel : ViewModel() {
 
                     if (counter % 10000 == 0 && counter > 0) {
                         val currentAcc = (trainCorrect.toFloat() / counter) * 100
-                        println("Эпоха: $epoch | Обработано: $counter/60000 | Точность: ${String.format(
-                            Locale.US, "%.2f", currentAcc)}%")
+                        println(
+                            "Эпоха: $epoch | Обработано: $counter/60000 | Точность: ${
+                                String.format(
+                                    Locale.US, "%.2f", currentAcc
+                                )
+                            }%"
+                        )
                     }
                 }
                 var testCorrect = 0
@@ -70,7 +75,15 @@ class TrainingViewModel : ViewModel() {
 
                 val testAcc = (testCorrect.toFloat() / testImages.size) * 100
                 println("Эпоха $epoch завершена")
-                println(" - точность обучения: ${String.format(Locale.US, "%.2f", (trainCorrect.toFloat() / trainImages.size) * 100)}%")
+                println(
+                    " - точность обучения: ${
+                        String.format(
+                            Locale.US,
+                            "%.2f",
+                            (trainCorrect.toFloat() / trainImages.size) * 100
+                        )
+                    }%"
+                )
                 println(" - точность на тесте: ${String.format(Locale.US, "%.2f", testAcc)}%")
 
                 if (testAcc > bestAccuracy) {
@@ -98,11 +111,11 @@ class TrainingViewModel : ViewModel() {
             val root = JSONObject()
 
             fun array1DToJson(array: FloatArray) = JSONArray().apply {
-                array.forEach { put(it.toDouble())}
+                array.forEach { put(it.toDouble()) }
             }
 
             fun array2DToJson(array: Array<FloatArray>) = JSONArray().apply {
-                array.forEach { row -> put(array1DToJson(row))}
+                array.forEach { row -> put(array1DToJson(row)) }
             }
 
             root.put("fc1.weight", array2DToJson(network.layer1.weights))
@@ -161,8 +174,9 @@ class TrainingViewModel : ViewModel() {
     private fun transformImage(
         input: FloatArray, size: Int,
         angle: Float, sx: Float,
-        sy: Float, zoom: Float)
-    : FloatArray {
+        sy: Float, zoom: Float
+    )
+            : FloatArray {
         val output = FloatArray(size * size)
         val rad = angle * (PI.toFloat() / 180f)
         val sin = sin(rad)

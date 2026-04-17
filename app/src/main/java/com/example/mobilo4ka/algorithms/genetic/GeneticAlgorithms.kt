@@ -2,6 +2,9 @@ package com.example.mobilo4ka.algorithms.genetic
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.astar.AStarAlgorithm
 import com.example.mobilo4ka.data.models.Building
 import com.example.mobilo4ka.data.models.GridMap
@@ -9,156 +12,252 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import java.time.LocalTime
+import java.time.format.DateTimeFormatterBuilder
+import kotlin.math.sqrt
 
 @RequiresApi(Build.VERSION_CODES.O)
 class GeneticAlgorithm(
     private val gridMap: GridMap,
     private val buildings: List<Building>,
     private val populationSize: Int = 80,
-    private val generations: Int = 50
+    private val generations: Int = 50,
+    private val speed: Double = 1.0
 ) {
+
     private val aStar = AStarAlgorithm()
     private val buildingMap = buildings.associateBy { it.id }
-    private val distanceCache = mutableMapOf<Pair<Pair<Int, Int>, Pair<Int, Int>>, Double>()
+
+    data class Gene(val productIndex: Int, val buildingId: Int)
 
     private fun isAnyBuilding(x: Int, y: Int): Boolean {
         return buildings.any { it.containsPoint(x, y) }
-    }
-
-    private fun isWalkable(x: Int, y: Int): Boolean {
-        return gridMap.isWalkable(x, y)
     }
 
     private fun getEntranceForBuilding(x: Int, y: Int): Pair<Int, Int>? {
         return buildings.find { it.containsPoint(x, y) }?.getFirstEntrance()
     }
 
-    suspend fun calculateRouteDistance(route: List<Int>, start: Pair<Int, Int>): Double {
-        var totalDist = 0.0
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun calculateFitness(route: List<Gene>, start: Pair<Int, Int>): Double {
+        val now = java.time.LocalTime.now()
+        val startMinutes = now.hour * 60 + now.minute
+
+        var currentTimeInMinutes = startMinutes.toDouble()
+        var penalty = 0.0
         var currentPos = start
 
-        route.forEach { id ->
-            val building = buildingMap[id] ?: return@forEach
-            val entrance = building.getFirstEntrance() ?: return@forEach
+        route.forEach { gene ->
+            val building = buildingMap[gene.buildingId] ?: return@forEach
+            val target = building.getFirstEntrance() ?: return@forEach
 
-            val key = Pair(currentPos, entrance)
-            val dist = distanceCache.getOrPut(key) {
-                val path = aStar.findPath(
-                    currentPos.first, currentPos.second,
-                    entrance.first, entrance.second,
-                    isWalkable = { x, y -> (x == entrance.first && y == entrance.second) || isWalkable(x, y) },
-                    isBuilding = { x, y -> isAnyBuilding(x, y) },
-                    getBuildingEntrance = { x, y -> buildings.find { it.containsPoint(x, y) }?.getFirstEntrance() }
-                )
-                if (path.isEmpty()) 100000.0 else path.size.toDouble()
+            val dx = (target.first - currentPos.first).toDouble()
+            val dy = (target.second - currentPos.second).toDouble()
+
+            val distance = sqrt(dx * dx + dy * dy)
+            val travelTime = distance / speed
+
+            currentTimeInMinutes += travelTime
+
+            val closeMinutes = parseTimeToMinutes(building.closeTime)
+
+            if (currentTimeInMinutes > closeMinutes) {
+                penalty += (currentTimeInMinutes - closeMinutes) * 1000.0
             }
-            totalDist += dist
-            currentPos = entrance
+
+            penalty += travelTime * 0.05
+
+            currentPos = target
         }
-        return totalDist
+
+        return currentTimeInMinutes + penalty
+    }
+
+    private fun mutateAdvanced(
+        route: List<Gene>,
+        options: List<List<Building>>
+    ): List<Gene> {
+        val mutated = route.toMutableList()
+
+        if (Math.random() < 0.5) {
+            val i = mutated.indices.random()
+            val productIdx = mutated[i].productIndex
+            mutated[i] = Gene(productIdx, options[productIdx].random().id)
+        } else {
+            val i = mutated.indices.random()
+            val j = mutated.indices.random()
+            mutated[i] = mutated[j].also { mutated[j] = mutated[i] }
+        }
+
+        return mutated
     }
 
     suspend fun evolve(
         products: List<String>,
         start: Pair<Int, Int>,
-        onStepFound: suspend (List<Pair<Int, Int>>) -> Unit
+        onStepFound: suspend (List<Pair<Int, Int>>, List<Int>) -> Unit
     ): List<Int> = withContext(Dispatchers.Default) {
 
         val optionsPerProduct = products.map { prod ->
-            buildings.filter { it.hasProduct(prod) }
+            buildings.filter { it.menu.contains(prod) }
         }
 
         if (optionsPerProduct.any { it.isEmpty() }) return@withContext emptyList()
 
         var population = List(populationSize) {
-            optionsPerProduct.map { it.random().id }
+            optionsPerProduct.mapIndexed { index, variants ->
+                Gene(index, variants.random().id)
+            }.shuffled()
         }
 
         var bestIndividual = population.first()
-        var minScore = calculateRouteDistance(bestIndividual, start)
 
-        repeat(generations) { generation ->
-            yield()
+        repeat(generations) { gen ->
 
-            val populationWithDistances = population.map { route ->
-                val distance = calculateRouteDistance(route, start)
-                route to distance
+            if (gen % 10 == 0) yield()
+
+            population = population.sortedBy { calculateFitness(it, start) }
+
+            if (calculateFitness(population.first(), start) <
+                calculateFitness(bestIndividual, start)
+            ) {
+                bestIndividual = population.first()
             }
 
-            val sortedPopulation = populationWithDistances
-                .sortedBy { it.second }
-                .map { it.first }
+            val nextGeneration = mutableListOf<List<Gene>>()
 
-            population = sortedPopulation
-
-            val currentBest = population.first()
-            val currentScore = calculateRouteDistance(currentBest, start)
-
-            if (currentScore < minScore) {
-                bestIndividual = currentBest
-                minScore = currentScore
-            }
-
-            val nextGeneration = mutableListOf<List<Int>>()
-            nextGeneration.addAll(population.take(10))
+            nextGeneration.addAll(population.take(populationSize / 5))
 
             while (nextGeneration.size < populationSize) {
-                val parent = population.take(20).random()
-                val mutated = if ((0..1).random() == 0) mutateOrder(parent) else mutateBuildingChoice(parent, optionsPerProduct)
-                nextGeneration.add(mutated)
+                val parent = population.take(populationSize / 2).random()
+                nextGeneration.add(mutateAdvanced(parent, optionsPerProduct))
             }
+
             population = nextGeneration
         }
 
-        val finalPath = buildFullPath(bestIndividual, start)
+        val bestRouteIds = bestIndividual.map { it.buildingId }.distinct()
+        val finalPath = buildFullPath(bestRouteIds, start)
 
         withContext(Dispatchers.Main) {
-            onStepFound(finalPath)
+            onStepFound(finalPath, bestRouteIds)
         }
 
-        return@withContext bestIndividual
+        return@withContext bestRouteIds
     }
 
-    private fun mutateOrder(route: List<Int>): List<Int> {
-        if (route.size < 2) return route
-        val mutated = route.toMutableList()
-        val i = mutated.indices.random()
-        val j = mutated.indices.random()
-        val temp = mutated[i]
-        mutated[i] = mutated[j]
-        mutated[j] = temp
-        return mutated
-    }
+    suspend fun buildFullPath(
+        routeIds: List<Int>,
+        start: Pair<Int, Int>
+    ): List<Pair<Int, Int>> {
 
-    private fun mutateBuildingChoice(route: List<Int>, options: List<List<Building>>): List<Int> {
-        val mutated = route.toMutableList()
-        val index = options.indices.random()
-        mutated[index] = options[index].random().id
-        return mutated
-    }
-
-    suspend fun buildFullPath(routeIds: List<Int>, start: Pair<Int, Int>): List<Pair<Int, Int>> {
         val fullPath = mutableListOf<Pair<Int, Int>>()
         var currentPos = start
+        var lastBuildingId: Int? = null
 
         routeIds.forEach { id ->
             yield()
-            val building = buildingMap[id]
-            val target = building?.getFirstEntrance()
-                ?: building?.pixels?.firstOrNull()?.let { Pair(it[0], it[1]) }
-                ?: return@forEach
+
+            val currentBuilding = buildingMap[id] ?: return@forEach
+            val targetEntrance = currentBuilding.getFirstEntrance() ?: return@forEach
+            val fromBuilding = lastBuildingId?.let { buildingMap[it] }
 
             val segment = aStar.findPath(
-                currentPos.first, currentPos.second,
-                target.first, target.second,
-                isWalkable = { x, y -> (x == target.first && y == target.second) || isWalkable(x, y) },
-                isBuilding = { x, y -> isAnyBuilding(x, y) },
-                getBuildingEntrance = { x, y -> buildings.find { it.containsPoint(x, y) }?.getFirstEntrance() }
+                startX = currentPos.first,
+                startY = currentPos.second,
+                targetX = targetEntrance.first,
+                targetY = targetEntrance.second,
+                isWalkable = { x, y ->
+                    gridMap.isWalkable(x, y) ||
+                            fromBuilding?.containsPoint(x, y) == true ||
+                            currentBuilding.containsPoint(x, y)
+                },
+                isBuilding = { x, y ->
+                    val isCurrentOrTarget =
+                        fromBuilding?.containsPoint(x, y) == true ||
+                                currentBuilding.containsPoint(x, y)
+
+                    isAnyBuilding(x, y) && !isCurrentOrTarget
+                },
+                getBuildingEntrance = { x, y ->
+                    getEntranceForBuilding(x, y)
+                }
             )
 
-            fullPath.addAll(segment)
-            if (segment.isNotEmpty()) currentPos = segment.last()
+            if (segment.isEmpty()) return emptyList()
+
+            val filtered = if (fullPath.isNotEmpty() &&
+                segment.first() == fullPath.last()
+            ) segment.drop(1) else segment
+
+            fullPath.addAll(filtered)
+
+            currentPos = targetEntrance
+            lastBuildingId = id
         }
+
         return fullPath
     }
+}
+@RequiresApi(Build.VERSION_CODES.O)
+fun parseTimeToMinutes(timeStr: String?): Int {
+    if (timeStr.isNullOrBlank()) return 1440
+
+    return try {
+        val cleaned = timeStr
+            .replace("\u00A0", " ")
+            .trim()
+
+        val formatters = listOf(
+            java.time.format.DateTimeFormatter.ofPattern("HH:mm"),
+            java.time.format.DateTimeFormatter.ofPattern("H:mm"),
+            java.time.format.DateTimeFormatter.ofPattern("hh:mm a", java.util.Locale.US),
+            java.time.format.DateTimeFormatter.ofPattern("h:mm a", java.util.Locale.US)
+        )
+
+        var time: java.time.LocalTime? = null
+
+        for (formatter in formatters) {
+            try {
+                time = java.time.LocalTime.parse(cleaned, formatter)
+                break
+            } catch (_: Exception) {
+            }
+        }
+
+        if (time != null) {
+            time.hour * 60 + time.minute
+        } else {
+            android.util.Log.e("TimeParse", "Failed to parse: '$timeStr'")
+            1440
+        }
+
+    } catch (e: Exception) {
+        android.util.Log.e("TimeParse", "Failed to parse: '$timeStr'")
+        1440
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun formatToString(timeString: String?): String {
+    if (timeString.isNullOrBlank()) return ""
+
+    val totalMinutes = parseTimeToMinutes(timeString)
+
+    if (totalMinutes == 1440 && timeString != "1440") {
+    }
+
+    val hours = (totalMinutes / 60) % 24
+    val minutes = totalMinutes % 60
+
+    return stringResource(id = R.string.time_format, hours, minutes)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun formatTimeToMinutes(totalMinutes: Int): String {
+    val hours = (totalMinutes / 60) % 24
+    val minutes = totalMinutes % 60
+
+    return stringResource(id = R.string.time_format, hours, minutes)
 }

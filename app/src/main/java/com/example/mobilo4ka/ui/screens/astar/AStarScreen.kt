@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,16 +31,19 @@ import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
 import com.example.mobilo4ka.ui.theme.Dimens
 import androidx.compose.ui.res.stringResource
+import com.example.mobilo4ka.ui.map.MapDataViewModel
 
 @Composable
 fun AStarScreen(
     gridData: GridMap,
     buildingsData: List<Building>,
     zonesData: Map<String, List<List<Int>>>,
-    mapViewModel: MapViewModel = viewModel()
+    mapViewModel: MapViewModel = viewModel(),
+    mapDataViewModel: MapDataViewModel,
+    onNavigateToNeural: (Building) -> Unit
 ) {
     var selectedBuilding by remember { mutableStateOf<Building?>(null) }
-    val context = LocalContext.current
+    val currentRating = mapDataViewModel.ratings[selectedBuilding?.id.toString()]
 
     SetStatusBarColor(false)
     Box(
@@ -88,14 +90,21 @@ fun AStarScreen(
                         setupInitialView()
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(paddingValues)
             )
         }
         if (selectedBuilding != null) {
             BuildingBottomSheet(
                 building = selectedBuilding!!,
-                onDismiss = { selectedBuilding = null }
+                rating = currentRating,
+                onDismiss = { selectedBuilding = null },
+                onLeaveReviewClick = {
+                    val buildingToRate = selectedBuilding!!
+                    selectedBuilding = null
+                    onNavigateToNeural(buildingToRate)
+                }
             )
         }
     }

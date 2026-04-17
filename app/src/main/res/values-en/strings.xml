@@ -1,0 +1,83 @@
+<resources>
+    <string name="app_name">Campus</string>
+
+    <string name="header_title">Campus services</string>
+    <string name="language_button">Русская версия</string>
+
+    <string name="algo_astar">Build route</string>
+    <string name="algo_clustering">Cafes, canteens and shops</string>
+    <string name="algo_genetic">Route through establishments</string>
+    <string name="algo_ants">Coworking spaces</string>
+    <string name="algo_tree">Where to eat</string>
+    <string name="algo_neural">Rate place</string>
+
+    <string name="tsu_logo">TSU logo</string>
+
+    <string name="menu_open">Open menu</string>
+    <string name="menu_close">Close menu</string>
+
+    <string name="error_file">File upload error: </string>
+    <string name="type_table">Which table do you want to use?</string>
+    <string name="again_button">Retake the survey</string>
+    <string name="download_file">Click the + button in the top right corner to upload your table</string>
+    <string name="base_table">Built-in CSV</string>
+    <string name="input_table">Upload CSV</string>
+    <string name="recommended_places">Recommended places: </string>
+    <string name="tree_structure">View the tree structure</string>
+    <string name="structure">Interactive structure</string>
+    <string name="root_tree">The root of the tree</string>
+    <string name="not_found_tree">Tree not found</string>
+    <string name="question">Question: </string>
+    <string name="result">Result: </string>
+    <string name="answer">Answer: </string>
+
+    <string name="neural_button_recognize">Recognize</string>
+    <string name="neural_button_clear">Clear</string>
+    <string name="neural_button_train">Train</string>
+    <string name="draw_number">Draw number</string>
+    <string name="rating">Rating: %1$d</string>
+
+    <string name="clustering_settings">Clustering Settings</string>
+    <string name="close_settings">Close</string>
+    <string name="clusters_count">Number of clusters: %d</string>
+    <string name="mode_euclidean">Euclidean</string>
+    <string name="mode_astar">A*</string>
+    <string name="mode_comparison">Compare</string>
+    <string name="legend_euclidean">- Euclidean</string>
+    <string name="legend_astar">- A*</string>
+    <string name="calculate_clusters">Calculate</string>
+
+    <string name="products">Products</string>
+    <string name="apply">Apply</string>
+    <string name="show_route">Show current route</string>
+    <string name="select_point">Select a point on the map</string>
+    <string name="select_products">Select products in the menu ☰</string>
+    <string name="plan_rout">Plan route</string>
+    <string name="rout">Your route</string>
+    <string name="total_time">Total time: </string>
+    <string name="shop">Buy: </string>
+    <string name="arrival_open">You will make it (arrival at </string>
+    <string name="arrival_close">You will not make it (arrival at </string>
+    <string name="open">Open until</string>
+    <string name="close">Closed at this time</string>
+    <string name="arrival">Arrival</string>
+    <string name="opening_hours">Opening hours not specified</string>
+    <string name="start">Start: </string>
+
+    <string name="building">Place</string>
+    <string name="work">🕒 Working hours:</string>
+    <string name="menu">Menu: </string>
+
+    <string name="no_way">There is no way</string>
+    <string name="time_format">%1$dh %2$dm</string>
+
+    <string name="rate_place">Rate place</string>
+    <string name="no_ratings">There are no ratings</string>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="confirm">Rating: %1$d. Rate this place?</string>
+    <string name="landmark_count">Landmarks selected</string>
+    <string name="trow_off">Trow off</string>
+    <string name="set_route">Set a route</string>
+</resources>

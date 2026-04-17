@@ -13,18 +13,22 @@ import kotlinx.coroutines.launch
 
 data class NeuralUIState(
     val cellStates: List<Boolean> = List(2500) { false },
-    val resultText: String = ""
+    val resultText: String = "",
+    val predictedDigit: Int = -1
 )
 
-class NeuralViewModel (context: Context): ViewModel() {
-    private val _state = MutableStateFlow(NeuralUIState(
-        resultText = context.getString(R.string.draw_number)
-    ))
+class NeuralViewModel(context: Context) : ViewModel() {
+    private val _state = MutableStateFlow(
+        NeuralUIState(
+            resultText = context.getString(R.string.draw_number)
+        )
+    )
     val state: StateFlow<NeuralUIState> = _state
 
     private var network: NeuralNetwork? = null
-    init{
-        viewModelScope.launch(Dispatchers.IO){
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
             network = ModelLoader.load(context)
         }
     }
@@ -45,8 +49,9 @@ class NeuralViewModel (context: Context): ViewModel() {
 
     fun clear(context: Context) {
         _state.value = _state.value.copy(
-            cellStates = List(2500) {false},
-            resultText = context.getString(R.string.draw_number)
+            cellStates = List(2500) { false },
+            resultText = context.getString(R.string.draw_number),
+            predictedDigit = -1
         )
     }
 
@@ -67,7 +72,8 @@ class NeuralViewModel (context: Context): ViewModel() {
         val predictDigit = result.indices.maxByOrNull { result[it] } ?: -1
 
         _state.value = _state.value.copy(
-            resultText = context.getString(R.string.rating, predictDigit)
+            resultText = context.getString(R.string.rating, predictDigit),
+            predictedDigit = predictDigit
         )
     }
 }

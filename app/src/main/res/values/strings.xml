@@ -1,14 +1,14 @@
 <resources>
-    <string name="app_name">Кампус ТГУ</string>
+    <string name="app_name">Campus</string>
 
     <string name="header_title">Сервисы кампуса</string>
     <string name="language_button">English version</string>
 
-    <string name="algo_astar">Построить маршрут (А*)</string>
-    <string name="algo_clustering">Кафе, столовые и магазины (Clustering)</string>
-    <string name="algo_genetic">Маршрут по заведениям (Genetic)</string>
-    <string name="algo_ants">Коворкинги (Ants)</string>
-    <string name="algo_tree">Где поесть (Tree)</string>
+    <string name="algo_astar">Построить маршрут</string>
+    <string name="algo_clustering">Кафе, столовые и магазины</string>
+    <string name="algo_genetic">Маршрут по заведениям</string>
+    <string name="algo_ants">Коворкинги</string>
+    <string name="algo_tree">Где поесть</string>
     <string name="algo_neural">Оценить заведение</string>
 
     <string name="tsu_logo">Логотип ТГУ</string>
@@ -17,11 +17,11 @@
     <string name="menu_close">Закрыть меню</string>
 
     <string name="error_file">"Ошибка загрузки файла: "</string>
-    <string name="again_button">Пройти опрос заново</string>
     <string name="type_table">Какую таблицу вы хотите использовать?</string>
+    <string name="again_button">Пройти опрос заново</string>
+    <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
     <string name="base_table">Встроенная CSV</string>
     <string name="input_table">Загрузить CSV</string>
-    <string name="download_file">Нажмите на кнопку + в правом верхнем углу, чтобы загрузить свою таблицу</string>
 
     <string name="neural_button_recognize">Распознать</string>
     <string name="neural_button_clear">Стереть</string>
@@ -38,12 +38,45 @@
     <string name="legend_euclidean">- Евклид</string>
     <string name="legend_astar">- A*</string>
     <string name="calculate_clusters">Рассчитать</string>
-    <string name="recommended_places">Рекомендованные места: </string>
-    <string name="output_tree">Путь прохождения: </string>
+    <string name="recommended_places">Рекомендованное место: </string>
+    <string name="tree_structure">Посмотреть структуру дерева</string>
+    <string name="structure">Интерактивная структура</string>
+    <string name="root_tree">Корень дерева</string>
+    <string name="not_found_tree">Дерево не найдено</string>
+    <string name="question">Вопрос: </string>
+    <string name="result">Результат: </string>
+    <string name="answer">Ответ: </string>
+
+    <string name="products">Продукты</string>
+    <string name="apply">Применить</string>
+    <string name="show_route">Показать текущий маршрут</string>
+    <string name="select_point">Выберите точку на карте</string>
+    <string name="select_products">Выберите товары в меню ☰</string>
+    <string name="plan_rout">Построить маршрут</string>
+    <string name="rout">Ваш маршрут</string>
+    <string name="total_time">Общее время: </string>
+    <string name="shop">Купить: </string>
+    <string name="arrival_open">Успеете (прибытие в </string>
+    <string name="arrival_close">Не успеете (прибытие в </string>
+    <string name="open">Открыто до</string>
+    <string name="close">Закрыто в это время</string>
+    <string name="arrival">Прибытие</string>
+    <string name="opening_hours">Часы работы не указаны</string>
+    <string name="start">Начало: </string>
 
     <string name="building">Заведение</string>
     <string name="work">🕒 Работает:</string>
     <string name="menu">Меню: </string>
+
+    <string name="no_way">Пути не существует</string>
+    <string name="time_format">%1$d ч. %2$d мин.</string>
+
+    <string name="rate_place">Оставить оценку</string>
+    <string name="no_ratings">Нет оценок</string>
+
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="confirm">Оценка: %1$d. Оценить заведение?</string>
 
     <string name="landmark_count">Выбрано достопримечательностей: </string>
     <string name="trow_off">Сбросить</string>

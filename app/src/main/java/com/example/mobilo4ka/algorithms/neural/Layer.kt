@@ -4,17 +4,17 @@ class Layer(
     val weights: Array<FloatArray>,
     val bias: FloatArray,
     private val useRelu: Boolean = true
-){
+) {
     private var lastInput = FloatArray(0)
     private var lastZ = FloatArray(0)
-    fun forward(input: FloatArray): FloatArray{
+    fun forward(input: FloatArray): FloatArray {
         lastInput = input.copyOf()
         val output = FloatArray(bias.size)
         lastZ = FloatArray(bias.size)
 
-        for (i in weights.indices){
+        for (i in weights.indices) {
             var sum = bias[i]
-            for (j in input.indices){
+            for (j in input.indices) {
                 sum += weights[i][j] * input[j]
             }
             lastZ[i] = sum
@@ -26,7 +26,7 @@ class Layer(
     fun backward(gradientOutput: FloatArray, learningRate: Float): FloatArray {
         val gradientInput = FloatArray(lastInput.size)
 
-        for (i in weights.indices){
+        for (i in weights.indices) {
             val derivative = if (useRelu) reluDerivative(lastZ[i]) else 1f
             val delta = gradientOutput[i] * derivative
 
