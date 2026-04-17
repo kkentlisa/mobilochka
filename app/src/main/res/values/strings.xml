@@ -44,4 +44,8 @@
     <string name="building">Заведение</string>
     <string name="work">🕒 Работает:</string>
     <string name="menu">Меню: </string>
+
+    <string name="landmark_count">Выбрано достопримечательностей: </string>
+    <string name="trow_off">Сбросить</string>
+    <string name="set_route">Построить маршрут</string>
 </resources>
