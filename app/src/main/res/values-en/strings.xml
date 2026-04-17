@@ -7,7 +7,7 @@
     <string name="algo_astar">Build route</string>
     <string name="algo_clustering">Cafes, canteens and shops</string>
     <string name="algo_genetic">Route through establishments</string>
-    <string name="algo_ants">Coworking spaces</string>
+    <string name="algo_ants">Landmarks</string>
     <string name="algo_tree">Where to eat</string>
     <string name="algo_neural">Rate place</string>
 
@@ -62,7 +62,7 @@
     <string name="close">Closed at this time</string>
     <string name="arrival">Arrival</string>
     <string name="opening_hours">Opening hours not specified</string>
-    <string name="start">Start: </string>
+    <string name="start">"Start "</string>
 
     <string name="building">Place</string>
     <string name="work">🕒 Working hours:</string>
@@ -81,4 +81,15 @@
     <string name="landmark_count">Landmarks selected</string>
     <string name="trow_off">Trow off</string>
     <string name="set_route">Set a route</string>
+    <string name="location_determined">The location is determined</string>
+    <string name="location_not_determined">Couldn\'t determine location</string>
+    <string name="permission">You need permission to determine your location</string>
+    <string name="permission_again">Allow location and click the button again</string>
+    <string name="using_location">Use the current location as</string>
+    <string name="choose">Choose where to set the point</string>
+    <string name="start_point">The starting point is set</string>
+    <string name="start_button">Start</string>
+    <string name="first_start">First, set the starting point</string>
+    <string name="finish_point">The end point is set, the path is being built</string>
+    <string name="finish_button">Finish</string>
 </resources>

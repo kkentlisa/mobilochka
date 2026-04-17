@@ -140,7 +140,9 @@ class GeneticAlgorithm(
 
         return@withContext bestRouteIds
     }
-
+    private fun getBuildingPixels(x: Int, y: Int): Set<Pair<Int, Int>>? {
+        return buildings.find { it.containsPoint(x, y) }?.pixels?.map { it[0] to it[1] }?.toSet()
+    }
     suspend fun buildFullPath(
         routeIds: List<Int>,
         start: Pair<Int, Int>
@@ -176,7 +178,8 @@ class GeneticAlgorithm(
                 },
                 getBuildingEntrance = { x, y ->
                     getEntranceForBuilding(x, y)
-                }
+                },
+                getBuildingPixels = ::getBuildingPixels
             )
 
             if (segment.isEmpty()) return emptyList()

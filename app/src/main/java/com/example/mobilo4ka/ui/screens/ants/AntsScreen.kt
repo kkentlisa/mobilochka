@@ -1,5 +1,10 @@
 package com.example.mobilo4ka.ui.screens.ants
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -7,9 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
 import com.example.mobilo4ka.R
 import com.example.mobilo4ka.algorithms.ant.AntAlgorithm
 import com.example.mobilo4ka.algorithms.ant.MatrixBuilder
@@ -19,6 +26,8 @@ import com.example.mobilo4ka.data.models.GridMap
 import com.example.mobilo4ka.data.models.LandmarkRepository
 import com.example.mobilo4ka.ui.map.MapView
 import com.example.mobilo4ka.ui.system.SetStatusBarColor
+import com.example.mobilo4ka.utils.LocationCalibration
+import com.example.mobilo4ka.utils.LocationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +41,8 @@ fun AntsScreen(
     SetStatusBarColor(true)
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val locationHelper = remember { LocationHelper(context) }
 
     var selectedPoints by remember { mutableStateOf(setOf<Pair<Int, Int>>()) }
     var startPoint by remember { mutableStateOf<Pair<Int, Int>?>(null) }
@@ -57,6 +68,7 @@ fun AntsScreen(
         val set = mutableSetOf<Pair<Int, Int>>()
         zonesData["asphalt"]?.forEach { set.add(Pair(it[0], it[1])) }
         zonesData["path"]?.forEach { set.add(Pair(it[0], it[1])) }
+        zonesData["roadCar"]?.forEach { set.add(Pair(it[0], it[1])) }
         set
     }
 
@@ -68,6 +80,43 @@ fun AntsScreen(
             }
         }
         set
+    }
+
+    fun fetchLocationAndSetStart() {
+        scope.launch(Dispatchers.IO) {
+            val location = locationHelper.getCurrentLocation()
+            withContext(Dispatchers.Main) {
+                if (location != null) {
+                    val pixel = LocationCalibration.gpsToPixel(location.latitude, location.longitude)
+                    startPoint = pixel
+                    calculatedRoute = emptyList()
+                    Toast.makeText(context, context.getString(R.string.location_determined), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, context.getString(R.string.location_not_determined), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+            fetchLocationAndSetStart()
+        } else {
+            Toast.makeText(context, context.getString(R.string.permission), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val hasFine = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val hasCoarse = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (hasFine || hasCoarse) {
+            fetchLocationAndSetStart()
+        } else {
+            permissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        }
     }
 
     Box(
@@ -158,7 +207,6 @@ fun AntsScreen(
                     Button(
                         onClick = {
                             selectedPoints = emptySet()
-                            startPoint = null
                             calculatedRoute = emptyList()
                         },
                         enabled = !isCalculating && selectedPoints.isNotEmpty()
@@ -168,7 +216,7 @@ fun AntsScreen(
 
                     Button(
                         onClick = {
-                            if (selectedPoints.size < 2 || startPoint == null) return@Button
+                            if (selectedPoints.isEmpty() || startPoint == null) return@Button
                             isCalculating = true
 
                             scope.launch(Dispatchers.Default) {
@@ -180,6 +228,9 @@ fun AntsScreen(
                                     isBuilding = { x, y -> buildingPixelsSet.contains(Pair(x, y)) },
                                     getBuildingEntrance = { x, y ->
                                         buildingsData.find { it.containsPoint(x, y) }?.getFirstEntrance()
+                                    },
+                                    getBuildingPixels = { x, y ->
+                                        buildingsData.find { it.containsPoint(x, y) }?.pixels?.map { Pair(it[0], it[1]) }?.toSet()
                                     }
                                 )
 

@@ -7,7 +7,7 @@
     <string name="algo_astar">Построить маршрут</string>
     <string name="algo_clustering">Кафе, столовые и магазины</string>
     <string name="algo_genetic">Маршрут по заведениям</string>
-    <string name="algo_ants">Коворкинги</string>
+    <string name="algo_ants">Достопримечательности</string>
     <string name="algo_tree">Где поесть</string>
     <string name="algo_neural">Оценить заведение</string>
 
@@ -82,4 +82,16 @@
     <string name="landmark_count">Выбрано достопримечательностей: </string>
     <string name="trow_off">Сбросить</string>
     <string name="set_route">Построить маршрут</string>
+
+    <string name="location_determined">Местоположение определено</string>
+    <string name="location_not_determined">Не удалось определить местоположение</string>
+    <string name="permission">Нужно разрешение для определения местоположения</string>
+    <string name="permission_again">Разрешите местоположение и нажмите кнопку ещё раз</string>
+    <string name="using_location">Использовать текущее местоположение как</string>
+    <string name="choose">Выберите, куда установить точку</string>
+    <string name="start_point">Стартовая точка установлена</string>
+    <string name="start_button">Старт</string>
+    <string name="first_start">Сначала установите стартовую точку</string>
+    <string name="finish_point">Конечная точка установлена, путь строится</string>
+    <string name="finish_button">Финиш</string>
 </resources>

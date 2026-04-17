@@ -107,7 +107,8 @@ class AStarAlgorithm {
         targetX: Int, targetY: Int,
         isWalkable: (Int, Int) -> Boolean,
         isBuilding: (Int, Int) -> Boolean,
-        getBuildingEntrance: (Int, Int) -> Pair<Int, Int>? = { _, _ -> null }
+        getBuildingEntrance: (Int, Int) -> Pair<Int, Int>? = { _, _ -> null },
+        getBuildingPixels: (Int, Int) -> Set<Pair<Int, Int>>?
     ): List<Pair<Int, Int>> {
 
         val fullStartPath = resolveTerminalPath(startX, startY, isWalkable, isBuilding, getBuildingEntrance)
